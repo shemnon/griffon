@@ -22,9 +22,12 @@ behalf of the Groovy community. See the NOTICE.txt file distributed with this wo
     <property file="local.build.properties"/>
     <property file="build.properties"/>
     <property environment="env"/>
+    <property name="groovy.home" value="${env.GROOVY_HOME}"/>
+    <property name="java.home" value="${env.JAVA_HOME}"/>
+
 
     <path id="lib.groovy">
-        <fileset dir="${env.GROOVY_HOME}/lib">
+        <fileset dir="${groovy.home}/lib">
             <include name="**/*.jar"/>
         </fileset>
     </path>
@@ -32,7 +35,7 @@ behalf of the Groovy community. See the NOTICE.txt file distributed with this wo
         <fileset dir="${griffon.lib}">
             <include name="**/*.jar"/>
         </fileset>
-        <fileset dir="${env.JAVA_HOME}">
+        <fileset dir="${java.home}">
             <include name="lib/tools.jar"/>
         </fileset>
         <path refid="lib.groovy"/>
