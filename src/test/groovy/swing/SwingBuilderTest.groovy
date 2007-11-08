@@ -908,7 +908,7 @@ class SwingBuilderTest extends GroovyTestCase {
                 swing.frame {
                     swing."$name"(icon)
                 }
-	    }
+	        }
         }
 
          // elements take their own type as a value argument or a stringa s a text property
