@@ -18,10 +18,10 @@ package groovy.swing.factory
 import groovy.swing.binding.AbstractButtonProperties
 import groovy.swing.binding.JSliderProperties
 import groovy.swing.binding.JTextComponentProperties
-
-import java.util.Map.Entry;
-
+import java.util.Map.Entry
 import org.codehaus.groovy.binding.*
+
+
 
 /**
  * @author <a href="mailto:shemnon@yahoo.com">Danno Ferrin</a>
@@ -30,7 +30,7 @@ import org.codehaus.groovy.binding.*
  */
 public class BindFactory extends AbstractFactory {
 
-    final Map/*<String, TriggerBinding*/ syntheticBindings;
+    final Map<String, TriggerBinding> syntheticBindings;
 
     public BindFactory() {
         syntheticBindings = new HashMap();
