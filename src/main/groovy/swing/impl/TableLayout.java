@@ -19,7 +19,6 @@ import java.awt.Component;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
-import java.awt.LayoutManager;
 
 import javax.swing.JPanel;
 
@@ -29,20 +28,24 @@ import javax.swing.JPanel;
  * @author <a href="mailto:james@coredevelopers.net">James Strachan</a>
  * @version $Revision: 6778 $
  */
-public class TableLayout implements ComponentFacade {
+public class TableLayout extends JPanel {
 
-    private JPanel panel = new JPanel();
     private int rowCount;
     private int cellpadding;
 
     public TableLayout() {
-        panel.setLayout(createLayoutManager());
+        setLayout(new GridBagLayout());
     }
 
+    /**
+     * @deprecated Simply returns this
+     * @return this
+     */
     public Component getComponent() {
-        return panel;
+        Thread.dumpStack();
+        return this;
     }
-    
+
     public int getCellpadding() {
         return cellpadding;
     }
@@ -53,27 +56,20 @@ public class TableLayout implements ComponentFacade {
 
     /**
      * Adds a new cell to the current grid
+     * @param cell the td component
      */
     public void addCell(TableLayoutCell cell) {
         GridBagConstraints constraints = cell.getConstraints();
         constraints.insets = new Insets(cellpadding, cellpadding, cellpadding, cellpadding);
-        panel.add(cell.getComponent(), constraints);
+        add(cell.getComponent(), constraints);
     }
 
     /**
-     * Creates a new row index for child <tr> tags 
+     * Creates a new row index for child <tr> tags
+     * @return nextRowIndex the row number 
      */
     public int nextRowIndex() {
         return rowCount++;
     }
 
-    // Implementation methods
-    //-------------------------------------------------------------------------                    
-
-    /**
-     * Creates a GridBagLayout
-     */
-    protected LayoutManager createLayoutManager() {
-        return new GridBagLayout();
-    }
 }

@@ -22,6 +22,9 @@ import java.awt.Component;
  *
  * @author <a href="mailto:james@coredevelopers.net">James Strachan</a>
  * @version $Revision: 6778 $
+ * @deprecated This interface is no longer used internally and there
+ * exists no equivilant functionality
+ * Superceded by FactoryBuilderSupport handling.
  */
 public interface ComponentFacade {
     Component getComponent();

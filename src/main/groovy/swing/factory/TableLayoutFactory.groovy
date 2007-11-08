@@ -34,7 +34,7 @@ public class TableLayoutFactory extends AbstractFactory {
 
     public void setParent(FactoryBuilderSupport builder, Object parent, Object child) {
         if (builder.getParentFactory()) {
-            builder.getParentFactory().setChild (builder, parent, child.getComponent());
+            builder.getParentFactory().setChild (builder, parent, child);
         }
     }
 }
@@ -52,7 +52,7 @@ public class TRFactory extends AbstractFactory {
     }
 
     public void onNodeCompleted(FactoryBuilderSupport builder, Object parent, Object node) {
-        node.start()
+        node.addComponentsForRow()
     }
 }
 
