@@ -92,7 +92,7 @@ behalf of the Groovy community. See the NOTICE.txt file distributed with this wo
     </target>
 
     <target name="test" depends="compile-tests,jar" description="Run all the tests in the build.">
-        <junit printsummary='yes'>
+        <junit printsummary='yes' failureproperty='junit.failed'>
             <formatter type='plain'/>
             <formatter type='xml'/>
 
@@ -105,6 +105,8 @@ behalf of the Groovy community. See the NOTICE.txt file distributed with this wo
                 <path refid="build.classpath"/>
             </classpath>
         </junit>
+
+        <fail if="junit.failed"/>
     </target>
 
     <target name="jar" depends="compile" description="Create a distribution of the project">

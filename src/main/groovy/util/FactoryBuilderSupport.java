@@ -16,13 +16,7 @@
 
 package groovy.util;
 
-import groovy.lang.Binding;
-import groovy.lang.Closure;
-import groovy.lang.DelegatingMetaClass;
-import groovy.lang.GroovyClassLoader;
-import groovy.lang.MetaClass;
-import groovy.lang.MissingMethodException;
-import groovy.lang.Script;
+import groovy.lang.*;
 
 import org.codehaus.groovy.runtime.InvokerHelper;
 
@@ -49,6 +43,8 @@ public abstract class FactoryBuilderSupport extends Binding {
     public static final String CURRENT_NODE = "_CURRENT_NODE_";
     public static final String PARENT_CONTEXT = "_PARENT_CONTEXT_";
     public static final String OWNER = "owner";
+    public static final String PARENT_BUILDER = "_PARENT_BUILDER_";
+    public static final String CURRENT_BUILDER = "_CURRENT_BUILDER_";
     private static final Logger LOG = Logger.getLogger( FactoryBuilderSupport.class.getName() );
 
     /**
@@ -124,6 +120,62 @@ public abstract class FactoryBuilderSupport extends Binding {
     public FactoryBuilderSupport( Closure nameMappingClosure ) {
         this.nameMappingClosure = nameMappingClosure;
         this.proxyBuilder = this;
+    }
+
+    /**
+     * @param name the name of the variable to lookup
+     * @return the variable value
+     */
+    public Object getVariable(String name) {
+        return proxyBuilder.doGetVariable(name);
+    }
+
+    private Object doGetVariable(String name) {
+        return super.getVariable(name);
+    }
+
+    /**
+     * Sets the value of the given variable
+     *
+     * @param name  the name of the variable to set
+     * @param value the new value for the given variable
+     */
+    public void setVariable(String name, Object value) {
+        proxyBuilder.doSetVariable(name, value);
+    }
+
+    private void doSetVariable(String name, Object value) {
+        super.setVariable(name, value);
+    }
+
+    public Map getVariables() {
+        return proxyBuilder.doGetVariables();
+    }
+
+    private Map doGetVariables() {
+        return super.getVariables();
+    }
+
+    /**
+     * Overloaded to make variables appear as bean properties or via the subscript operator
+     */
+    public Object getProperty(String property) {
+        return proxyBuilder.doGetProperty(property);
+    }
+
+    private Object doGetProperty(String property) {
+        return super.getProperty(property);
+    }
+
+    /**
+     * Overloaded to make variables appear as bean properties or via the subscript operator
+     */
+    public void setProperty(String property, Object newValue) {
+        proxyBuilder.doSetProperty(property, newValue);
+    }
+
+    private void doSetProperty(String property, Object newValue) {
+        super.setProperty(property, newValue);
     }
 
     /**
@@ -205,7 +257,7 @@ public abstract class FactoryBuilderSupport extends Binding {
      * @param methodName the name of the method to invoke
      */
     public Object invokeMethod( String methodName ) {
-        return proxyBuilder.invokeMethod( methodName, null );
+        return invokeMethod( methodName, null );
     }
 
     public Object invokeMethod( String methodName, Object args ) {
@@ -392,6 +444,10 @@ public abstract class FactoryBuilderSupport extends Binding {
      * @return the Factory associated with name.<br>
      */
     protected Factory resolveFactory( Object name, Map attributes, Object value ) {
+        proxyBuilder.getContext().put( CURRENT_BUILDER, proxyBuilder);
+        if (proxyBuilder.getParentContext() != null) {
+            proxyBuilder.getContext().put( PARENT_BUILDER, proxyBuilder.getParentContext().get(CURRENT_BUILDER));
+        }
         return proxyBuilder.factories.get( name );
     }
 
@@ -523,7 +579,7 @@ public abstract class FactoryBuilderSupport extends Binding {
      * @param methodName the name of the desired method
      * @return the object representing the name
      */
-    protected Object getName( String methodName ) {
+    public Object getName( String methodName ) {
         if( proxyBuilder.nameMappingClosure != null ){
             return proxyBuilder.nameMappingClosure.call( methodName );
         }
