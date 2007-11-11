@@ -229,6 +229,28 @@ public abstract class FactoryBuilderSupport extends Binding {
     }
 
     /**
+     * @return the factory that built the current node.
+     */
+    public FactoryBuilderSupport getCurrentBuilder() {
+        if( !proxyBuilder.contexts.isEmpty() ){
+            Map context = proxyBuilder.contexts.getFirst();
+            return (FactoryBuilderSupport) context.get( CURRENT_BUILDER );
+        }
+        return null;
+    }
+
+    /**
+     * @return the factory of the parent of the current node.
+     */
+    public FactoryBuilderSupport getParentBuilder() {
+        if( !proxyBuilder.contexts.isEmpty() ){
+            Map context = proxyBuilder.contexts.getFirst();
+            return (FactoryBuilderSupport) context.get( PARENT_BUILDER );
+        }
+        return null;
+    }
+
+    /**
      * @return the parent of the current node.
      */
     public Object getParentNode() {
@@ -416,7 +438,7 @@ public abstract class FactoryBuilderSupport extends Binding {
         proxyBuilder.getContext().put( CURRENT_FACTORY, factory );
         proxyBuilder.preInstantiate( name, attributes, value );
         try{
-            node = factory.newInstance( this, name, value, attributes );
+            node = factory.newInstance( proxyBuilder.getCurrentBuilder(), name, value, attributes );
             if( node == null ){
                 LOG.log( Level.WARNING, "Factory for name '" + name + "' returned null" );
                 return null;
@@ -613,7 +635,7 @@ public abstract class FactoryBuilderSupport extends Binding {
             ((Closure) iter.next()).call( new Object[] { this, node, attributes } );
         }
 
-        if( proxyBuilder.getCurrentFactory().onHandleNodeAttributes( this, node, attributes ) ){
+        if( proxyBuilder.getCurrentFactory().onHandleNodeAttributes( proxyBuilder.getCurrentBuilder(), node, attributes ) ){
             proxyBuilder.setNodeAttributes( node, attributes );
         }
     }
@@ -633,7 +655,7 @@ public abstract class FactoryBuilderSupport extends Binding {
      * @param parent the parent of the node being processed
      */
     protected void nodeCompleted( Object parent, Object node ) {
-        proxyBuilder.getCurrentFactory().onNodeCompleted( this, parent, node );
+        proxyBuilder.getCurrentFactory().onNodeCompleted( proxyBuilder.getCurrentBuilder(), parent, node );
     }
 
     /**
@@ -740,10 +762,10 @@ public abstract class FactoryBuilderSupport extends Binding {
      * @param child the object from the child node
      */
     protected void setParent( Object parent, Object child ) {
-        proxyBuilder.getCurrentFactory().setParent( this, parent, child );
+        proxyBuilder.getCurrentFactory().setParent( proxyBuilder.getCurrentBuilder(), parent, child );
         Factory parentFactory = proxyBuilder.getParentFactory();
         if( parentFactory != null ){
-            parentFactory.setChild( this, parent, child );
+            parentFactory.setChild( proxyBuilder.getParentBuilder(), parent, child );
         }
     }
 
