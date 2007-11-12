@@ -62,7 +62,7 @@ behalf of the Groovy community. See the NOTICE.txt file distributed with this wo
     </target>
 
     <target name="compile" depends="-initialize" description="Compile all classes.">
-        <javac srcdir="${griffon.src.main}"  destDir="${griffon.build.classes}" classpathref="build.classpath"/>
+        <javac srcdir="${griffon.src.main}"  destDir="${griffon.build.classes}" classpathref="build.classpath" debug="true"/>
         <groovyc srcdir="${griffon.src.main}" destDir="${griffon.build.classes}">
             <classpath refid="build.classpath"/>
             <!--javac source="1.5" target="1.5" fork="true" memorymaximumsize="64m"/-->
@@ -77,7 +77,7 @@ behalf of the Groovy community. See the NOTICE.txt file distributed with this wo
     </target>
 
     <target name="compile-tests" depends="compile" description="Compile all tests.">
-        <javac srcdir="${griffon.src.test}"  destDir="${griffon.build.tests}" classpathref="test.classpath"/>
+        <javac srcdir="${griffon.src.test}"  destDir="${griffon.build.tests}" classpathref="test.classpath" debug="true"/>
         <groovyc srcdir="${griffon.src.test}" destDir="${griffon.build.tests}">
             <classpath refid="test.classpath"/>
             <!--javac source="1.5" target="1.5" fork="true" memorymaximumsize="64m"/-->
@@ -91,7 +91,58 @@ behalf of the Groovy community. See the NOTICE.txt file distributed with this wo
         </copy>
     </target>
 
-    <target name="test" depends="compile-tests,jar" description="Run all the tests in the build.">
+    <target name="test"
+            depends="compile-tests,-testOne,-testAll"
+            description="Compile and test all the classes (or just one class if testCase property is defined)."/>
+
+    <target name="clean-test" depends="clean,test"
+            description="Clean and compile and test all the classes (or just one class if testCase property is defined)."/>
+
+    <condition property="_skipTests_">
+        <or>
+            <equals arg1="${test}" arg2="false"/>
+            <istrue value="${skipTests}"/>
+        </or>
+    </condition>
+
+    <condition property="_testOne_">
+        <and>
+            <not>
+                <istrue value="${_skipTests_}"/>
+            </not>
+            <isset property="testCase"/>
+        </and>
+    </condition>
+
+    <target name="-testOne" if="_testOne_">
+        <junit printsummary="true" fork="true" includeantruntime="false" haltonfailure="yes"
+               dir="${basedir}">
+            <formatter type='plain'/>
+            <formatter type='xml'/>
+
+            <test name="${testCase}" todir="${griffon.build.reports}"/>
+            <classpath>
+                <pathelement location="${griffon.build.tests}"/>
+                <pathelement location="${griffon.build.classes}"/>
+                <path refid="build.classpath"/>
+            </classpath>
+        </junit>
+
+        <fail if="junit.failed"/>
+    </target>
+
+    <condition property="_testAll_">
+        <and>
+            <not>
+                <istrue value="${_skipTests_}"/>
+            </not>
+            <not>
+                <isset property="_testOne_"/>
+            </not>
+        </and>
+    </condition>
+
+    <target name="-testAll" depends="compile-tests,jar" description="Run all the tests in the build." if="_testAll_">
         <junit printsummary='yes' failureproperty='junit.failed'>
             <formatter type='plain'/>
             <formatter type='xml'/>

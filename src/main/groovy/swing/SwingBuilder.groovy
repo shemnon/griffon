@@ -45,6 +45,7 @@ public class SwingBuilder  extends FactoryBuilderSupport {
     public SwingBuilder() {
         registerWidgets()
         headless = GraphicsEnvironment.isHeadless()
+        containingWindows = new LinkedList()
     }
 
     protected void registerWidgets() {

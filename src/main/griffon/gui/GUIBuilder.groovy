@@ -19,17 +19,19 @@ class GUIBuilder extends UberBuilder {
     }
 
     public GUIBuilder(Object[] builders) {
-        super(['default', *builders] as Object[])
+        super(builders)
     }
 
     protected Object loadBuilderLookups() {
-        println 'uber!'
-        builderLookup['default'] = ['swing', 'swingx', 'gfx', [j:'swing', jx:'swingx']] as Object[]
+        // looping proble with graphisBuidler.getProperty
+        //builderLookup['default'] = ['swing', 'swingx', 'gfx', [j:'swing', jx:'swingx']] as Object[]
+        builderLookup['default'] = ['swing', 'swingx', [j:'swing', jx:'swingx']] as Object[]
         builderLookup.swing = SwingBuilder
         builderLookup.SwingBuilder = SwingBuilder
         builderLookup.swingx = SwingXBuilder
         builderLookup.SwingXBuilder = SwingXBuilder
-        builderLookup.gfx = GraphicsBuilder
-        builderLookup.GraphicsBuilder = GraphicsBuilder
+        // looping proble with graphisBuidler.getProperty
+        //builderLookup.gfx = GraphicsBuilder
+        //builderLookup.GraphicsBuilder = GraphicsBuilder
     }
 }

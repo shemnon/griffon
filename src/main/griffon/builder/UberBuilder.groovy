@@ -10,7 +10,7 @@ package griffon.builder
 class UberBuilder extends FactoryBuilderSupport {
 
     protected final Map builderLookup = new LinkedHashMap()
-    protected final List<UberBuilderRegistration> builderRegistation = new LinkedList<UberBuilderRegistration>()
+    protected final List<UberBuilderRegistration> builderRegistration = new LinkedList<UberBuilderRegistration>()
 
     public UberBuilder(Object[] builders) {
         loadBuilderLookups()
@@ -57,30 +57,51 @@ class UberBuilder extends FactoryBuilderSupport {
     }
 
     protected uberInit(Object prefix, FactoryBuilderSupport fbs) {
-        builderRegistation.add(new UberBuilderRegistration(prefix, fbs))
+        builderRegistration.add(new UberBuilderRegistration(prefix, fbs))
+        variables.putAll(fbs.variables)
+        fbs.variables.clear()
+        for (Closure delegate in fbs.attributeDelegates) {
+            delegate.delegate = fbs
+            addAttributeDelegate(delegate)
+        }
+        for (Closure delegate in fbs.preInstantiateDelegates) {
+            delegate.delegate = fbs
+            addPreInstantiateDelegate(delegate)
+        }
+        for (Closure delegate in fbs.postInstantiateDelegates) {
+            delegate.delegate = fbs
+            addPostInstantiateDelegate(delegate)
+        }
+        for (Closure delegate in fbs.postNodeCompletionDelegates) {
+            delegate.delegate = fbs
+            addPostNodeCompletionDelegate {}(delegate)
+        }
+
+        fbs.setProxyBuilder(this)
     }
 
     protected uberInit(Object prefix, Factory factory) {
-        builderRegistation.add(new UberBuilderRegistration(prefix, factory)) 
+        builderRegistration.add(new UberBuilderRegistration(prefix, factory))
     }
 
 
     Factory resolveFactory(Object name, Map attributes, Object value) {
-        for (UberBuilderRegistration ubr in builderRegistation) {
+        for (UberBuilderRegistration ubr in builderRegistration) {
             Factory factory = ubr.nominateFactory(name)
             if (factory) {
                 if (ubr.builder) {
-                    proxyBuilder.getContext().put( CURRENT_BUILDER, ubr.builder)
+                    proxyBuilder.getContext().put( CHILD_BUILDER, ubr.builder)
                 } else {
-                    proxyBuilder.getContext().put( CURRENT_BUILDER, proxyBuilder)
+                    proxyBuilder.getContext().put( CHILD_BUILDER, proxyBuilder)
                 }
 
-                if (proxybuilder.getParentContext() != null) {
-                    proxyBuilder.getContext().put( PARENT_BUILDER, proxybuilder.getParentContext().get(CURRENT_BUILDER));
-                }
-                return fac
+                return factory
             }
         }
+    }
+
+    protected void setClosureDelegate( Closure closure, Object node ) {
+        closure.setDelegate( currentBuilder );
     }
 
 }
@@ -103,20 +124,31 @@ class UberBuilderRegistration {
 
     Factory nominateFactory(String name) {
         if (builder) {
-            String localName = name
-            if (prefix && prefixString && !name.startsWith(prefix)) {
-                localName = name.subString(prefixString.length())
-            }
-            localName = builder.getName(localName)
-            if (builder.factories.containsKey(localName)) {
-                return builder.factories(localName)
+            // need to turn off proxy to get at class durring lookup
+            def oldProxy = builder.proxyBuilder
+            try {
+                builder.proxyBuilder = builder
+                String localName = name
+                if (prefixString && name.startsWith(prefixString)) {
+                    localName = name.substring(prefixString.length())
+                }
+                localName = builder.getName(localName)
+                if (builder.factories.containsKey(localName)) {
+                    return builder.factories[localName]
+                }
+            } finally {
+                builder.proxyBuilder = oldProxy
             }
         }
         if (factory) {
-            if (name == prefix) {
+            if (name == prefixString) {
                 return factory
             }
         }
         return null
+    }
+
+    public String toString() {
+        return "UberBuilderRegistration{ factory '$factory' builder '$builder' prefix '$prefixString'"
     }
 }
