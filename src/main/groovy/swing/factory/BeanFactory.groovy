@@ -15,8 +15,6 @@
  */
 package groovy.swing.factory
 
-import groovy.swing.SwingBuilder
-
 /**
  * @author <a href="mailto:shemnon@yahoo.com">Danno Ferrin</a>
  * @version $Revision: 7953 $
@@ -40,10 +38,17 @@ class BeanFactory extends AbstractFactory {
     }
 
     public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map attributes) throws InstantiationException, IllegalAccessException {
-        if (SwingBuilder.checkValueIsTypeNotString(value, name, beanClass)) {
+        if (FactoryBuilderSupport.checkValueIsTypeNotString(value, name, beanClass)) {
             return value
-        } else {
-            return beanClass.newInstance()
         }
+        Object bean = beanClass.newInstance()
+        if (value instanceof String) {
+            try {
+                bean.text = value
+            } catch (MissingPropertyException mpe) {
+                throw new RuntimeException("In $name value argument of type String cannot be applied to property text:");
+            }
+        }
+        return bean
     }
 }

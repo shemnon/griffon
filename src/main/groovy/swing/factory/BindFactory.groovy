@@ -21,8 +21,6 @@ import groovy.swing.binding.JTextComponentProperties
 import java.util.Map.Entry
 import org.codehaus.groovy.binding.*
 
-
-
 /**
  * @author <a href="mailto:shemnon@yahoo.com">Danno Ferrin</a>
  * @version $Revision: 8768 $

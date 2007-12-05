@@ -15,11 +15,10 @@
  */
 package groovy.swing.factory
 
-import javax.swing.border.TitledBorder
 import java.awt.Color
-import javax.swing.border.Border
 import java.awt.Font
-
+import javax.swing.border.Border
+import javax.swing.border.TitledBorder
 
 /**
  * The node must be called with either a value arugment or a title: attribute. <br />
@@ -70,9 +69,9 @@ class TitledBorderFactory extends SwingBorderFactory {
         position = positions[position] ?: position
         if (position instanceof Integer) { border.setTitlePosition(position) }
 
-        def justificaiton = attributes.remove("justificaiton")
-        justificaiton = positions[justificaiton] ?: justificaiton
-        if (justificaiton instanceof Integer) { border.setTitleJustification(justificaiton) }
+        def justification = attributes.remove("justification")
+        justification = positions[justification] ?: justification
+        if (justification instanceof Integer) { border.setTitleJustification(justification) }
 
         Border otherBorder = attributes.remove("border")
         if (otherBorder != null) { border.setBorder(otherBorder) }

@@ -16,15 +16,13 @@
 
 package groovy.swing.factory
 
-import groovy.swing.SwingBuilder
-
 /**
  * This returns a mutable java.util.Collection of some sort, to which items are added.  
  */
 public class CollectionFactory extends AbstractFactory {
     
     public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map attributes) throws InstantiationException, IllegalAccessException {
-        SwingBuilder.checkValueIsNull(value, name);
+        FactoryBuilderSupport.checkValueIsNull(value, name);
         if (attributes.isEmpty()) {
             return new ArrayList();
         } else {

@@ -17,38 +17,35 @@
 
 package groovy.swing
 
+import javax.swing.JPopupMenu.Separator as JPopupMenu_Separator
+import javax.swing.JToolBar.Separator as JToolBar_Separator
+
+import groovy.ui.Console
 import java.awt.*
 import java.awt.event.InputEvent
 import java.awt.event.KeyEvent
 import java.text.SimpleDateFormat
 import javax.swing.*
-import javax.swing.JPopupMenu.Separator as JPopupMenu_Separator
-import javax.swing.JToolBar.Separator as JToolBar_Separator
+import javax.swing.border.TitledBorder
+import javax.swing.plaf.metal.MetalLookAndFeel
 import javax.swing.text.DateFormatter
 import javax.swing.text.NumberFormatter
-import javax.swing.plaf.metal.MetalLookAndFeel
-import javax.swing.border.TitledBorder
-import groovy.ui.Console
 
 class SwingBuilderTest extends GroovyTestCase {
 
-    private Boolean isHeadless
+    private static boolean headless
 
-    private Boolean isHeadless() {
-        if (isHeadless != null)
-          return isHeadless;
-
+    static {
         try {
             new JFrame("testing")
-            isHeadless = false
+            headless = false
         } catch (java.awt.HeadlessException he) {
-            isHeadless = true
+            headless = true
         }
-        return isHeadless
     }
 
     void testNamedWidgetCreation() {
-        if (isHeadless()) return
+        if (headless) return
 
         def topLevelWidgets = [
             frame: [JFrame.class, true],
@@ -70,7 +67,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testLayoutCreation() {
-        if (isHeadless()) return
+        if (headless) return
 
         def layouts = [
             borderLayout: BorderLayout.class,
@@ -92,7 +89,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testWidgetCreation() {
-        if (isHeadless()) return
+        if (headless) return
 
         def widgets = [
             button: JButton.class,
@@ -142,7 +139,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testButtonGroupOnlyForButtons() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         def buttonGroup = swing.buttonGroup()
@@ -152,7 +149,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testWidget() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         def label = swing.label("By Value:")
@@ -163,7 +160,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testTableColumn() {
-        if (isHeadless()) return
+        if (headless) return
 
         // TODO is this required?
         def swing = new SwingBuilder()
@@ -173,7 +170,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testSplitPane() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         def buttonGroup = swing.buttonGroup()
@@ -194,7 +191,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testNestedWindows() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         swing.window (id:'root') {
@@ -223,7 +220,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testFrames() {
-        if (isHeadless()) return
+        if (headless) return
         def swing = new SwingBuilder()
 
         swing.frame(id:'frame') {
@@ -234,7 +231,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testDialogs() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         swing.dialog(id:'d1')
@@ -254,7 +251,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testWindows() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         swing.window()
@@ -263,7 +260,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testNodeCreation() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         def frame = swing.frame(){
@@ -282,7 +279,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testSetMnemonic() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         swing.panel(layout:new BorderLayout()) {
@@ -306,14 +303,14 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testBuilderProperties() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         assert swing.class.name == 'groovy.swing.SwingBuilder'
     }
 
     void testFormattedTextField() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         def dummy = new Date()
@@ -329,7 +326,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testTabbedPane() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         swing.tabbedPane(id:'tp') {
@@ -383,7 +380,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testComboBox() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         Object[] objects = ['a','b']
@@ -395,7 +392,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testMisplacedActionsAreIgnored() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         // labels don't support actions; should be ignored
@@ -412,7 +409,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testBoxLayout() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         def message = shouldFail{
@@ -430,7 +427,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testKeystrokesWithinActions() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         swing.panel{
@@ -453,7 +450,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testSetAccelerator() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         def help = swing.action(accelerator:'F1')
@@ -474,7 +471,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testSetAcceleratorShortcuts() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         char q = 'Q'
@@ -489,7 +486,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testBorderLayoutConstraints() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         swing.internalFrame(id:'frameId',
@@ -518,7 +515,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testPropertyColumn() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         def msg = shouldFail{
@@ -555,7 +552,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testClosureColumn() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         def msg = shouldFail{
@@ -588,7 +585,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testTableModelChange() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         def table = swing.table {
@@ -607,7 +604,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testTableModelValues() {
-        if (isHeadless()) return
+        if (headless) return
 
         def squares  = [
             [ val: 1, square:  1 ],
@@ -636,7 +633,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testSetConstraints() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         swing.panel(layout:new BorderLayout()) {
@@ -645,7 +642,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testSetToolTipText() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         swing.panel(layout:new BorderLayout()) {
@@ -655,16 +652,16 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testTableLayout() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
-        def msg = shouldFail(RuntimeException){
+        def msg = shouldFailWithCause(RuntimeException){
             def frame = swing.frame(){
                 tr()
             }
         }
         assert msg == "'tr' must be within a 'tableLayout'"
-        msg = shouldFail(RuntimeException){
+        msg = shouldFailWithCause(RuntimeException){
             def frame = swing.frame(){
                 tableLayout(){
                     td()
@@ -690,7 +687,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testAttributeOrdering() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
 
@@ -713,7 +710,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testWidgetPassthroughConstraints() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         def foo = swing.button('North')
@@ -725,7 +722,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testGROOVY1837ReuseAction() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
 
@@ -739,7 +736,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testSeparators() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         swing.frame {
@@ -757,7 +754,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testCollectionNodes() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         def collection = swing.actions {
@@ -767,7 +764,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testFactoryCornerCases() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
         assert swing.bogusWidget() == null
@@ -787,7 +784,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     void testEnhancedValueArguments() {
-        if (isHeadless()) return
+        if (headless) return
 
         def swing = new SwingBuilder()
 
@@ -842,7 +839,7 @@ class SwingBuilderTest extends GroovyTestCase {
                 swing.frame {
                     "$name"(swing."$name"(), id:"${name}Self".toString())
                 }
-	    }
+            }
         }
 
          // elements that only take their own type as a value argument
@@ -868,7 +865,6 @@ class SwingBuilderTest extends GroovyTestCase {
             "internalFrame",
             "layeredPane",
             "list",
-            "menu",
             "menuBar",
             "optionPane",
             //"overlayLayout",
@@ -908,20 +904,20 @@ class SwingBuilderTest extends GroovyTestCase {
                 swing.frame {
                     swing."$name"(icon)
                 }
-	        }
+            }
         }
 
          // elements take their own type as a value argument or a stringa s a text property
         def textItems = [
             "editorPane",
             "label",
+            "menu",
             "passwordField",
             "textArea",
             "textField",
             "textPane",
         ]
         textItems.each {name ->
-            //println name
             swing.frame {
                 "$name"(swing."$name"(), id:"${name}Self".toString())
                 "$name"('text', id:"${name}Text".toString())
@@ -932,7 +928,7 @@ class SwingBuilderTest extends GroovyTestCase {
                 swing.frame {
                     swing."$name"(icon)
                 }
-	    }
+            }
         }
 
         // leftovers...
@@ -942,8 +938,8 @@ class SwingBuilderTest extends GroovyTestCase {
             hstrut(5)
             vstrut(5)
             tableModel(tableModel:tableModel())
-            container(panel()) {
-                widget(label("label"))
+            container(id:'c', panel()) {
+                widget(id:'w', label("label"))
                 bean("anything")
             }
             container(container:panel()) {
@@ -951,6 +947,7 @@ class SwingBuilderTest extends GroovyTestCase {
                 bean(bean:"anything")
             }
         }
+        assert swing.w.parent == swing.c
         shouldFail {
             swing.actions(property:'fails')
         }
@@ -982,7 +979,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     public void testEDT() {
-        if (isHeadless()) return
+        if (headless) return
         def swing = new SwingBuilder()
 
         boolean pass = false
@@ -999,7 +996,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     public void testDoLater() {
-        if (isHeadless()) return
+        if (headless) return
         def swing = new SwingBuilder()
 
         boolean pass = false
@@ -1022,7 +1019,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     public void testDoOutside() {
-        if (isHeadless()) return
+        if (headless) return
         def swing = new SwingBuilder()
 
         boolean pass = false
@@ -1046,7 +1043,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     public void testDispose() {
-        if (isHeadless()) return
+        if (headless) return
         def swing = new SwingBuilder()
 
         swing.frame(id:'frame').pack()
@@ -1067,7 +1064,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     public void testPackAndShow() {
-        if (isHeadless()) return
+        if (headless) return
         def swing = new SwingBuilder()
 
         swing.frame(id:'frame', pack:true)
@@ -1099,7 +1096,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     public void testContainment() {
-        if (isHeadless()) return
+        if (headless) return
         def swing = new SwingBuilder()
 
         def topLevel = [
@@ -1199,7 +1196,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     public void testMenus() {
-        if (isHeadless()) return
+        if (headless) return
         def swing = new SwingBuilder()
 
         def frame = swing.frame {
@@ -1243,7 +1240,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     public void testLookAndFeel() {
-        if (isHeadless()) return
+        if (headless) return
         def swing = new SwingBuilder()
 
         def oldLAF = UIManager.getLookAndFeel();
@@ -1294,7 +1291,7 @@ class SwingBuilderTest extends GroovyTestCase {
    }
 
     public void testBorders() {
-        if (isHeadless()) return
+        if (headless) return
         def swing = new SwingBuilder()
 
         // classic smoke test, try every valid combination and look for smoke...
@@ -1386,7 +1383,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     public void testBorderAttachment() {
-        if (isHeadless()) return
+        if (headless) return
         def swing = new SwingBuilder()
 
         swing.frame(id:'frame') {
@@ -1411,7 +1408,7 @@ class SwingBuilderTest extends GroovyTestCase {
     }
 
     public void testImageIcon() {
-        if (isHeadless()) return
+        if (headless) return
         def swing = new SwingBuilder()
 
         String baseDir = new File("src/test").absolutePath

@@ -18,7 +18,6 @@ package groovy.swing.factory
 import java.awt.Image
 import javax.swing.ImageIcon
 
-
 class ImageIconFactory extends AbstractFactory {
 
     public Object newInstance(FactoryBuilderSupport builder, Object name, Object value, Map attributes) {

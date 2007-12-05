@@ -22,7 +22,7 @@ import java.awt.Insets;
 
 import javax.swing.JPanel;
 
-/** 
+/**
  * Represents a HTML style table layout
  *
  * @author <a href="mailto:james@coredevelopers.net">James Strachan</a>
@@ -42,7 +42,6 @@ public class TableLayout extends JPanel {
      * @return this
      */
     public Component getComponent() {
-        Thread.dumpStack();
         return this;
     }
 
@@ -66,7 +65,7 @@ public class TableLayout extends JPanel {
 
     /**
      * Creates a new row index for child <tr> tags
-     * @return nextRowIndex the row number 
+     * @return nextRowIndex the row number
      */
     public int nextRowIndex() {
         return rowCount++;

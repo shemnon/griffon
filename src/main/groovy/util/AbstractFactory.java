@@ -20,7 +20,7 @@ import java.util.Map;
 
 /**
  * @author Andres Almiray <aalmiray@users.sourceforge.com>
- */
+ */ 
 public abstract class AbstractFactory implements Factory {
     public boolean isLeaf() {
         return false;

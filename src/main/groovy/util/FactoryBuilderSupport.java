@@ -17,16 +17,9 @@
 package groovy.util;
 
 import groovy.lang.*;
-
 import org.codehaus.groovy.runtime.InvokerHelper;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -107,6 +100,7 @@ public abstract class FactoryBuilderSupport extends Binding {
 
     private LinkedList<Map<String, Object>> contexts = new LinkedList<Map<String, Object>>();
     private LinkedList<Closure> attributeDelegates = new LinkedList<Closure>();
+    private List<Closure> disposalClosures = new ArrayList<Closure>(); // because of reverse iteration use ArrayList
     private Map<String, Factory> factories = new HashMap<String, Factory>();
     private Closure nameMappingClosure;
     private FactoryBuilderSupport proxyBuilder;
@@ -205,11 +199,11 @@ public abstract class FactoryBuilderSupport extends Binding {
     public List<Closure> getPostNodeCompletionDelegates() {
         return Collections.unmodifiableList(postNodeCompletionDelegates);
     }
-    
+
     /**
      * @return the context of the current node.
      */
-    public Map<String, Object> getContext() {   
+    public Map<String, Object> getContext() {
         if( !proxyBuilder.contexts.isEmpty() ){
             return proxyBuilder.contexts.getFirst();
         }
@@ -666,7 +660,7 @@ public abstract class FactoryBuilderSupport extends Binding {
                 builder = (FactoryBuilderSupport) attrDelegate.getOwner();
             } else if (attrDelegate.getDelegate() instanceof FactoryBuilderSupport) {
                 builder = (FactoryBuilderSupport) attrDelegate.getDelegate();
-            }
+        }
 
             attrDelegate.call( new Object[] { builder, node, attributes } );
         }
@@ -940,6 +934,16 @@ public abstract class FactoryBuilderSupport extends Binding {
        }
        Object result = proxyBuilder.withBuilder( builder, closure );
        return proxyBuilder.invokeMethod( name, new Object[]{ attributes, result });
+    }
+
+    public void addDisposalClosure(Closure closure) {
+        disposalClosures.add(closure);
+    }
+
+    public void dispose() {
+        for (int i = disposalClosures.size() - 1; i >= 0; i--) {
+            ((Closure)disposalClosures.get(i)).call();
+        }
     }
 }
 

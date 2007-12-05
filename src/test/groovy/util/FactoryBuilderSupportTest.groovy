@@ -1,7 +1,5 @@
 package groovy.util
 
-import groovy.lang.MissingMethodException
-
 /**
  *   Test for FactoryBuilderSupport based in BuilderSupportTest
  *   as it should comply with the same contract
@@ -146,7 +144,6 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
         assert b.@log == []
         assert n.@log == []
         def node = b.foo()
-        println b.@log
         assert b.@log == []
         assert n.@log == [  'new_instance','foo', null,
                            'handle_node_attributes', node,
@@ -159,7 +156,6 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
         def n = new SpoofFactoryBuilder()
         def b = new SpoofFactoryBuilder(proxyBuilder:n)
         def node = b.foo('value')
-        println b.@log
         assert b.@log == []
         assert n.@log == [  'new_instance','foo', 'value',
                            'handle_node_attributes', node,
@@ -172,7 +168,6 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
         def n = new SpoofFactoryBuilder()
         def b = new SpoofFactoryBuilder(proxyBuilder:n)
         def node = b.foo(name:'value')
-        println b.@log
         assert b.@log == []
         assert n.@log == [
                            'new_instance','foo',null,'name','value',
@@ -188,7 +183,6 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
         b.foo(){
             b.bar()
         }
-        println b.@log
         assert b.@log == []
         assert n.@log == [
             'new_instance','foo',null,
@@ -208,7 +202,6 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
         def n = new SpoofFactoryBuilder()
         def b = new SpoofFactoryBuilder(proxyBuilder:n)
         def node = b.foo(bar:'baz', 'value')
-        println b.@log
         assert b.@log == []
         assert n.@log == [
                           'new_instance', 'foo', 'value', 'bar','baz', 
@@ -222,7 +215,6 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
         def n = new SpoofFactoryBuilder()
         def b = new SpoofFactoryBuilder(proxyBuilder:n)
         def node = b.foo('value', bar:'baz')
-        println b.@log
         assert b.@log == []
         assert n.@log == [
                           'new_instance', 'foo', 'value', 'bar','baz', 
@@ -236,7 +228,6 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
         def n = new SpoofFactoryBuilder()
         def b = new SpoofFactoryBuilder(proxyBuilder:n)
         def node = b.foo(bar:'baz', 'value') { 1 }
-        println b.@log
         assert b.@log == []
         assert n.@log == [
                           'new_instance', 'foo', 'value', 'bar','baz', 
@@ -250,7 +241,6 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
         def n = new SpoofFactoryBuilder()
         def b = new SpoofFactoryBuilder(proxyBuilder:n)
         def node = b.foo('value', bar:'baz') { 1 }
-        println b.@log
         assert b.@log == []
         assert n.@log == [
                           'new_instance', 'foo', 'value', 'bar','baz', 

@@ -20,9 +20,9 @@ import java.awt.*
 import java.lang.reflect.InvocationTargetException
 import java.util.logging.Logger
 import javax.swing.*
-import javax.swing.table.TableColumn
 import javax.swing.border.BevelBorder
 import javax.swing.border.EtchedBorder
+import javax.swing.table.TableColumn
 import org.codehaus.groovy.runtime.MethodClosure
 
 /**
@@ -33,14 +33,10 @@ import org.codehaus.groovy.runtime.MethodClosure
  */
 public class SwingBuilder  extends FactoryBuilderSupport {
 
-    // Properties
-    LinkedList containingWindows = new LinkedList()
-
     // local fields
     private static final Logger LOG = Logger.getLogger(SwingBuilder.name)
     // tracks all containing windows, for auto-owned dialogs
     private boolean headless = false
-    private disposalClosures = []
 
     public SwingBuilder() {
         registerWidgets()
@@ -273,14 +269,6 @@ public class SwingBuilder  extends FactoryBuilderSupport {
             return null
         } else {
             return KeyStroke.getKeyStroke(ks.getKeyCode(), ks.getModifiers() | modifier | Toolkit.getDefaultToolkit().getMenuShortcutKeyMask())        }
-    }
-
-    public void addDisposalClosure(closure) {
-        disposalClosures += closure
-    }
-
-    public void dispose() {
-        disposalClosures.reverseEach {it()}
     }
 
     public LookAndFeel lookAndFeel(Object lookAndFeel, Closure initCode = null) {
