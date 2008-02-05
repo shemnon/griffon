@@ -15,7 +15,12 @@
  */
 package groovy.swing.binding;
 
-import org.codehaus.groovy.binding.*;
+import org.codehaus.groovy.binding.FullBinding;
+import org.codehaus.groovy.binding.PropertyBinding;
+import org.codehaus.groovy.binding.SourceBinding;
+import org.codehaus.groovy.binding.TargetBinding;
+import org.codehaus.groovy.binding.TriggerBinding;
+import org.codehaus.groovy.binding.AbstractFullBinding;
 
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;

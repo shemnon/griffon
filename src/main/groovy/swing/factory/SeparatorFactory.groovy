@@ -16,12 +16,11 @@
 
 package groovy.swing.factory
 
-import javax.swing.JPopupMenu.Separator as JPopupMenu_Separator // JetGroovy bug
-import javax.swing.JToolBar.Separator as JToolBar_Separator
-
 import javax.swing.JMenu
+import javax.swing.JPopupMenu.Separator as JPopupMenu_Separator
 import javax.swing.JSeparator
 import javax.swing.JToolBar
+import javax.swing.JToolBar.Separator as JToolBar_Separator
 
 // JetGroovy bug
 

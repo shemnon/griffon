@@ -33,7 +33,7 @@ class LookAndFeelHelper {
     private Map lafCodeNames = [
         // stuff built into various JDKs
         metal   : 'javax.swing.plaf.metal.MetalLookAndFeel',
-        nimbus  : 'sun.swing.plaf.nimbus.NimbusLookAndFeel',
+        nimbus  : getNimbusLAFName(),
         mac     : 'apple.laf.AquaLookAndFeel',
         motif   : 'com.sun.java.swing.plaf.motif.MotifLookAndFeel',
         windows : 'com.sun.java.swing.plaf.windows.WindowsLookAndFeel',
@@ -141,5 +141,20 @@ class LookAndFeelHelper {
         UIManager.setLookAndFeel(lafInstance)
 
         return lafInstance
+    }
+
+    static String getNimbusLAFName() {
+        for (klass in [
+            'com.sun.swing.plaf.nimbus.NimbusLookAndFeel',
+            'sun.swing.plaf.nimbus.NimbusLookAndFeel',
+            'org.jdesktop.swingx.plaf.nimbus.NimbusLookAndFeel'
+        ]) {
+            try {
+                return Class.forName(klass).getName()
+            } catch (Throwable t) {
+                // ignore it, try the next on the list
+            }
+        }
+        return null;
     }
 }

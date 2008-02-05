@@ -20,16 +20,13 @@ import java.awt.*
 import java.lang.reflect.InvocationTargetException
 import java.util.logging.Logger
 import javax.swing.*
-import javax.swing.border.BevelBorder
-import javax.swing.border.EtchedBorder
-import javax.swing.table.TableColumn
 import org.codehaus.groovy.runtime.MethodClosure
 
 /**
  * A helper class for creating Swing widgets using GroovyMarkup
  *
  * @author <a href="mailto:james@coredevelopers.net">James Strachan</a>
- * @version $Revision: 8891 $
+ * @version $Revision: 9207 $
  */
 public class SwingBuilder  extends FactoryBuilderSupport {
 
