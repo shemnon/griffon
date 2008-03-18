@@ -1,6 +1,6 @@
 /*
  * $Id:  $
- * 
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
@@ -30,6 +30,11 @@ import javax.swing.border.TitledBorder
 import javax.swing.plaf.metal.MetalLookAndFeel
 import javax.swing.text.DateFormatter
 import javax.swing.text.NumberFormatter
+import groovy.model.ValueHolder
+import groovy.model.DefaultTableModel
+import groovy.model.DefaultTableColumn
+import groovy.model.PropertyModel
+import java.awt.event.ActionEvent
 
 class SwingBuilderTest extends GroovyTestCase {
 
@@ -85,6 +90,42 @@ class SwingBuilderTest extends GroovyTestCase {
                "$name"()
             }
             assert frame.contentPane.layout.class == expectedLayoutClass
+        }
+    }
+
+    void testGridBagFactory() {
+        if (headless) return
+        def swing = new SwingBuilder()
+
+        swing.frame {
+            gridBagLayout()
+            label(fill:BOTH)
+        }
+        shouldFail {
+            swing.frame {
+                flowLayout()
+                label(fill:BOTH)
+            }
+        }
+        shouldFail {
+            swing.frame {
+                label(fill:GridBagConstraints.BOTH)
+            }
+        }
+    }
+
+    public void testBorderLayout() {
+        if (headless) return
+        def swing = new SwingBuilder()
+
+        swing.frame {
+          borderLayout()
+          label("x", constraints:NORTH)
+        }
+        shouldFail {
+            swing.frame {
+              label("x", constraints:NORTH)
+            }
         }
     }
 
@@ -344,7 +385,7 @@ class SwingBuilderTest extends GroovyTestCase {
             panel(id:'pC', title:'Title C', tabDisplayedMnemonicIndex: 2);
         }
 
-        assert swing.tp.tabCount == 12 
+        assert swing.tp.tabCount == 12
         assert swing.tp.indexOfComponent(swing.p1) == 0
         assert swing.tp.indexOfComponent(swing.p2) == 1
         assert swing.tp.indexOfComponent(swing.p3) == 2
@@ -377,6 +418,35 @@ class SwingBuilderTest extends GroovyTestCase {
         assert swing.tp.selectedIndex == 1
         assert swing.tp.selectedComponent == swing.p2
 
+        swing.tabbedPane(id:'r') {
+            label(id:'a', text:'a', title:'ta')
+            tabbedPane(id:'st', title:'st') {
+                label(id:'sa', text:'sa', title:'sta')
+                label(id:'sb', text:'sb', title:'stb')
+            }
+        }
+        assert swing.a.parent == swing.r
+        assert swing.st.parent == swing.r
+        assert swing.r.indexOfTab('ta') == swing.r.indexOfComponent(swing.a)
+        assert swing.r.indexOfTab('st') == swing.r.indexOfComponent(swing.st)
+        assert swing.sa.parent == swing.st
+        assert swing.sb.parent == swing.st
+        assert swing.st.indexOfTab('sta') == swing.st.indexOfComponent(swing.sa)
+        assert swing.st.indexOfTab('stb') == swing.st.indexOfComponent(swing.sb)
+
+
+    }
+
+    void testScrollPane() {
+        if (headless) return
+
+        def swing = new SwingBuilder()
+        shouldFail {
+            swing.scrollPane {
+                button("OK")
+                button("Cancel")
+            }
+        }
     }
 
     void testComboBox() {
@@ -449,6 +519,45 @@ class SwingBuilderTest extends GroovyTestCase {
         assert values.contains(expected2)
     }
 
+    void testActionClosures() {
+        if (headless) return
+
+        def swing = new SwingBuilder()
+        def testTarget = 'blank'
+        swing.actions {
+            action(id:'a', closure: {testTarget = 'A'})
+            action(id:'b') {testTarget = 'B' }
+            action(id:'c', closure: {evt -> testTarget = 'C'})
+            action(id:'d') {evt -> testTarget = 'D' }
+        }
+
+        ActionEvent evt = new ActionEvent(this, ActionEvent.ACTION_PERFORMED, "");
+        assert testTarget == 'blank'
+        swing.a.actionPerformed(evt)
+        assert testTarget == 'A'
+        swing.b.actionPerformed(evt)
+        assert testTarget == 'B'
+        swing.c.actionPerformed(evt)
+        assert testTarget == 'C'
+        swing.d.actionPerformed(evt)
+        assert testTarget == 'D'
+
+        // negative tests
+        swing.actions {
+            action(id:'z')
+            shouldFail(RuntimeException) {
+                action(id:'y', closure:{testTarget = 'Y'}) {testTarget = 'YY'}
+            }
+            shouldFail(RuntimeException) {
+                action([actionPerformed: {testTarget = 'X'} ] as AbstractAction, id:'x') { testTarget = 'XX'}
+            }
+        }
+        shouldFail(NullPointerException) {
+            swing.z.actionPerformed(evt)
+        }
+
+    }
+
     void testSetAccelerator() {
         if (headless) return
 
@@ -498,15 +607,16 @@ class SwingBuilderTest extends GroovyTestCase {
             rigidArea(id:'area2', constraints:BorderLayout.SOUTH, width:30, height:40)
             scrollPane(id:'scrollId', constraints:BorderLayout.CENTER,
                 border:BorderFactory.createRaisedBevelBorder()) {
-                glue()
-                vglue()
-                hglue()
-                vstrut()
-                vstrut(height:8)
-                hstrut()
-                hstrut(width:8)
-                rigidArea(id:'area3')
-                viewport()
+                panel() {
+                    glue()
+                    vglue()
+                    hglue()
+                    vstrut()
+                    vstrut(height:8)
+                    hstrut()
+                    hstrut(width:8)
+                    rigidArea(id:'area3')
+                }
             }
         }
         assert swing.vboxId.parent == swing.frameId.contentPane
@@ -601,6 +711,50 @@ class SwingBuilderTest extends GroovyTestCase {
 
         //GROOVY-2111 - resetting the model w/ a pass-through cleared the columns
         assert table.columnModel.columnCount == 3
+    }
+
+    void testTableModelChange2() {
+        if (headless) return
+
+        def tableData = [
+           ["ATHLETEID":1, "FIRSTNAME":"Bob", "LASTNAME":"Jones", "DATEOFBIRTH":1875-05-20],
+           ["ATHLETEID":2, "FIRSTNAME":"Sam", "LASTNAME":"Wilson", "DATEOFBIRTH":1876-12-15],
+           ["ATHLETEID":3, "FIRSTNAME":"Jessie", "LASTNAME":"James", "DATEOFBIRTH":1877-06-12]
+        ]
+
+        SwingBuilder swing = new SwingBuilder()
+
+        swing.frame() {
+            scrollPane {
+               table(id: 'table01') {
+                    tableModel(list:tableData, id: 'tableModel01') {
+                        propertyColumn(header:'Athlete ID',propertyName:'ATHLETEID')
+                        propertyColumn(header:'First Name',propertyName:'FIRSTNAME')
+                        propertyColumn(header:'Last Name',propertyName:'LASTNAME')
+                        propertyColumn(header:'Date Of Birth',propertyName:'DATEOFBIRTH')
+                    }
+                }
+            }
+        }
+
+        assert swing.table01.columnModel == swing.table01.model.columnModel
+
+        def list = [ ['name':'Fred', 'location':'London'], ['name':'Bob', 'location':'Atlanta']]
+        def listModel = new ValueHolder(list)
+        def model = new DefaultTableModel(listModel)
+        model.addColumn(new DefaultTableColumn("Name", new PropertyModel(model.rowModel, "name")))
+        model.addColumn(new DefaultTableColumn("Location", new PropertyModel(model.rowModel, "location")))
+        swing.table01.setModel(model)
+
+        assert swing.table01.columnModel == swing.table01.model.columnModel
+
+        // try moiving some columns and verifying values
+        def value = swing.table01.getValueAt(0, 0)
+        swing.table01.moveColumn(0, 1)
+        assert value == swing.table01.getValueAt(0, 1)
+
+        swing.table01.removeColumn(swing.table01.columnModel.getColumn(0))
+        assert value == swing.table01.getValueAt(0, 0)
     }
 
     void testTableModelValues() {
@@ -1002,19 +1156,37 @@ class SwingBuilderTest extends GroovyTestCase {
         boolean pass = false
         swing.doLater {sleep 100; pass = true }
         assert !pass
-        sleep 200
+        // check for pass changing up to 3 times, then call it a failed test
+        int maxFailures = 3
+        while (maxFailures > 0) {
+            sleep 200
+            if (pass) break
+            maxFailures--
+        }
         assert pass
 
         // doLater in the EDT is still a do later
         pass = false
         swing.edt { swing.doLater {sleep 100; pass = true } }
         assert !pass
-        sleep 200
+        // check for pass changing up to 3 times, then call it a failed test
+        maxFailures = 3
+        while (maxFailures > 0) {
+            sleep 200
+            if (pass) break
+            maxFailures--
+        }
         assert pass
 
         instancePass = false
         swing.doLater this.&markPassed
-        sleep 50
+        // check for pass changing up to 3 times, then call it a failed test
+        maxFailures = 3
+        while (maxFailures > 0) {
+            sleep 50
+            if (instancePass) break
+            maxFailures--
+        }
         assert instancePass
     }
 
@@ -1025,20 +1197,38 @@ class SwingBuilderTest extends GroovyTestCase {
         boolean pass = false
         swing.doOutside {sleep 100; pass = true }
         assert !pass
-        sleep 200
+        // check for pass changing up to 3 times, then call it a failed test
+        int maxFailures = 3
+        while (maxFailures > 0) {
+            sleep 200
+            if (pass) break
+            maxFailures--
+        }
         assert pass
 
         pass = false
         swing.edt {
             swing.doOutside {sleep 100; pass = true }
             assert !pass
-            sleep 200
+            // check for pass changing up to 3 times, then call it a failed test
+            int myMaxFailures = 3
+            while (myMaxFailures > 0) {
+                sleep 200
+                if (pass) break
+                myMaxFailures--
+            }
             assert pass
         }
 
         instancePass = false
         swing.doOutside this.&markPassed
-        sleep 50
+        // check for pass changing up to 3 times, then call it a failed test
+        maxFailures = 3
+        while (maxFailures > 0) {
+            sleep 50
+            if (instancePass) break
+            maxFailures--
+        }
         assert instancePass
     }
 

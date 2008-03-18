@@ -20,13 +20,16 @@ import java.awt.*
 import java.lang.reflect.InvocationTargetException
 import java.util.logging.Logger
 import javax.swing.*
+import javax.swing.border.BevelBorder
+import javax.swing.border.EtchedBorder
+import javax.swing.table.TableColumn
 import org.codehaus.groovy.runtime.MethodClosure
 
 /**
  * A helper class for creating Swing widgets using GroovyMarkup
  *
  * @author <a href="mailto:james@coredevelopers.net">James Strachan</a>
- * @version $Revision: 9207 $
+ * @version $Revision: 11055 $
  */
 public class SwingBuilder  extends FactoryBuilderSupport {
 
@@ -56,8 +59,9 @@ public class SwingBuilder  extends FactoryBuilderSupport {
         addAttributeDelegate(SwingBuilder.&objectIDAttributeDelegate)
 
         // binding related classes
-        registerFactory("bind", new BindFactory())
-        addAttributeDelegate(BindFactory.&bindingAttributeDelegate)
+        BindFactory bindFactory = new BindFactory()
+        registerFactory("bind", bindFactory)
+        addAttributeDelegate(bindFactory.&bindingAttributeDelegate)
         registerFactory("model", new ModelFactory())
 
         // ulimate pass through types
@@ -143,13 +147,16 @@ public class SwingBuilder  extends FactoryBuilderSupport {
         registerFactory("borderLayout", new LayoutFactory(BorderLayout))
         registerFactory("cardLayout", new LayoutFactory(CardLayout))
         registerFactory("flowLayout", new LayoutFactory(FlowLayout))
-        registerFactory("gridBagLayout", new LayoutFactory(GridBagLayout))
         registerFactory("gridLayout", new LayoutFactory(GridLayout))
         registerFactory("overlayLayout", new LayoutFactory(OverlayLayout))
         registerFactory("springLayout", new LayoutFactory(SpringLayout))
+
+        registerFactory("gridBagLayout", new GridBagFactory())
         registerBeanFactory("gridBagConstraints", GridBagConstraints)
         registerBeanFactory("gbc", GridBagConstraints) // shortcut name
         // constraints delegate
+        addAttributeDelegate(GridBagFactory.&processGridBagConstraintsAttributes)
+
         addAttributeDelegate(SwingBuilder.&constraintsAttributeDelegate)
 
 

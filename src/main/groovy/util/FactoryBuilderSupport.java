@@ -18,6 +18,7 @@ package groovy.util;
 
 import groovy.lang.*;
 import org.codehaus.groovy.runtime.InvokerHelper;
+import org.codehaus.groovy.runtime.MethodClosure;
 
 import java.util.*;
 import java.util.logging.Level;
@@ -28,6 +29,7 @@ import java.util.logging.Logger;
  *
  * @author <a href="mailto:james@coredevelopers.net">James Strachan</a>
  * @author Andres Almiray <aalmiray@users.sourceforge.com>
+ * @author Danno Ferrin
  */
 public abstract class FactoryBuilderSupport extends Binding {
     public static final String CURRENT_FACTORY = "_CURRENT_FACTORY_";
@@ -160,7 +162,11 @@ public abstract class FactoryBuilderSupport extends Binding {
         try {
             return proxyBuilder.doGetProperty(property);
         } catch (MissingPropertyException mpe) {
-            return getMetaClass().getProperty(this, property);
+            if ((getContext() != null) && (getContext().containsKey(property))) {
+                return getContext().get(property);
+            } else {
+                return getMetaClass().getProperty(this, property);
+            }
         }
     }
 
@@ -246,7 +252,6 @@ public abstract class FactoryBuilderSupport extends Binding {
     public Object getParentNode() {
         return getContextAttribute( PARENT_NODE );
     }
-
 
     /**
      * @return the factory of the parent of the current node.
@@ -425,6 +430,7 @@ public abstract class FactoryBuilderSupport extends Binding {
      */
     public void registerFactory( String name, Factory factory ) {
         proxyBuilder.factories.put( name, factory );
+        factory.onFactoryRegistration(this, name);
     }
 
     /**
@@ -573,26 +579,32 @@ public abstract class FactoryBuilderSupport extends Binding {
         }
 
         if( closure != null ){
-            if( proxyBuilder.getCurrentFactory().isLeaf() ){
+            Factory parentFactory = proxyBuilder.getCurrentFactory();
+            if( parentFactory.isLeaf() ){
                 throw new RuntimeException( "'" + name + "' doesn't support nesting." );
             }
-            // push new node on stack
-            Object parentFactory = proxyBuilder.getCurrentFactory();
-            String parentName = proxyBuilder.getCurrentName();
-            Map parentContext = proxyBuilder.getContext();
-            proxyBuilder.newContext();
-            proxyBuilder.getContext().put( OWNER, closure.getOwner() );
-            proxyBuilder.getContext().put( CURRENT_NODE, node );
-            proxyBuilder.getContext().put( PARENT_FACTORY, parentFactory );
-            proxyBuilder.getContext().put( PARENT_NODE, current );
-            proxyBuilder.getContext().put( PARENT_CONTEXT, parentContext );
-            proxyBuilder.getContext().put( PARENT_NAME, parentName );
-            proxyBuilder.getContext().put( PARENT_BUILDER, parentContext.get(CURRENT_BUILDER));
-            proxyBuilder.getContext().put( CURRENT_BUILDER, parentContext.get(CHILD_BUILDER));
-            // lets register the builder as the delegate
-            proxyBuilder.setClosureDelegate( closure, node );
-            closure.call();
-            proxyBuilder.popContext();
+            boolean processContent = true;
+            if ( parentFactory.isHandlesNodeChildren() ){
+                processContent = parentFactory.onNodeChildren(this, node, closure);
+            }
+            if (processContent) {
+                // push new node on stack
+                String parentName = proxyBuilder.getCurrentName();
+                Map parentContext = proxyBuilder.getContext();
+                proxyBuilder.newContext();
+                proxyBuilder.getContext().put( OWNER, closure.getOwner() );
+                proxyBuilder.getContext().put( CURRENT_NODE, node );
+                proxyBuilder.getContext().put( PARENT_FACTORY, parentFactory );
+                proxyBuilder.getContext().put( PARENT_NODE, current );
+                proxyBuilder.getContext().put( PARENT_CONTEXT, parentContext );
+                proxyBuilder.getContext().put( PARENT_NAME, parentName );
+                proxyBuilder.getContext().put( PARENT_BUILDER, parentContext.get(CURRENT_BUILDER));
+                proxyBuilder.getContext().put( CURRENT_BUILDER, parentContext.get(CHILD_BUILDER));
+                // lets register the builder as the delegate
+                proxyBuilder.setClosureDelegate( closure, node );
+                closure.call();
+                proxyBuilder.popContext();
+            }
         }
 
         proxyBuilder.nodeCompleted( current, node );
@@ -842,7 +854,7 @@ public abstract class FactoryBuilderSupport extends Binding {
      * @throws RuntimeException - any exception the closure might have thrown during
      * execution.
      * @return the execution result of the closure.
-     */ 
+     */
     public Object withBuilder( FactoryBuilderSupport builder, Closure closure ) {
         if( builder == null || closure == null ) {
             return null;
