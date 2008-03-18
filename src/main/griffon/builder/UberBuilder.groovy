@@ -12,8 +12,12 @@ class UberBuilder extends FactoryBuilderSupport {
     protected final Map builderLookup = new LinkedHashMap()
     protected final List<UberBuilderRegistration> builderRegistration = new LinkedList<UberBuilderRegistration>()
 
-    public UberBuilder(Object[] builders) {
+    public UberBuilder() {
         loadBuilderLookups()
+    }
+
+    public UberBuilder(Object[] builders) {
+        this()
         builders.each {if (it) uberInit(null, it)}
     }
 
@@ -58,7 +62,7 @@ class UberBuilder extends FactoryBuilderSupport {
 
     protected uberInit(Object prefix, FactoryBuilderSupport fbs) {
         builderRegistration.add(new UberBuilderRegistration(prefix, fbs))
-        variables.putAll(fbs.variables)
+        getVariables().putAll(fbs.variables)
         fbs.variables.clear()
         for (Closure delegate in fbs.attributeDelegates) {
             delegate.delegate = fbs
@@ -90,9 +94,9 @@ class UberBuilder extends FactoryBuilderSupport {
             Factory factory = ubr.nominateFactory(name)
             if (factory) {
                 if (ubr.builder) {
-                    proxyBuilder.getContext().put( CHILD_BUILDER, ubr.builder)
+                    getProxyBuilder().getContext().put( CHILD_BUILDER, ubr.builder)
                 } else {
-                    proxyBuilder.getContext().put( CHILD_BUILDER, proxyBuilder)
+                    getProxyBuilder().getContext().put( CHILD_BUILDER, proxyBuilder)
                 }
 
                 return factory

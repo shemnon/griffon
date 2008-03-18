@@ -119,4 +119,27 @@ public class GUIBuilderTest extends GroovyTestCase {
         //todo text with custom factory?
     }
 
+    public void testResources() {
+        def gb = new GUIBuilder('swingx', 'swing')
+
+        assert gb.resources.getString('foo') == 'bar'
+        gb.frame(id:'f')  {
+            // note the class here is actually
+            // griffon.gui.GUIBuilderTest$_testResources_closureX
+            // we are testing closure unwrapping
+            assert resources.getString('foo') == 'bar'
+        }
+
+        shouldFail(MissingResourceException) {
+            ExteriorClass.test(gb)
+        }
+    }
 }
+
+class ExteriorClass {
+    // must not have a griffon.gui.ExteriorClass.properties file
+    public static void test(GUIBuilder gb) {
+        gb.resources
+    }
+}
+
