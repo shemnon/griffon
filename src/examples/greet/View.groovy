@@ -45,19 +45,25 @@ tweetLine = panel(border: emptyBorder(3), preferredSize:[250,84]) {
         horizontalTextPosition:SwingConstants.CENTER,
         //anchor: BASELINE, insets: [3, 3, 3, 3])
         anchor: CENTER, insets: [3, 3, 3, 3])
-    tweetText = textArea(rows: 4, lineWrap: true, wrapStyleWord: true,
+    tweetText = editorPane(contentType:'text/html',
         opaque: false, editable: false, font: tweetLineFont,
         gridwidth: REMAINDER, weightx: 1.0, fill: BOTH, insets: [3, 3, 3, 3])
 }
 tweetRenderer = {list, tweet, index, isSelected, isFocused ->
-    if (tweet?.user as String) {
-        tweetIcon.icon = controller.api.imageMap[tweet.user.profile_image_url as String]
-        tweetIcon.text = tweet.user.screen_name
-        tweetText.text = tweet.text
-    } else if (tweet?.text as String) {
-        tweetIcon.icon = controller.api.imageMap[tweet.parent().profile_image_url as String]
-        tweetIcon.text = tweet.parent().screen_name
-        tweetText.text = tweet.text
+    tweetLine.opaque = !isSelected
+    if (tweet?.text as String) {
+        tweetText.text = ((tweet.text as String)
+            .replace('$', '&#36;')
+            .replaceAll(/(?:@(\w*+))?([^@]*)/, {f,l,t->l?"@<a href='twitter:$l'>$l</a>$t":"$t"})
+            .replaceAll(/(http:\/\/[^' \t\n\r]+)?(.?[^h]*)/, {f,l,t->l?"<a href='$l'>$l</a>$t":"$t"})
+        )
+        if (tweet?.user as String) {
+            tweetIcon.icon = controller.api.imageMap[tweet.user.profile_image_url as String]
+            tweetIcon.text = tweet.user.screen_name
+        } else {
+            tweetIcon.icon = controller.api.imageMap[tweet.parent().profile_image_url as String]
+            tweetIcon.text = tweet.parent().screen_name
+        }
     } else {
         tweetIcon.icon = null
         tweetIcon.text = null
@@ -155,3 +161,4 @@ controller.addPropertyChangeListener("friends", {evt ->
 } as PropertyChangeListener)
 
 new Timer(120000, filterTweets).start()
+

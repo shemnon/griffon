@@ -127,12 +127,10 @@ class TwitterAPI {
     def getUser(String screen_name) {
         withStatus("Loading User $screen_name") {
             if (screen_name.contains('@')) {
-                println "http://twitter.com/users/show.xml?email=${screen_name}"
                 return slurper.parse(
                         new URL("http://twitter.com/users/show.xml?email=${screen_name}").openStream()
                     )
             } else {
-                println "http://twitter.com/users/show/${screen_name}.xml"
                 return slurper.parse(
                         new URL("http://twitter.com/users/show/${screen_name}.xml").openStream()
                     )
