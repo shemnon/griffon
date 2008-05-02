@@ -46,6 +46,11 @@ behalf of the Groovy community. See the NOTICE.txt file distributed with this wo
         <dirset dir="${griffon.build.classes}"/>
         <dirset dir="${griffon.build.tests}"/>
     </path>
+    <path id="examples.classpath">
+        <path refid="build.classpath"/>
+        <dirset dir="${griffon.build.classes}"/>
+        <dirset dir="${griffon.build.examples}"/>
+    </path>
 
     <taskdef name="groovyc" classname="org.codehaus.groovy.ant.Groovyc" classpathref="lib.groovy"/>
 
@@ -56,6 +61,7 @@ behalf of the Groovy community. See the NOTICE.txt file distributed with this wo
 
     <target name="-initialize">
         <mkdir dir="${griffon.build.classes}"/>
+        <mkdir dir="${griffon.build.examples}"/>
         <mkdir dir="${griffon.build.reports}"/>
         <mkdir dir="${griffon.build.tests}"/>
         <mkdir dir="${griffon.dist}"/>
@@ -63,12 +69,27 @@ behalf of the Groovy community. See the NOTICE.txt file distributed with this wo
 
     <target name="compile" depends="-initialize" description="Compile all classes.">
         <javac srcdir="${griffon.src.main}"  destDir="${griffon.build.classes}" classpathref="build.classpath" debug="true"/>
-        <groovyc srcdir="${griffon.src.main}" destDir="${griffon.build.classes}">
+        <groovyc srcdir="${griffon.src.main}" destDir="${griffon.build.classes}" fork="true">
             <classpath refid="build.classpath"/>
             <!--javac source="1.5" target="1.5" fork="true" memorymaximumsize="64m"/-->
         </groovyc>
         <copy toDir="${griffon.build.classes}">
-            <fileset dir="${griffon.src.test}">
+            <fileset dir="${griffon.src.main}">
+                <exclude name="**/*.java"/>
+                <exclude name="**/*.groovy"/>
+                <exclude name="**/*.html"/>
+            </fileset>
+        </copy>
+    </target>
+
+    <target name="compileExamples" depends="compile" description="Compile example classes.">
+        <javac srcdir="${griffon.src.main}"  destDir="${griffon.build.classes}" classpathref="build.classpath" debug="true"/>
+        <groovyc srcdir="${griffon.src.examples}" destDir="${griffon.build.examples}"  fork="true">
+            <classpath refid="examples.classpath"/>
+            <!--javac source="1.5" target="1.5" fork="true" memorymaximumsize="64m"/-->
+        </groovyc>
+        <copy toDir="${griffon.build.examples}">
+            <fileset dir="${griffon.src.examples}">
                 <exclude name="**/*.java"/>
                 <exclude name="**/*.groovy"/>
                 <exclude name="**/*.html"/>
@@ -180,5 +201,11 @@ behalf of the Groovy community. See the NOTICE.txt file distributed with this wo
             <zipfileset dir="${griffon.dist}" excludes='*.zip'/>
             <!--zipfileset prefix="docs/" dir="${griffon.docs}" includes='*.*'/-->
         </zip>
+    </target>
+
+    <target name="demo-greet" depends="compileExamples" description="Run the Greet example">
+        <java classname="greet.Greet" fork="true">
+            <classpath refid="examples.classpath"></classpath>
+        </java>
     </target>
 </project>
