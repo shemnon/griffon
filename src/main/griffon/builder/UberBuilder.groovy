@@ -23,6 +23,8 @@
  */
 package griffon.builder
 
+import org.codehaus.groovy.runtime.InvokerHelper
+
 class UberBuilder extends FactoryBuilderSupport {
 
     protected final Map builderLookup = new LinkedHashMap()
@@ -82,19 +84,19 @@ class UberBuilder extends FactoryBuilderSupport {
         fbs.variables.clear()
         for (Closure delegate in fbs.attributeDelegates) {
             delegate.delegate = fbs
-            addAttributeDelegate(delegate)
+            proxyBuilder.@attributeDelegates.add( delegate );
         }
         for (Closure delegate in fbs.preInstantiateDelegates) {
             delegate.delegate = fbs
-            addPreInstantiateDelegate(delegate)
+            proxyBuilder.@preInstantiateDelegates.add( delegate );
         }
         for (Closure delegate in fbs.postInstantiateDelegates) {
             delegate.delegate = fbs
-            addPostInstantiateDelegate(delegate)
+            proxyBuilder.@postInstantiateDelegates.add( delegate );
         }
         for (Closure delegate in fbs.postNodeCompletionDelegates) {
             delegate.delegate = fbs
-            addPostNodeCompletionDelegate {}(delegate)
+            proxyBuilder.@postNodeCompletionDelegates.add( delegate );
         }
 
         fbs.setProxyBuilder(this)
@@ -122,6 +124,15 @@ class UberBuilder extends FactoryBuilderSupport {
 
     protected void setClosureDelegate( Closure closure, Object node ) {
         closure.setDelegate( currentBuilder );
+    }
+
+    public Object build(Script script) {
+        synchronized (script) {
+            MetaClass scriptMetaClass = script.getMetaClass();
+            script.setMetaClass(new UberInterceptorMetaClass(scriptMetaClass, this));
+            script.setBinding(this);
+            return script.run();
+        }
     }
 
 }
@@ -170,5 +181,108 @@ class UberBuilderRegistration {
 
     public String toString() {
         return "UberBuilderRegistration{ factory '$factory' builder '$builder' prefix '$prefixString'"
+    }
+}
+
+class UberInterceptorMetaClass extends DelegatingMetaClass {
+
+    UberBuilder factory;
+
+    public UberInterceptorMetaClass(MetaClass delegate, UberBuilder factory) {
+        super(delegate);
+        this.factory = factory;
+    }
+
+    public Object invokeMethod(Object object, String methodName, Object arguments) {
+        try {
+            return delegate.invokeMethod(object, methodName, arguments);
+        } catch (MissingMethodException mme) {
+            // attempt method resolution
+            for (UberBuilderRegistration reg in factory.builderRegistration) {
+                try {
+                    def builder = reg.builder
+                    if (!builder.getMetaClass().respondsTo(builder, methodName).isEmpty()) {
+                        return InvokerHelper.invokeMethod(builder, methodName, arguments);
+                    }
+                } catch (MissingMethodException mme2) {
+                    // drop the exception, there will be many
+                }
+            }
+            // dispatch to factories if it is not a literal method
+            try {
+                return factory.invokeMethod(methodName, arguments);
+            } catch (MissingMethodException mme2) {
+                // chain secondary exception
+                Throwable root = mme;
+                while (root.getCause() != null) {
+                    root = root.getCause();
+                }
+                root.initCause(mme2);
+                // throw original
+                throw mme;
+            }
+        }
+    }
+
+    public Object invokeStaticMethod(Object object, String methodName, Object[] arguments) {
+        try {
+            return delegate.invokeMethod(object, methodName, arguments);
+        } catch (MissingMethodException mme) {
+            // attempt method resolution
+            for (UberBuilderRegistration reg in factory.builderRegistration) {
+                try {
+                    def builder = reg.builder
+                    if (!builder.getMetaClass().respondsTo(builder, methodName).isEmpty()) {
+                        return InvokerHelper.invokeMethod(builder, methodName, arguments);
+                    }
+                } catch (MissingMethodException mme2) {
+                    // drop the exception, there will be many
+                }
+            }
+            // dispatch to factories if it is not a literal method
+            try {
+                return factory.invokeMethod(methodName, arguments);
+            } catch (MissingMethodException mme2) {
+                // chain secondary exception
+                Throwable root = mme;
+                while (root.getCause() != null) {
+                    root = root.getCause();
+                }
+                root.initCause(mme2);
+                // throw original
+                throw mme;
+            }
+        }
+    }
+
+    public Object invokeMethod(Object object, String methodName, Object[] arguments) {
+        try {
+            return delegate.invokeMethod(object, methodName, arguments);
+        } catch (MissingMethodException mme) {
+            // attempt method resolution
+            for (UberBuilderRegistration reg in factory.builderRegistration) {
+                try {
+                    def builder = reg.builder
+                    if (!builder.getMetaClass().respondsTo(builder, methodName).isEmpty()) {
+                        return InvokerHelper.invokeMethod(builder, methodName, arguments);
+                    }
+                } catch (MissingMethodException mme2) {
+                    // drop the exception, there will be many
+                }
+            }
+            // dispatch to factories if it is not a literal method
+            try {
+                return factory.invokeMethod(methodName, arguments);
+            } catch (MissingMethodException mme2) {
+                // chain secondary exception
+                Throwable root = mme;
+                while (root.getCause() != null) {
+                    root = root.getCause();
+                }
+                root.initCause(mme2);
+                // throw original
+                throw mme;
+            }
+        }
     }
 }

@@ -19,6 +19,7 @@ package greet
 import groovy.beans.Bindable
 import groovy.swing.SwingBuilder
 import javax.swing.JOptionPane
+import griffon.gui.GUIBuilder
 
 /**
  *@author Danno Ferrin
@@ -46,7 +47,7 @@ class Greet {
 
     void login(evt) {
         setAllowLogin(false)
-        view.doOutside {
+        SwingBuilder.doOutside(view) {
             try {
                 if (api.login(view.twitterNameField.text, view.twitterPasswordField.password)) {
                     setFriends(api.getFriends(api.authenticatedUser))
@@ -61,7 +62,7 @@ class Greet {
             } catch (Exception e) {
                 e.printStackTrace()
             } finally {
-                view.edt {
+                SwingBuilder.edt(view) {
                     setAllowLogin(true)
                     setAllowSelection(true)
                     setAllowTweet(true)
@@ -73,7 +74,7 @@ class Greet {
     void filterTweets(evt = null) {
         setAllowSelection(false)
         setAllowTweet(false)
-        view.doOutside {
+        SwingBuilder.doOutside(view) {
             try {
                 setStatuses(
                     friends.collect {it.status}.findAll {it.text =~ view.searchField.text}
@@ -87,7 +88,7 @@ class Greet {
             } catch (Exception e) {
                 e.printStackTrace()
             } finally {
-                view.edt {
+                SwingBuilder.edt(view) {
                     setAllowSelection(true)
                     setAllowTweet(true)
                 }
@@ -96,7 +97,7 @@ class Greet {
     }
 
     def userSelected(evt) {
-        view.doOutside {
+        SwingBuilder.doOutside(view) {
             selectUser(view.users.selectedItem)
         }
     }
@@ -109,7 +110,7 @@ class Greet {
             setTweets(api.getTweets(focusedUser).findAll {it.text =~ view.searchField.text})
             setTimeline(api.getFriendsTimeline(focusedUser).findAll {it.text =~ view.searchField.text})
         } finally {
-            view.edt {
+            SwingBuilder.edt(view) {
                 setAllowSelection(true)
                 setAllowTweet(true)
             }
@@ -118,11 +119,11 @@ class Greet {
 
     def tweet(evt = null) {
         setAllowTweet(false)
-        view.doOutside {
+        SwingBuilder.doOutside(view) {
             try {
                 api.tweet(view.tweetBox.text)
                 // true story: it froze w/o the EDT call here
-                view.edt {tweetBox.text = ""}
+                SwingBuilder.edt(view) {tweetBox.text = ""}
                 filterTweets()
             } finally {
                 setAllowTweet(true)
@@ -133,7 +134,8 @@ class Greet {
     public static void main(String[] args) {
         def model = new TwitterAPI()
         def controller = new Greet()
-        def view = new SwingBuilder()
+        def view = new GUIBuilder(new SwingBuilder())
+        //def view = new SwingBuilder()
 
         controller.api = model
         controller.view = view

@@ -9,6 +9,7 @@ package greet
 import java.awt.Cursor
 import java.beans.PropertyChangeListener
 import javax.swing.*
+import groovy.swing.SwingBuilder
 
 lookAndFeel('nimbus', 'mac', ['metal', [boldFonts: false]])
 
@@ -114,7 +115,7 @@ greetFrame = frame(title: "Greet - A Groovy Twitter Client",
             // add data change listeners
             [timeline:timelineList, tweets:tweetList, statuses:statusList].each {p, w ->
                 controller.addPropertyChangeListener(p,
-                    {evt -> w.listData = evt.newValue as Object[]} as PropertyChangeListener
+                {evt -> w.listData = evt.newValue as Object[]} as PropertyChangeListener
                 )
             }
         }
@@ -157,7 +158,7 @@ greetFrame = frame(title: "Greet - A Groovy Twitter Client",
 }
 
 controller.addPropertyChangeListener("friends", {evt ->
-    view.edt { users.model = new DefaultComboBoxModel(evt.newValue as Object[]) }
+    SwingBuilder.edt(binding) { users.model = new DefaultComboBoxModel(evt.newValue as Object[]) }
 } as PropertyChangeListener)
 
 new Timer(120000, filterTweets).start()
