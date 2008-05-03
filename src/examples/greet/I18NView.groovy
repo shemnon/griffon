@@ -40,51 +40,53 @@ actions() {
 }
 
 tweetLineFont = new java.awt.Font("Ariel", 0, 12)
-tweetLine = panel(border: emptyBorder(3), preferredSize:[250,84]) {
-    gridBagLayout()
-    tweetIcon = label(verticalTextPosition:SwingConstants.BOTTOM,
-        horizontalTextPosition:SwingConstants.CENTER,
-        //anchor: BASELINE, insets: [3, 3, 3, 3])
-        anchor: CENTER, insets: [3, 3, 3, 3])
-    tweetText = editorPane(contentType:'text/html',
-        opaque: false, editable: false, font: tweetLineFont,
-        gridwidth: REMAINDER, weightx: 1.0, fill: BOTH, insets: [3, 3, 3, 3])
-}
-tweetRenderer = {list, tweet, index, isSelected, isFocused ->
-    tweetLine.opaque = !isSelected
-    if (tweet?.text as String) {
-        tweetText.text = ((tweet.text as String)
-            .replace('$', '&#36;')
-            .replaceAll(/(?:@(\w*+))?([^@]*)/, {f,l,t->l?"@<a href='twitter:$l'>$l</a>$t":"$t"})
-            .replaceAll(/(http:\/\/[^' \t\n\r]+)?(.?[^h]*)/, {f,l,t->l?"<a href='$l'>$l</a>$t":"$t"})
-        )
-        if (tweet?.user as String) {
-            tweetIcon.icon = controller.api.imageMap[tweet.user.profile_image_url as String]
-            tweetIcon.text = tweet.user.screen_name
+
+tweetRenderer = listCellRenderer {
+    tweetLine = panel(border: emptyBorder(3), preferredSize:[250,84]) {
+        gridBagLayout()
+        tweetIcon = label(verticalTextPosition:SwingConstants.BOTTOM,
+            horizontalTextPosition:SwingConstants.CENTER,
+            //anchor: BASELINE, insets: [3, 3, 3, 3])
+            anchor: CENTER, insets: [3, 3, 3, 3])
+        tweetText = editorPane(contentType:'text/html',
+            opaque: false, editable: false, font: tweetLineFont,
+            gridwidth: REMAINDER, weightx: 1.0, fill: BOTH, insets: [3, 3, 3, 3])
+    }
+    onRender {
+        tweetLine.opaque = !selected
+        if (value?.text as String) {
+            tweetText.text = ((value.text as String)
+                .replace('$', '&#36;')
+                .replaceAll(/(?:@(\w*+))?([^@]*)/, {f,l,t->l?"@<a href='twitter:$l'>$l</a>$t":"$t"})
+                .replaceAll(/(http:\/\/[^' \t\n\r]+)?(.?[^h]*)/, {f,l,t->l?"<a href='$l'>$l</a>$t":"$t"})
+            )
+            if (value?.user as String) {
+                tweetIcon.icon = controller.api.imageMap[value.user.profile_image_url as String]
+                tweetIcon.text = value.user.screen_name
+            } else {
+                tweetIcon.icon = controller.api.imageMap[value.parent().profile_image_url as String]
+                tweetIcon.text = value.parent().screen_name
+            }
         } else {
-            tweetIcon.icon = controller.api.imageMap[tweet.parent().profile_image_url as String]
-            tweetIcon.text = tweet.parent().screen_name
+            tweetIcon.icon = null
+            tweetIcon.text = null
+            tweetText.text = null
         }
-    } else {
-        tweetIcon.icon = null
-        tweetIcon.text = null
-        tweetText.text = null
     }
-    tweetLine
-} as ListCellRenderer
+}
 
-
-userCell = label(border: emptyBorder(3))
-userCellRenderer = {list, user, index, isSelected, isFocused ->
-    if (user) {
-        userCell.icon = controller.api.imageMap[user.profile_image_url as String]
-        userCell.text = "<html>$user.screen_name<br>$user.name<br>$user.location<br>"
-    } else {
-        userCell.icon = null
-        userCell.text = null
+userCellRenderer = listCellRenderer {
+    userCell = label(border: emptyBorder(3))
+    onRender {
+        if (value) {
+            userCell.icon = controller.api.imageMap[value.profile_image_url as String]
+            userCell.text = "<html>$value.screen_name<br>$value.name<br>$value.location<br>"
+        } else {
+            userCell.icon = null
+            userCell.text = null
+        }
     }
-    userCell
-} as ListCellRenderer
+}
 
 actions { // just a wrapper to cope with my MOP abuse
     greetFrame = frame(title: resources.getString("frameTitle"),
