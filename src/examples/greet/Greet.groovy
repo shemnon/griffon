@@ -142,7 +142,7 @@ class Greet {
 
         view.controller = controller
 
-        view.build(View)
+        view.build(I18NView)
         view.view = view
 
         controller.startUp()

@@ -98,7 +98,7 @@ actions { // just a wrapper to cope with my MOP abuse
             gridBagLayout()
             users = comboBox(renderer: userCellRenderer, action: userSelected,
                 gridwidth: REMAINDER, insets: [6, 6, 3, 6], fill: HORIZONTAL)
-            label('Search:', insets: [3, 6, 3, 3])
+            label(resources.getString('labelSearch'), insets: [3, 6, 3, 3])
             searchField = textField(columns: 20, action: filterTweets,
                 insets: [3, 3, 3, 3], weightx: 1.0, fill: BOTH)
             button(action: filterTweets,
