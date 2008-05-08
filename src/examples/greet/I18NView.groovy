@@ -11,7 +11,7 @@ import java.beans.PropertyChangeListener
 import javax.swing.*
 import groovy.swing.SwingBuilder
 
-lookAndFeel('nimbus', 'mac', ['metal', [boldFonts: false]])
+lookAndFeel('nimbus', 'mac', 'gtk', ['metal', [boldFonts: false]])
 
 actions() {
     loginAction = action(

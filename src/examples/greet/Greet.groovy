@@ -20,6 +20,8 @@ import groovy.beans.Bindable
 import groovy.swing.SwingBuilder
 import javax.swing.JOptionPane
 import griffon.gui.GUIBuilder
+import javax.swing.event.HyperlinkEvent
+import java.awt.Cursor
 
 /**
  *@author Danno Ferrin
@@ -51,7 +53,6 @@ class Greet {
             try {
                 if (api.login(view.twitterNameField.text, view.twitterPasswordField.password)) {
                     setFriends(api.getFriends(api.authenticatedUser))
-                    friends.each {it.status.user = [screen_name:it.screen_name, profile_image_url:it.profile_image_url] }
                     setStatuses(friends.collect {it.status})
                     selectUser(api.authenticatedUser)
                     view.greetFrame.show()
@@ -103,10 +104,15 @@ class Greet {
     }
 
     def selectUser(user) {
+        selectUser(user.screen_name as String)
+    }
+
+    def selectUser(String screen_name) {
         setAllowSelection(false)
         setAllowTweet(false)
         try {
-            setFocusedUser(api.getUser(user.screen_name as String))
+            def newFriend = friends.find {it.screen_name == screen_name} ?: api.getUser(screen_name)
+            setFocusedUser(newFriend)
             setTweets(api.getTweets(focusedUser).findAll {it.text =~ view.searchField.text})
             setTimeline(api.getFriendsTimeline(focusedUser).findAll {it.text =~ view.searchField.text})
         } finally {
@@ -131,6 +137,23 @@ class Greet {
         }
     }
 
+    def hyperlinkPressed(HyperlinkEvent evt) {
+        switch (evt.getEventType()) {
+            case HyperlinkEvent.EventType.ACTIVATED:
+                def url = evt.URL
+                if (url.host == 'twitter.com') {
+                    SwingBuilder.doOutside(view) {selectUser(url.file.substring(1))}
+                }
+                break;
+            case HyperlinkEvent.EventType.ENTERED:
+                evt.getSource().setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                break;
+            case HyperlinkEvent.EventType.EXITED:
+                evt.getSource().setCursor(null);
+                break;
+        }
+    }
+
     public static void main(String[] args) {
         def model = new TwitterAPI()
         def controller = new Greet()
@@ -142,7 +165,7 @@ class Greet {
 
         view.controller = controller
 
-        view.build(I18NView)
+        view.build(View)
         view.view = view
 
         controller.startUp()

@@ -40,41 +40,8 @@ actions() {
 }
 
 tweetLineFont = new java.awt.Font("Ariel", 0, 12)
-tweetLine = panel(border: emptyBorder(3), preferredSize:[250,84]) {
-    gridBagLayout()
-    tweetIcon = label(verticalTextPosition:SwingConstants.BOTTOM,
-        horizontalTextPosition:SwingConstants.CENTER,
-        //anchor: BASELINE, insets: [3, 3, 3, 3])
-        anchor: CENTER, insets: [3, 3, 3, 3])
-    tweetText = editorPane(contentType:'text/html',
-        opaque: false, editable: false, font: tweetLineFont,
-        gridwidth: REMAINDER, weightx: 1.0, fill: BOTH, insets: [3, 3, 3, 3])
-}
-tweetRenderer = {list, tweet, index, isSelected, isFocused ->
-    tweetLine.opaque = !isSelected
-    if (tweet?.text as String) {
-        tweetText.text = ((tweet.text as String)
-            .replace('$', '&#36;')
-            .replaceAll(/(?:@(\w*+))?([^@]*)/, {f,l,t->l?"@<a href='twitter:$l'>$l</a>$t":"$t"})
-            .replaceAll(/(http:\/\/[^' \t\n\r]+)?(.?[^h]*)/, {f,l,t->l?"<a href='$l'>$l</a>$t":"$t"})
-        )
-        if (tweet?.user as String) {
-            tweetIcon.icon = controller.api.imageMap[tweet.user.profile_image_url as String]
-            tweetIcon.text = tweet.user.screen_name
-        } else {
-            tweetIcon.icon = controller.api.imageMap[tweet.parent().profile_image_url as String]
-            tweetIcon.text = tweet.parent().screen_name
-        }
-    } else {
-        tweetIcon.icon = null
-        tweetIcon.text = null
-        tweetText.text = null
-    }
-    tweetLine
-} as ListCellRenderer
-
-
-userCell = label(border: emptyBorder(3))
+tweetTimeFont = new java.awt.Font("Ariel", 0, 9)
+def userCell = label(border: emptyBorder(3))
 userCellRenderer = {list, user, index, isSelected, isFocused ->
     if (user) {
         userCell.icon = controller.api.imageMap[user.profile_image_url as String]
@@ -96,7 +63,9 @@ greetFrame = frame(title: "Greet - A Groovy Twitter Client",
 
         gridBagLayout()
         users = comboBox(renderer: userCellRenderer, action: userSelected,
-            gridwidth: REMAINDER, insets: [6, 6, 3, 6], fill: HORIZONTAL)
+            selectedItem:bind(source:controller, sourceProperty:'focusedUser'),
+            gridwidth: REMAINDER, insets: [6, 6, 3, 6], fill: HORIZONTAL
+        )
         label('Search:', insets: [3, 6, 3, 3])
         searchField = textField(columns: 20, action: filterTweets,
             insets: [3, 3, 3, 3], weightx: 1.0, fill: BOTH)
@@ -104,19 +73,13 @@ greetFrame = frame(title: "Greet - A Groovy Twitter Client",
             gridwidth: REMAINDER, insets: [3, 3, 3, 6], fill:HORIZONTAL)
         tabbedPane(gridwidth: REMAINDER, weighty: 1.0, fill: BOTH) {
             scrollPane(title: 'Timeline') {
-                timelineList = list(visibleRowCount: 20, cellRenderer: tweetRenderer)
+                timelinePanel = panel(new ScrollablePanel(), border:emptyBorder(3))
             }
             scrollPane(title: 'Tweets') {
-                tweetList = list(visibleRowCount: 20, cellRenderer: tweetRenderer)
+                tweetPanel = panel(new ScrollablePanel(), border:emptyBorder(3))
             }
             scrollPane(title: 'Statuses') {
-                statusList = list(visibleRowCount: 20, cellRenderer: tweetRenderer)
-            }
-            // add data change listeners
-            [timeline:timelineList, tweets:tweetList, statuses:statusList].each {p, w ->
-                controller.addPropertyChangeListener(p,
-                {evt -> w.listData = evt.newValue as Object[]} as PropertyChangeListener
-                )
+                statusPanel = panel(new ScrollablePanel(), border:emptyBorder(3))
             }
         }
         separator(fill: HORIZONTAL, gridwidth: REMAINDER)
@@ -161,5 +124,19 @@ controller.addPropertyChangeListener("friends", {evt ->
     SwingBuilder.edt(binding) { users.model = new DefaultComboBoxModel(evt.newValue as Object[]) }
 } as PropertyChangeListener)
 
-new Timer(120000, filterTweets).start()
+// add data change listeners
+[timeline:timelinePanel, tweets:tweetPanel, statuses:statusPanel].each {p, w ->
+    controller.addPropertyChangeListener(p, {evt ->
 
+        w.removeAll()
+        panel(w) {
+            gridBagLayout()
+            evt.newValue.each() {
+                tweet = it
+                build(TweetLine)
+            }
+        }
+    } as PropertyChangeListener)
+}
+
+new Timer(120000, filterTweets).start()

@@ -17,6 +17,8 @@
 package greet
 
 import groovy.beans.Bindable
+import java.text.DateFormat
+import java.text.SimpleDateFormat
 
 /**
  * @author Danno Ferrin
@@ -40,6 +42,9 @@ class TwitterAPI {
         }
     }
 
+    def getAPIStream(String url) {
+        new StringReader(new URL(url).openStream().text)
+    }
 
     boolean login(def name, def password) {
         withStatus("Logging in") {
@@ -64,7 +69,7 @@ class TwitterAPI {
         def friends = [user]
         withStatus("Loading Friends") {
             def page = 1
-            def list = slurper.parse(new URL("http://twitter.com/statuses/friends/${user.screen_name}.xml").openStream())
+            def list = slurper.parse(getAPIStream("http://twitter.com/statuses/friends/${user.screen_name}.xml"))
             while (list.length) {
                 list.user.collect(friends) {it}
                 page++
@@ -92,7 +97,7 @@ class TwitterAPI {
         def timeline = []
         withStatus("Loading Timeline") {
             timeline =  slurper.parse(
-                    new URL("http://twitter.com/statuses/friends_timeline/${user.screen_name}.xml").openStream()
+                    getAPIStream("http://twitter.com/statuses/friends_timeline/${user.screen_name}.xml")
                 ).status.collect{it}
         }
         withStatus("Loading Timeline Images") {
@@ -114,7 +119,7 @@ class TwitterAPI {
         def tweets = []
         withStatus("Loading Tweets") {
             tweets = slurper.parse(
-                    new URL("http://twitter.com/statuses/user_timeline/${friend.screen_name}.xml").openStream()
+                    getAPIStream("http://twitter.com/statuses/user_timeline/${friend.screen_name}.xml")
                 ).status.collect{it}
         }
         withStatus("Loading Tweet Images") {
@@ -128,11 +133,11 @@ class TwitterAPI {
         withStatus("Loading User $screen_name") {
             if (screen_name.contains('@')) {
                 return slurper.parse(
-                        new URL("http://twitter.com/users/show.xml?email=${screen_name}").openStream()
+                        "http://twitter.com/users/show.xml?email=${screen_name}"
                     )
             } else {
                 return slurper.parse(
-                        new URL("http://twitter.com/users/show/${screen_name}.xml").openStream()
+                        "http://twitter.com/users/show/${screen_name}.xml"
                     )
             }
         }
@@ -152,6 +157,34 @@ class TwitterAPI {
         if (!imageMap[image]) {
             Thread.start {imageMap[image] = new javax.swing.ImageIcon(new URL(image))}
         }
+    }
+
+    static final DateFormat twitterFormat = new SimpleDateFormat("EEE MMM dd hh:mm:ss Z yyyy")
+
+    def timeAgo(date) {
+        timeAgo(twitterFormat.parse(date as String))
+    }
+
+    def timeAgo(Date d) {
+        int secs = (System.currentTimeMillis() - d.getTime()) / 1000
+        def dir = (secs < 0) ? "from now" : "ago"
+        if (secs < 0) secs = -secs
+        def parts
+        switch (secs) {
+            case 0..119:
+                parts = [1,"minute", dir]; break
+            case 120..3599:
+                parts = [(secs / 60) as int, "minutes", dir]; break
+            case 3600..7199:
+                parts = [1, "hour", dir]; break
+            case 7200..86399:
+                parts = [(secs / 3600) as int, "hours", dir]; break
+            case 86400..172799:
+                parts = [1, "day", dir]; break
+            default :
+                parts = [(secs / 86400) as int, "days", dir]; break
+        }
+        return parts.join(" ")
     }
 
 }
