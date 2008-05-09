@@ -157,8 +157,7 @@ class Greet {
     public static void main(String[] args) {
         def model = new TwitterAPI()
         def controller = new Greet()
-        def view = new GUIBuilder(new SwingBuilder())
-        //def view = new SwingBuilder()
+        def view = new SwingBuilder()
 
         controller.api = model
         controller.view = view

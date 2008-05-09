@@ -10,6 +10,7 @@ import java.awt.Cursor
 import java.beans.PropertyChangeListener
 import javax.swing.*
 import groovy.swing.SwingBuilder
+import java.awt.Rectangle
 
 lookAndFeel('nimbus', 'mac', ['metal', [boldFonts: false]])
 
@@ -127,14 +128,28 @@ controller.addPropertyChangeListener("friends", {evt ->
 // add data change listeners
 [timeline:timelinePanel, tweets:tweetPanel, statuses:statusPanel].each {p, w ->
     controller.addPropertyChangeListener(p, {evt ->
+        edt {
+            def oldName = null
+            if (w.componentCount) {
+                oldName = w.components[0].name
+                println oldName
+            } else println "No oldname"
 
-        w.removeAll()
-        panel(w) {
-            gridBagLayout()
-            evt.newValue.each() {
-                tweet = it
-                build(TweetLine)
+            w.removeAll()
+            panel(w) {
+                gridBagLayout()
+                evt.newValue.each() {
+                    tweet = it
+                    build(TweetLine)
+                }
             }
+            def scrollRect = [0,0,1,1] as Rectangle
+            if (oldName) w.components.each {
+                if (it.name == oldName) {
+                    scrollRect = [0, 0, w.width, w.height] as Rectangle
+                }
+            }
+            doLater { w.scrollRectToVisible(scrollRect) }
         }
     } as PropertyChangeListener)
 }
