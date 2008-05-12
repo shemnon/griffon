@@ -162,6 +162,7 @@ class TwitterAPI {
     static final DateFormat twitterFormat = new SimpleDateFormat("EEE MMM dd hh:mm:ss Z yyyy")
 
     def timeAgo(date) {
+	if (!(date as String).equals("")) 
         timeAgo(twitterFormat.parse(date as String))
     }
 
