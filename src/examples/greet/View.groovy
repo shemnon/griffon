@@ -55,9 +55,8 @@ userCellRenderer = {list, user, index, isSelected, isFocused ->
 } as ListCellRenderer
 
 greetFrame = frame(title: "Greet - A Groovy Twitter Client",
-    defaultCloseOperation: javax.swing.JFrame.DISPOSE_ON_CLOSE, size: [320, 480],
+    defaultCloseOperation: javax.swing.JFrame.EXIT_ON_CLOSE, size: [320, 480],
     locationByPlatform:true,
-    windowClosed: {System.exit(0)} // for webstart, FIXME    
 )
 {
     panel(cursor: bind(source: controller, sourceProperty: 'allowSelection',
@@ -132,10 +131,8 @@ controller.addPropertyChangeListener("friends", {evt ->
     controller.addPropertyChangeListener(p, {evt ->
         edt {
             def oldName = null
-            if (w.componentCount) {
+            if (w.componentCount) 
                 oldName = w.components[0].name
-                println oldName
-            } else println "No oldname"
 
             w.removeAll()
             panel(w) {
