@@ -56,7 +56,9 @@ userCellRenderer = {list, user, index, isSelected, isFocused ->
 
 greetFrame = frame(title: "Greet - A Groovy Twitter Client",
     defaultCloseOperation: javax.swing.JFrame.DISPOSE_ON_CLOSE, size: [320, 480],
-    locationByPlatform:true)
+    locationByPlatform:true,
+    windowClosed: {System.exit(0)} // for webstart, FIXME    
+)
 {
     panel(cursor: bind(source: controller, sourceProperty: 'allowSelection',
         converter: {it ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)})
@@ -143,13 +145,13 @@ controller.addPropertyChangeListener("friends", {evt ->
                     build(TweetLine)
                 }
             }
-            def scrollRect = [0,0,1,1] as Rectangle
-            if (oldName) w.components.each {
-                if (it.name == oldName) {
-                    scrollRect = [0, 0, w.width, w.height] as Rectangle
+            def scrollClosure = { w.scrollRectToVisible([0,0,1,1] as Rectangle)}
+            if (oldName) w.components.each { tweetLine ->
+                if (tweetLine.name == oldName) {
+                    scrollClosure = {tweetLine.scrollRectToVisible([w.x, w.y, w.width, w.height] as Rectangle)}
                 }
             }
-            doLater { w.scrollRectToVisible(scrollRect) }
+            doLater scrollClosure
         }
     } as PropertyChangeListener)
 }
