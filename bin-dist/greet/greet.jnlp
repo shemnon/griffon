@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp
+    spec="1.5+"
+    codebase="http://svn.codehaus.org/groovy/trunk/groovy/modules/griffon/bind-dist/greet/"
+    href="greet.jnlp">
+  <information>
+    <title>Greet</title>
+    <vendor>Groovy @ Codehaus</vendor>
+    <homepage href="http://groovy.codehaus.org/"/>
+    <description>Greet - A Groovy Twitter Client</description>
+    <description kind="short">Greet</description>
+    <offline-allowed/>
+  </information>
+  <security>
+     <all-permissions/>
+  </security>
+  <resources>
+    <j2se version="1.5+"/>
+    <jar href="greet.jar"/>
+    <jar href="groovy-all-1.6-beta-2-SNAPSHOT.jar"/>
+  </resources>
+  <application-desc main-class="greet.Greet"/>
+</jnlp>
