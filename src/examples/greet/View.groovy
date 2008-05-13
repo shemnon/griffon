@@ -41,8 +41,8 @@ actions() {
     )
 }
 
-tweetLineFont = new java.awt.Font("Ariel", 0, 12)
-tweetTimeFont = new java.awt.Font("Ariel", 0, 9)
+tweetLineFont = new java.awt.Font("Arial", 0, 12)
+tweetTimeFont = new java.awt.Font("Arial", 0, 9)
 def userCell = label(border: emptyBorder(3))
 userCellRenderer = {list, user, index, isSelected, isFocused ->
     if (user) {
