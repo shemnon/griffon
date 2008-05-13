@@ -11,6 +11,7 @@ import java.beans.PropertyChangeListener
 import javax.swing.*
 import groovy.swing.SwingBuilder
 import java.awt.Rectangle
+import java.awt.event.ActionListener
 
 lookAndFeel('nimbus', 'mac', ['metal', [boldFonts: false]])
 
@@ -131,8 +132,11 @@ controller.addPropertyChangeListener("friends", {evt ->
     controller.addPropertyChangeListener(p, {evt ->
         edt {
             def oldName = null
-            if (w.componentCount) 
+            def topInset = 0
+            if (w.componentCount) {
                 oldName = w.components[0].name
+                topInset = w.components[0].x
+            }
 
             w.removeAll()
             panel(w) {
@@ -142,13 +146,30 @@ controller.addPropertyChangeListener("friends", {evt ->
                     build(TweetLine)
                 }
             }
-            def scrollClosure = { w.scrollRectToVisible([0,0,1,1] as Rectangle)}
+            boolean found = false
             if (oldName) w.components.each { tweetLine ->
                 if (tweetLine.name == oldName) {
-                    scrollClosure = {tweetLine.scrollRectToVisible([w.x, w.y, w.width, w.height] as Rectangle)}
+                    found = true
+                    doLater {
+                        JScrollPane parentScrollPane = tweetLine.parent.parent.parent
+                        float pos = tweetLine.y - topInset
+                        float step = pos / 500 * 18
+                        Timer t
+                        t = new Timer(18,  {
+                            //println "firing $pos"
+                            if (pos <= 0) {
+                                t.stop()
+                            } else {
+                                parentScrollPane.verticalScrollBar.setValue((pos -= step) as int)
+                            }
+                        } as ActionListener);
+                        t.repeats = true
+                        t.start()
+                    }
                 }
             }
-            doLater scrollClosure
+            if (!found)
+                doLater { w.parent.parent.verticalScrollBar.value = 0}
         }
     } as PropertyChangeListener)
 }
