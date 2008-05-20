@@ -1,0 +1,1 @@
+greet.builder.refreshTimer.stop()

@@ -58,7 +58,7 @@ target( createConfig: "Creates the configuration object") {
             config = configSlurper.parse(classLoader.loadClass("Config"))
             config.setConfigFile(configFile.toURI().toURL())
 
-            ConfigurationHolder.setConfig(config)
+//            ConfigurationHolder.setConfig(config)
         }
         catch(Exception e) {
             e.printStackTrace()
@@ -68,17 +68,19 @@ target( createConfig: "Creates the configuration object") {
         }
 
    }
-   def dataSourceFile = new File("${basedir}/griffon-app/conf/DataSource.groovy")
-   if(dataSourceFile.exists()) {
-        try {
-           def dataSourceConfig = configSlurper.parse(classLoader.loadClass("DataSource"))
-           config.merge(dataSourceConfig)
-           ConfigurationHolder.setConfig(config)
-        }
-        catch(Exception e) {
-            println "WARNING: DataSource.groovy not found, assuming dataSource bean is configured by Spring..."
-        }
-   }
+//   def dataSourceFile = new File("${basedir}/griffon-app/conf/DataSource.groovy")
+//   if(dataSourceFile.exists()) {
+//        try {
+//            println classLoader
+//            println classLoader.getClass()
+//           def dataSourceConfig = configSlurper.parse(classLoader.loadClass("DataSource"))
+//           config.merge(dataSourceConfig)
+//           ConfigurationHolder.setConfig(config)
+//        }
+//        catch(Exception e) {
+//            println "WARNING: DataSource.groovy not found, assuming dataSource bean is configured by Spring..."
+//        }
+//   }
 //   ConfigurationHelper.initConfig(config, null, classLoader)
 }
 target( packageApp : "Implementation of package target") {
@@ -101,10 +103,10 @@ target( packageApp : "Implementation of package target") {
     String i18nDir = "${resourcesDirPath}/griffon-app/i18n"
     Ant.mkdir(dir:i18nDir)
 
-    def files = Ant.fileScanner {
-        fileset(dir:"${basedir}/griffon-app/views", includes:"**/*.jsp")
-    }
-
+//    def files = Ant.fileScanner {
+//        fileset(dir:"${basedir}/griffon-app/views", includes:"**/*.jsp")
+//    }
+//
 //    if(files.iterator().hasNext()) {
 //        Ant.mkdir(dir:"${basedir}/web-app/WEB-INF/griffon-app/views")
 //        Ant.copy(todir:"${basedir}/web-app/WEB-INF/griffon-app/views") {
@@ -215,7 +217,7 @@ log4j.rootLogger=error,stdout
 //                   pluginClasses << classLoader.loadClass(className)
 //                }
 //                if(griffonApp == null) {
-//                    griffonApp = new DefaultGriffonApplication(new Class[0], new GroovyClassLoader(classLoader))
+//                    griffonApp = new DefaultGriffonContext(new Class[0], new GroovyClassLoader(classLoader))
 //                }
 //                pluginManager = new DefaultGriffonPluginManager(pluginClasses as Class[], griffonApp)
 //

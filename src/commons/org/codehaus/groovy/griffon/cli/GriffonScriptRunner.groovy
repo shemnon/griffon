@@ -22,8 +22,9 @@ import gant.Gant
 //import griffon.util.GriffonUtil
 //import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.codehaus.groovy.griffon.commons.GriffonClassUtils
-import org.codehaus.groovy.griffon.commons.GriffonApplication
+import org.codehaus.groovy.griffon.commons.GriffonContext
 import org.codehaus.groovy.griffon.commons.GriffonClassUtils
+import org.codehaus.groovy.griffon.commons.GriffonContext
 
 /**
  * Class that handles Griffon command line interface for running scripts
@@ -168,24 +169,24 @@ Griffon home is set to: ${griffonHome}
         return scriptName
     }
 
-    static ENV_ARGS = [dev:GriffonApplication.ENV_DEVELOPMENT,prod:GriffonApplication.ENV_PRODUCTION,test:GriffonApplication.ENV_TEST]
+    static ENV_ARGS = [dev:GriffonContext.ENV_DEVELOPMENT,prod:GriffonContext.ENV_PRODUCTION,test:GriffonContext.ENV_TEST]
     // this map contains default environments for several scripts in form 'script-name':'env-code'
-    static DEFAULT_ENVS = ['war': GriffonApplication.ENV_PRODUCTION,'test-app':GriffonApplication.ENV_TEST,'run-webtest':GriffonApplication.ENV_TEST]
+    static DEFAULT_ENVS = ['war': GriffonContext.ENV_PRODUCTION,'test-app':GriffonContext.ENV_TEST,'run-webtest':GriffonContext.ENV_TEST]
     private static isEnvironmentArgs(env) {
         ENV_ARGS.keySet().contains(env)
     }
     private static setDefaultEnvironment(args) {
-        if(!System.properties."${GriffonApplication.ENVIRONMENT}") {
+        if(!System.properties."${GriffonContext.ENVIRONMENT}") {
             def environment = DEFAULT_ENVS[args.toLowerCase()]
-            environment = environment ?: GriffonApplication.ENV_DEVELOPMENT
-            System.setProperty(GriffonApplication.ENVIRONMENT, environment )
-            System.setProperty(GriffonApplication.ENVIRONMENT_DEFAULT, "true")
+            environment = environment ?: GriffonContext.ENV_DEVELOPMENT
+            System.setProperty(GriffonContext.ENVIRONMENT, environment )
+            System.setProperty(GriffonContext.ENVIRONMENT_DEFAULT, "true")
         }
     }
     private static calculateEnvironment(env) {
         def environment = ENV_ARGS[env]
         if( environment ) {
-            System.setProperty(GriffonApplication.ENVIRONMENT, environment)
+            System.setProperty(GriffonContext.ENVIRONMENT, environment)
         } else {
             setDefaultEnvironment("prod")
         }

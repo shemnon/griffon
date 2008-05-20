@@ -25,14 +25,16 @@ package griffon.gui
 
 import griffon.builder.UberBuilder
 import groovy.swing.SwingBuilder
-import groovy.swing.SwingXBuilder
-import groovy.swing.j2d.GraphicsBuilder
+//import groovy.swing.SwingXBuilder
+//import groovy.swing.j2d.GraphicsBuilder
 import org.codehaus.groovy.reflection.ReflectionUtils
 
 class GUIBuilder extends UberBuilder {
 
     protected static final Set<String> builderPackages = new HashSet<String>();
     static {
+        builderPackages.add("org.codehaus.groovy.runtime.metaclass");
+        builderPackages.add("griffon.builder");
         builderPackages.add("groovy.util");
         //builderPackages.add("griffon.gui");
     }
@@ -51,17 +53,18 @@ class GUIBuilder extends UberBuilder {
         //builderLookup['default'] = ['swing', 'swingx', [j:'swing', jx:'swingx']] as Object[]
         this.@builderLookup.swing = SwingBuilder
         this.@builderLookup.SwingBuilder = SwingBuilder
-        this.@builderLookup.swingx = SwingXBuilder
-        this.@builderLookup.SwingXBuilder = SwingXBuilder
+//        this.@builderLookup.swingx = SwingXBuilder
+//        this.@builderLookup.SwingXBuilder = SwingXBuilder
         // looping proble with graphisBuidler.getProperty
-        this.@builderLookup.gfx = GraphicsBuilder
-        this.@builderLookup.GraphicsBuilder = GraphicsBuilder
-    }
+//        this.@builderLookup.gfx = GraphicsBuilder
+//        this.@builderLookup.GraphicsBuilder = GraphicsBuilder
 
-    public ResourceBundle getResources() {
-        return ResourceBundle.getBundle(ReflectionUtils.getCallingClass(1, builderPackages)
+        this.@getters['resources'] = {->
+            ResourceBundle.getBundle(ReflectionUtils.getCallingClass(1, builderPackages)
                 .name
                 .split(/\$/)[0]
                 .replace('.', '/'))
+        }
     }
+
 }

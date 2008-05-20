@@ -18,8 +18,8 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 //import org.codehaus.groovy.griffon.commons.ApplicationAttributes;
 //import org.codehaus.groovy.griffon.commons.ApplicationHolder;
-//import org.codehaus.groovy.griffon.commons.DefaultGriffonApplication;
-import org.codehaus.groovy.griffon.commons.GriffonApplication;
+//import org.codehaus.groovy.griffon.commons.DefaultGriffonContext;
+import org.codehaus.groovy.griffon.commons.GriffonContext;
 //import org.codehaus.groovy.griffon.commons.spring.GriffonRuntimeConfigurator;
 //import org.codehaus.groovy.griffon.support.MockApplicationContext;
 //import org.codehaus.groovy.griffon.support.MockResourceLoader;
@@ -111,9 +111,9 @@ public class GriffonUtil {
 
     private static Map<String, String> envNameMappings = new HashMap<String, String>();
     static {
-        envNameMappings.put(DEVELOPMENT_ENVIRONMENT_SHORT_NAME, GriffonApplication.ENV_DEVELOPMENT);
-        envNameMappings.put(PRODUCTION_ENV_SHORT_NAME, GriffonApplication.ENV_PRODUCTION);
-        envNameMappings.put(TEST_ENVIRONMENT_SHORT_NAME, GriffonApplication.ENV_TEST);
+        envNameMappings.put(DEVELOPMENT_ENVIRONMENT_SHORT_NAME, GriffonContext.ENV_DEVELOPMENT);
+        envNameMappings.put(PRODUCTION_ENV_SHORT_NAME, GriffonContext.ENV_PRODUCTION);
+        envNameMappings.put(TEST_ENVIRONMENT_SHORT_NAME, GriffonContext.ENV_TEST);
     }
 
 
@@ -128,12 +128,12 @@ public class GriffonUtil {
 //    public static ApplicationContext bootstrapGriffonFromClassPath() {
 //        LOG.info("Loading Griffon environment");
 //        ApplicationContext parent = new ClassPathXmlApplicationContext("applicationContext.xml");
-//        DefaultGriffonApplication application = (DefaultGriffonApplication)parent.getBean("griffonApplication", DefaultGriffonApplication.class);
+//        DefaultGriffonContext application = (DefaultGriffonContext)parent.getBean("griffonApplication", DefaultGriffonContext.class);
 //
 //        return createGriffonApplicationContext(parent, application);
 //    }
 
-//    private static ApplicationContext createGriffonApplicationContext(ApplicationContext parent, GriffonApplication application) {
+//    private static ApplicationContext createGriffonApplicationContext(ApplicationContext parent, GriffonContext application) {
 //        GriffonRuntimeConfigurator config = new GriffonRuntimeConfigurator(application,parent);
 //        MockServletContext servletContext = new MockServletContext(new MockResourceLoader());
 //        ConfigurableApplicationContext appCtx = (ConfigurableApplicationContext)config.configure(servletContext);
@@ -148,9 +148,9 @@ public class GriffonUtil {
      * @param application The GriffonApplication instance
      * @return A Griffon ApplicationContext
      */
-//    public static ApplicationContext bootstrapGriffonFromApplication(GriffonApplication application) {
+//    public static ApplicationContext bootstrapGriffonFromApplication(GriffonContext application) {
 //        MockApplicationContext parent = new MockApplicationContext();
-//        parent.registerMockBean(GriffonApplication.APPLICATION_ID, application);
+//        parent.registerMockBean(GriffonContext.APPLICATION_ID, application);
 //
 //        return createGriffonApplicationContext(parent, application);
 //    }
@@ -160,7 +160,7 @@ public class GriffonUtil {
      * of type GriffonApplication
      */
 //    public static ApplicationContext bootstrapGriffonFromParentContext(ApplicationContext parent) {
-//        DefaultGriffonApplication application = (DefaultGriffonApplication)parent.getBean("griffonApplication", DefaultGriffonApplication.class);
+//        DefaultGriffonContext application = (DefaultGriffonContext)parent.getBean("griffonApplication", DefaultGriffonContext.class);
 //
 //        return createGriffonApplicationContext(parent, application);
 //    }
@@ -172,7 +172,7 @@ public class GriffonUtil {
      * @return The environment Griffon is executing under
      */
     public static String getEnvironment() {
-        GriffonApplication app = null; //ApplicationHolder.getApplication();
+        GriffonContext app = null; //ApplicationHolder.getApplication();
 
 
         String envName = null;
@@ -180,13 +180,13 @@ public class GriffonUtil {
         if(app!=null) {
             Map metadata = app.getMetadata();
             if(metadata!=null)
-                envName = (String)metadata.get(GriffonApplication.ENVIRONMENT);
+                envName = (String)metadata.get(GriffonContext.ENVIRONMENT);
         }
         if(isBlank(envName))
-            envName = System.getProperty(GriffonApplication.ENVIRONMENT);
+            envName = System.getProperty(GriffonContext.ENVIRONMENT);
 
         if(isBlank(envName)) {
-            return GriffonApplication.ENV_DEVELOPMENT;
+            return GriffonContext.ENV_DEVELOPMENT;
         }
         else {
             if(envNameMappings.containsKey(envName)) {
@@ -208,7 +208,7 @@ public class GriffonUtil {
      * @return True if it is the development environment
      */
     public static boolean isDevelopmentEnv() {
-        return GriffonApplication.ENV_DEVELOPMENT.equals(GriffonUtil.getEnvironment());
+        return GriffonContext.ENV_DEVELOPMENT.equals(GriffonUtil.getEnvironment());
     }
 
 

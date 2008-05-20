@@ -90,12 +90,14 @@ target(compile : "Implementation of compilation phase") {
     event("CompileStart", ['source'])
 
     Ant.mkdir(dir:classesDirPath)
+    println "${basedir}/**/griffon-app/**/*.groovy"
         try {
            Ant.groovyc(destdir:classesDirPath,
 //                       projectName:baseName,
                        classpathref:"griffon.classpath",
 //                       resourcePattern:"file:${basedir}/**/griffon-app/**/*.groovy",
-                       includes: "${basedir}/**/griffon-app/**/*.groovy",
+                       srcdir: "${basedir}",
+                       includes: "**/griffon-app/**/*.groovy",
                        encoding:"UTF-8",
                        compilerClasspath.curry(false))
         }

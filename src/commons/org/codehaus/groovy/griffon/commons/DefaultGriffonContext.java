@@ -70,7 +70,7 @@ import java.util.*;
  *        <p/>
  *        Created: Jul 2, 2005
  */
-public class DefaultGriffonApplication extends GroovyObjectSupport implements GriffonApplication {//, BeanClassLoaderAware {
+public class DefaultGriffonContext extends GroovyObjectSupport implements GriffonContext {//, BeanClassLoaderAware {
 
     //private static final Pattern GETCLASSESPROP_PATTERN = Pattern.compile("(\\w+)(Classes)");
     //private static final Pattern GETCLASSESMETH_PATTERN = Pattern.compile("(get)(\\w+)(Classes)");
@@ -82,7 +82,7 @@ public class DefaultGriffonApplication extends GroovyObjectSupport implements Gr
     private GroovyClassLoader cl = null;
 
     private Class[] allClasses = new Class[0];
-    private static Log log = LogFactory.getLog(DefaultGriffonApplication.class);
+    private static Log log = LogFactory.getLog(DefaultGriffonContext.class);
 //    private ApplicationContext parentContext;
 
     private Set<Class> loadedClasses = new HashSet<Class>();
@@ -98,7 +98,7 @@ public class DefaultGriffonApplication extends GroovyObjectSupport implements Gr
     private boolean initialised = false;
 //    private ClassLoader beanClassLoader;
     private static final String CONFIG_BINDING_USER_HOME = "userHome";
-    private static final String CONFIG_BINDING_GRAILS_HOME = "griffonHome";
+    private static final String CONFIG_BINDING_GRIFFON_HOME = "griffonHome";
     private static final String CONFIG_BINDING_APP_NAME = "appName";
     private static final String CONFIG_BINDING_APP_VERSION = "appVersion";
 //    private static final String META_GRAILS_WAR_DEPLOYED = "griffon.war.deployed";
@@ -106,7 +106,7 @@ public class DefaultGriffonApplication extends GroovyObjectSupport implements Gr
     /**
      * Creates a new empty Griffon application
      */
-    public DefaultGriffonApplication() {
+    public DefaultGriffonContext() {
         this.cl = new GroovyClassLoader();
     }
 
@@ -116,7 +116,7 @@ public class DefaultGriffonApplication extends GroovyObjectSupport implements Gr
      * @param classes     The classes that make up the GriffonApplication
      * @param classLoader The GroovyClassLoader to use
      */
-    public DefaultGriffonApplication(final Class[] classes, GroovyClassLoader classLoader) {
+    public DefaultGriffonContext(final Class[] classes, GroovyClassLoader classLoader) {
         if (classes == null) {
             throw new IllegalArgumentException("Constructor argument 'classes' cannot be null");
         }
@@ -129,17 +129,17 @@ public class DefaultGriffonApplication extends GroovyObjectSupport implements Gr
 
 
     /* *
-     * Constructs a GriffonApplication with the given set of groovy sources specified as Spring Resource instances
+     * Constructs a GriffonContext with the given set of groovy sources specified as Spring Resource instances
      *
      * @param resources An array or Groovy sources provides by Spring Resource instances
      * @throws IOException Thrown when an error occurs reading a Groovy source
      */
-//    public DefaultGriffonApplication(final Resource[] resources) throws IOException {
+//    public DefaultGriffonContext(final Resource[] resources) throws IOException {
 //        this(new GriffonResourceLoader(resources));
 //    }
 
 
-//    public DefaultGriffonApplication(GriffonResourceLoader resourceLoader) {
+//    public DefaultGriffonContext(GriffonResourceLoader resourceLoader) {
 //        this.resourceLoader = resourceLoader;
 
 //        try {
@@ -217,8 +217,8 @@ public class DefaultGriffonApplication extends GroovyObjectSupport implements Gr
 //            StackTraceUtils.deepSanitize(e);
 //            log.warn("No application metadata file found at " + r);
 //        }
-        if (System.getProperty(GriffonApplication.ENVIRONMENT) != null) {
-            meta.setProperty(GriffonApplication.ENVIRONMENT, System.getProperty(GriffonApplication.ENVIRONMENT));
+        if (System.getProperty(GriffonContext.ENVIRONMENT) != null) {
+            meta.setProperty(GriffonContext.ENVIRONMENT, System.getProperty(GriffonContext.ENVIRONMENT));
         }
         return Collections.unmodifiableMap(meta);
     }
@@ -415,7 +415,7 @@ public class DefaultGriffonApplication extends GroovyObjectSupport implements Gr
 
             // configure config slurper binding
             binding.put(CONFIG_BINDING_USER_HOME, System.getProperty("user.home"));
-            binding.put(CONFIG_BINDING_GRAILS_HOME, System.getProperty("griffon.home"));
+            binding.put(CONFIG_BINDING_GRIFFON_HOME, System.getProperty("griffon.home"));
             binding.put(CONFIG_BINDING_APP_NAME, getMetadata().get("app.name"));
             binding.put(CONFIG_BINDING_APP_VERSION, getMetadata().get("app.version"));
 
@@ -470,7 +470,7 @@ public class DefaultGriffonApplication extends GroovyObjectSupport implements Gr
     }
 
     /* *
-     * Sets the parent ApplicationContext for the GriffonApplication
+     * Sets the parent ApplicationContext for the GriffonContext
      *
      * @param applicationContext The ApplicationContext
      * @throws BeansException Thrown when an error occurs setting the ApplicationContext
@@ -480,7 +480,7 @@ public class DefaultGriffonApplication extends GroovyObjectSupport implements Gr
 //    }
 
     /* *
-     * Retrieves the parent ApplicationContext for this GriffonApplication
+     * Retrieves the parent ApplicationContext for this GriffonContext
      *
      * @return The parent ApplicationContext
      */
@@ -509,7 +509,7 @@ public class DefaultGriffonApplication extends GroovyObjectSupport implements Gr
     /* *
      * Refreshes constraints defined by the DomainClassArtefactHandler
      *
-     * @todo Move this out of GriffonApplication
+     * @todo Move this out of GriffonContext
      */
 //    public void refreshConstraints() {
 //        ArtefactInfo info = getArtefactInfo(DomainClassArtefactHandler.TYPE, true);
@@ -520,7 +520,7 @@ public class DefaultGriffonApplication extends GroovyObjectSupport implements Gr
 //    }
 
     /* *
-     * Refreshes this GriffonApplication, rebuilding all of the artefact definitions as defined by the registered ArtefactHandler instances
+     * Refreshes this GriffonContext, rebuilding all of the artefact definitions as defined by the registered ArtefactHandler instances
      */
 //    public void refresh() {
 //        configureLoadedClasses(this.cl.getLoadedClasses());
@@ -536,10 +536,10 @@ public class DefaultGriffonApplication extends GroovyObjectSupport implements Gr
 //                loadGriffonApplicationFromResources(this.resources);
 //                initialise();
 //            } catch (IOException e) {
-//                throw new GriffonConfigurationException("I/O error rebuilding GriffonApplication: " + e.getMessage(), e);
+//                throw new GriffonConfigurationException("I/O error rebuilding GriffonContext: " + e.getMessage(), e);
 //            }
 //        } else {
-//            throw new IllegalStateException("Cannot rebuild GriffonApplication when not in development mode!");
+//            throw new IllegalStateException("Cannot rebuild GriffonContext when not in development mode!");
 //        }
 //
 //    }

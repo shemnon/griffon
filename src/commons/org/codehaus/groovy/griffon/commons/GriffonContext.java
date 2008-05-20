@@ -24,7 +24,7 @@ import groovy.lang.GroovyClassLoader;
 import java.util.Map;
 
 /**
- *  <p>The main interface representing a running Griffon application. This interface's
+ *  <p>The main interface representing a build-time Griffon application. This interface's
  * main purpose is to provide a mechanism for analysing the conventions within a Griffon
  * application as well as providing metadata and information about the execution environment.
  *
@@ -45,7 +45,7 @@ import java.util.Map;
  *
  * Created: Jul 2, 2005
  */
-public interface GriffonApplication { // extends ApplicationContextAware {
+public interface GriffonContext { // extends ApplicationContextAware {
     /**
      * The name of the system property whose value contains the location, during development, of the Griffon working directory where temporary files are generated to
      */

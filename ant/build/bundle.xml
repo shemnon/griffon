@@ -49,6 +49,11 @@
                   <exclude name="**/groovy/griffon/validation/Hibernate**" />
               </fileset>
         </jar>
+        <jar destfile="${griffon.dist}/griffon-rt-${griffon.version}.jar" manifest="${griffon.build}/META-INF/MANIFEST.MF">
+              <fileset dir="${griffon.build}">
+                  <include name="griffon/**" />
+              </fileset>
+        </jar>
         <!--<jar destfile="${griffon.dist}/griffon-gorm-${griffon.version}.jar" manifest="${griffon.build}/META-INF/MANIFEST.MF">-->
               <!--<fileset dir="${griffon.build}">-->
                   <!--<include name="META-INF/**" />    -->

@@ -29,6 +29,8 @@ class UberBuilder extends FactoryBuilderSupport {
 
     protected final Map builderLookup = new LinkedHashMap()
     protected final List<UberBuilderRegistration> builderRegistration = new LinkedList<UberBuilderRegistration>()
+    protected final Map setters = [:]
+    protected final Map getters = [:]
 
     public UberBuilder() {
         loadBuilderLookups()
@@ -135,6 +137,22 @@ class UberBuilder extends FactoryBuilderSupport {
         }
     }
 
+    public Object getProperty(String s) {
+        if (getters[s]) {
+            return getters[s]()
+        } else {
+            return super.getProperty(s)
+        }
+    }
+
+    public void setProperty(String s, Object o) {
+        if (setters[s]) {
+            setters[s](o)
+        } else {
+            super.setProperty(s, o)
+        }
+    }
+
 }
 
 class UberBuilderRegistration {
@@ -197,6 +215,9 @@ class UberInterceptorMetaClass extends DelegatingMetaClass {
         try {
             return delegate.invokeMethod(object, methodName, arguments);
         } catch (MissingMethodException mme) {
+            if (mme.method != methodName) {
+                throw mme
+            }
             // attempt method resolution
             for (UberBuilderRegistration reg in factory.builderRegistration) {
                 try {
@@ -205,6 +226,9 @@ class UberInterceptorMetaClass extends DelegatingMetaClass {
                         return InvokerHelper.invokeMethod(builder, methodName, arguments);
                     }
                 } catch (MissingMethodException mme2) {
+                    if (mme2.method != methodName) {
+                        throw mme
+                    }
                     // drop the exception, there will be many
                 }
             }
@@ -212,6 +236,10 @@ class UberInterceptorMetaClass extends DelegatingMetaClass {
             try {
                 return factory.invokeMethod(methodName, arguments);
             } catch (MissingMethodException mme2) {
+                if (mme2.method != methodName) {
+                    throw mme
+                }
+                mme2.printStackTrace(System.out);
                 // chain secondary exception
                 Throwable root = mme;
                 while (root.getCause() != null) {
@@ -228,6 +256,10 @@ class UberInterceptorMetaClass extends DelegatingMetaClass {
         try {
             return delegate.invokeMethod(object, methodName, arguments);
         } catch (MissingMethodException mme) {
+            if (mme.method != methodName) {
+                throw mme
+            }
+
             // attempt method resolution
             for (UberBuilderRegistration reg in factory.builderRegistration) {
                 try {
@@ -236,6 +268,10 @@ class UberInterceptorMetaClass extends DelegatingMetaClass {
                         return InvokerHelper.invokeMethod(builder, methodName, arguments);
                     }
                 } catch (MissingMethodException mme2) {
+                    if (mme2.method != methodName) {
+                        throw mme
+                    }
+
                     // drop the exception, there will be many
                 }
             }
@@ -243,6 +279,10 @@ class UberInterceptorMetaClass extends DelegatingMetaClass {
             try {
                 return factory.invokeMethod(methodName, arguments);
             } catch (MissingMethodException mme2) {
+                if (mme2.method != methodName) {
+                    throw mme
+                }
+
                 // chain secondary exception
                 Throwable root = mme;
                 while (root.getCause() != null) {
@@ -259,6 +299,9 @@ class UberInterceptorMetaClass extends DelegatingMetaClass {
         try {
             return delegate.invokeMethod(object, methodName, arguments);
         } catch (MissingMethodException mme) {
+            if (mme.method != methodName) {
+                throw mme
+            }
             // attempt method resolution
             for (UberBuilderRegistration reg in factory.builderRegistration) {
                 try {
@@ -267,6 +310,9 @@ class UberInterceptorMetaClass extends DelegatingMetaClass {
                         return InvokerHelper.invokeMethod(builder, methodName, arguments);
                     }
                 } catch (MissingMethodException mme2) {
+                    if (mme2.method != methodName) {
+                        throw mme
+                    }
                     // drop the exception, there will be many
                 }
             }
@@ -274,6 +320,9 @@ class UberInterceptorMetaClass extends DelegatingMetaClass {
             try {
                 return factory.invokeMethod(methodName, arguments);
             } catch (MissingMethodException mme2) {
+                if (mme2.method != methodName) {
+                    throw mme
+                }
                 // chain secondary exception
                 Throwable root = mme;
                 while (root.getCause() != null) {
@@ -285,4 +334,24 @@ class UberInterceptorMetaClass extends DelegatingMetaClass {
             }
         }
     }
+
+    public Object getProperty(Object o, String s) {
+        try {
+            return factory.getProperty(s)
+        } catch (MissingPropertyException mpe) {
+            mpe.printStackTrace(System.out);
+            return super.getProperty(o, s)
+        }
+    }
+
+    public void setProperty(Object o, String s, Object o1) {
+        try {
+            factory.setProperty(s, o1)
+        } catch (MissingPropertyException mpe) {
+            mpe.printStackTrace(System.out);
+            super.getProperty(o, s, o1)
+        }
+    }
+
+
 }

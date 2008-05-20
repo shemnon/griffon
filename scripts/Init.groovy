@@ -28,7 +28,8 @@ import org.codehaus.groovy.griffon.commons.GriffonClassUtils as GCU
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver
 import org.codehaus.groovy.control.*
 import org.springframework.core.io.FileSystemResource
-import org.codehaus.groovy.griffon.commons.GriffonApplication
+import org.codehaus.groovy.griffon.commons.GriffonContext
+import org.codehaus.groovy.griffon.commons.GriffonContext
 
 Ant.property(environment: "env")
 
@@ -54,18 +55,18 @@ eventsClassLoader = new GroovyClassLoader(getClass().classLoader)
 
 
 // common directories and paths
-griffonWorkDir = System.getProperty(GriffonApplication.WORK_DIR) ?: "${userHome}/.griffon/${griffonVersion}"
+griffonWorkDir = System.getProperty(GriffonContext.WORK_DIR) ?: "${userHome}/.griffon/${griffonVersion}"
 griffonTmp = "${griffonWorkDir}/tmp"
 projectWorkDir = "${griffonWorkDir}/projects/${baseName}"
-classesDirPath = System.getProperty(GriffonApplication.PROJECT_CLASSES_DIR) ?: "$projectWorkDir/classes"
-resourcesDirPath = System.getProperty(GriffonApplication.PROJECT_RESOURCES_DIR) ?: "$projectWorkDir/resources"
-testDirPath = System.getProperty(GriffonApplication.PROJECT_TEST_CLASSES_DIR) ?: "$projectWorkDir/test-classes"
+classesDirPath = System.getProperty(GriffonContext.PROJECT_CLASSES_DIR) ?: "$projectWorkDir/classes"
+resourcesDirPath = System.getProperty(GriffonContext.PROJECT_RESOURCES_DIR) ?: "$projectWorkDir/resources"
+testDirPath = System.getProperty(GriffonContext.PROJECT_TEST_CLASSES_DIR) ?: "$projectWorkDir/test-classes"
 
 // reset system properties just in case they didn't exist
-System.setProperty(GriffonApplication.WORK_DIR, griffonWorkDir)
-System.setProperty(GriffonApplication.PROJECT_CLASSES_DIR, classesDirPath)
-System.setProperty(GriffonApplication.PROJECT_TEST_CLASSES_DIR, testDirPath)
-System.setProperty(GriffonApplication.PROJECT_RESOURCES_DIR, resourcesDirPath)
+System.setProperty(GriffonContext.WORK_DIR, griffonWorkDir)
+System.setProperty(GriffonContext.PROJECT_CLASSES_DIR, classesDirPath)
+System.setProperty(GriffonContext.PROJECT_TEST_CLASSES_DIR, testDirPath)
+System.setProperty(GriffonContext.PROJECT_RESOURCES_DIR, resourcesDirPath)
 
 
 classesDir = new File(classesDirPath)
@@ -337,18 +338,18 @@ target(createStructure: "Creates the application directory structure") {
 }
 
 target(checkVersion: "Stops build if app expects different Griffon version") {
-    if (new File("${basedir}/application.properties").exists()) {
-        if (appGriffonVersion != griffonVersion) {
-            event("StatusFinal", ["Application expects griffon version [$appGriffonVersion], but GRIFFON_HOME is version " +
-                    "[$griffonVersion] - use the correct Griffon version or run 'griffon upgrade' if this Griffon " +
-                    "version is newer than the version your application expects."])
-            exit(1)
-        }
-    } else {
-        // We know this is pre-0.5 application
-        event("StatusFinal", ["Application is pre-Griffon 0.5, please run: griffon upgrade"])
-        exit(1)
-    }
+//    if (new File("${basedir}/application.properties").exists()) {
+//        if (appGriffonVersion != griffonVersion) {
+//            event("StatusFinal", ["Application expects griffon version [$appGriffonVersion], but GRIFFON_HOME is version " +
+//                    "[$griffonVersion] - use the correct Griffon version or run 'griffon upgrade' if this Griffon " +
+//                    "version is newer than the version your application expects."])
+//            exit(1)
+//        }
+//    } else {
+//        // We know this is pre-0.5 application
+//        event("StatusFinal", ["Application is pre-Griffon 0.5, please run: griffon upgrade"])
+//        exit(1)
+//    }
 }
 
 
@@ -356,7 +357,7 @@ target(setupEnvironment: "Sets up the Griffon environment for this script") {
 
     if(!System.getProperty("griffon.env.set")) {
 
-        def defaultEnv = System.getProperty(GriffonApplication.ENVIRONMENT_DEFAULT) as boolean
+        def defaultEnv = System.getProperty(GriffonContext.ENVIRONMENT_DEFAULT) as boolean
         if(defaultEnv) {
             def customEnv
             try {
@@ -365,11 +366,11 @@ target(setupEnvironment: "Sets up the Griffon environment for this script") {
                 //ignore, ok
             }
             if(customEnv) {
-                System.setProperty(GriffonApplication.ENVIRONMENT, customEnv)
-                System.setProperty(GriffonApplication.ENVIRONMENT_DEFAULT, "")
+                System.setProperty(GriffonContext.ENVIRONMENT, customEnv)
+                System.setProperty(GriffonContext.ENVIRONMENT_DEFAULT, "")
             }
         }
-        println "Environment set to ${System.getProperty(GriffonApplication.ENVIRONMENT)}"
+        println "Environment set to ${System.getProperty(GriffonContext.ENVIRONMENT)}"
         System.setProperty("griffon.env.set", "true")
     }
 }

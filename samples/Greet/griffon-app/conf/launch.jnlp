@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<jnlp   codebase="file:c:/"
+        spec="1.5+"
+        >
+    <information>
+        <title>Greet</title>
+        <vendor>Groovy @ Codehaus</vendor>
+        <homepage href="http://groovy.codehaus.org/"/>
+        <description>Greet - A Groovy Twitter Client</description>
+        <description kind="short">Greet</description>
+        <!--<offline-allowed/>-->
+    </information>
+    <security>
+        <all-permissions/>
+    </security>
+    <resources>
+        <j2se version="1.6+"/>
+        <jar href="file:C:\svn\codehaus.org\groovy\trunk\groovy\modules\griffon\dist\griffon-rt-0.0-SNAPSHOT.jar"/>
+        <jar href="file:C:\temp\greet\grifgreet.jar"/>
+        <jar href="file:C:\temp\greet\groovy-all-1.6-beta-2-SNAPSHOT.jar"/>
+    </resources>
+    <!--<application-desc main-class="greet.Greet"/>-->
+  <applet-desc
+      documentBase="file:c:\"
+      name="Greet"
+      main-class="griffon.applet.GriffonApplet"
+      width="320"
+      height="640">
+    <param name="key1" value="value1"/>
+    <param name="key2" value="value2"/>
+  </applet-desc>
+</jnlp>
