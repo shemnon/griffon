@@ -31,4 +31,16 @@ log4j {
     additivity.StackTrace=false
 }
 
+// key signing information
+signingkey {
+    params {
+        keystore = '${base.dir}/griffon-app/conf/keys/devKeystore'
+        alias = 'development'
+        storepass = 'BadStorePassword'
+        keypass   = 'BadKeyPassword'
+    }
+}
 
+griffon.jars.destDir = '${base.dir}/target'
+griffon.jars.jarName = "${appName}.jar"
+griffon.webstart.codebase = 'file:${griffon.jars.destDir}'

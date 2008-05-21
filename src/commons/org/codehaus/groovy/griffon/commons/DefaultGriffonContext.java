@@ -101,7 +101,7 @@ public class DefaultGriffonContext extends GroovyObjectSupport implements Griffo
     private static final String CONFIG_BINDING_GRIFFON_HOME = "griffonHome";
     private static final String CONFIG_BINDING_APP_NAME = "appName";
     private static final String CONFIG_BINDING_APP_VERSION = "appVersion";
-//    private static final String META_GRAILS_WAR_DEPLOYED = "griffon.war.deployed";
+//    private static final String META_GRIFFON_WAR_DEPLOYED = "griffon.war.deployed";
 
     /**
      * Creates a new empty Griffon application
@@ -891,7 +891,7 @@ public class DefaultGriffonContext extends GroovyObjectSupport implements Griffo
 //    public boolean isWarDeployed() {
 //        Map metadata = getMetadata();
 //        if(metadata != null) {
-//            Object val = metadata.get(META_GRAILS_WAR_DEPLOYED);
+//            Object val = metadata.get(META_GRIFFON_WAR_DEPLOYED);
 //            if(val != null && val.equals("true")) {
 //                return true;
 //            }

@@ -56,9 +56,9 @@ public class GriffonUtil {
 
     private static final Log LOG  = LogFactory.getLog(GriffonUtil.class);
     private static final Log STACK_LOG  = LogFactory.getLog("StackTrace");
-    private static final String GRAILS_IMPLEMENTATION_TITLE = "Griffon";
-    private static final String GRAILS_VERSION;
-    private static final String[] GRAILS_PACKAGES = new String[] {
+    private static final String GRIFFON_IMPLEMENTATION_TITLE = "Griffon";
+    private static final String GRIFFON_VERSION;
+    private static final String[] GRIFFON_PACKAGES = new String[] {
             "org.codehaus.groovy.griffon.",
             "org.codehaus.groovy.runtime.",
             "org.codehaus.groovy.reflection.",
@@ -83,7 +83,7 @@ public class GriffonUtil {
             for (Resource r : manifests) {
                 Manifest mf = new Manifest(r.getInputStream());
                 String implTitle = mf.getMainAttributes().getValue(Attributes.Name.IMPLEMENTATION_TITLE);
-                if (!isBlank(implTitle) && implTitle.equals(GRAILS_IMPLEMENTATION_TITLE)) {
+                if (!isBlank(implTitle) && implTitle.equals(GRIFFON_IMPLEMENTATION_TITLE)) {
                     griffonManifest = mf;
                     break;
                 }
@@ -102,7 +102,7 @@ public class GriffonUtil {
             LOG.error("Unable to read Griffon version from MANIFEST.MF. Are you sure it the griffon-core jar is on the classpath? " + e.getMessage(), e);
         }
 
-        GRAILS_VERSION = version;
+        GRIFFON_VERSION = version;
     }
 
     private static final String PRODUCTION_ENV_SHORT_NAME = "prod";
@@ -213,7 +213,7 @@ public class GriffonUtil {
 
 
     public static String getGriffonVersion() {
-        return GRAILS_VERSION;
+        return GRIFFON_VERSION;
     }
 
     /**
@@ -305,7 +305,7 @@ public class GriffonUtil {
     }
 
     public static boolean isApplicationClass(String className) {
-        for (String griffonPackage : GRAILS_PACKAGES) {
+        for (String griffonPackage : GRIFFON_PACKAGES) {
             if (className.startsWith(griffonPackage)) {
                 return false;
             }

@@ -90,21 +90,20 @@ target(compile : "Implementation of compilation phase") {
     event("CompileStart", ['source'])
 
     Ant.mkdir(dir:classesDirPath)
-    println "${basedir}/**/griffon-app/**/*.groovy"
-        try {
-           Ant.groovyc(destdir:classesDirPath,
+    try {
+       Ant.groovyc(destdir:classesDirPath,
 //                       projectName:baseName,
-                       classpathref:"griffon.classpath",
+                   classpathref:"griffon.classpath",
 //                       resourcePattern:"file:${basedir}/**/griffon-app/**/*.groovy",
-                       srcdir: "${basedir}",
-                       includes: "**/griffon-app/**/*.groovy",
-                       encoding:"UTF-8",
-                       compilerClasspath.curry(false))
-        }
-        catch(Exception e) {
-            event("StatusFinal", ["Compilation error: ${e.message}"])
-            exit(1)
-        }
+                   srcdir: "${basedir}",
+                   includes: "**/griffon-app/**/*.groovy",
+                   encoding:"UTF-8",
+                   compilerClasspath.curry(false))
+    }
+    catch(Exception e) {
+        event("StatusFinal", ["Compilation error: ${e.message}"])
+        exit(1)
+    }
     ClassLoader contextLoader = Thread.currentThread().getContextClassLoader()
     classLoader = new URLClassLoader([classesDir.toURI().toURL()] as URL[], contextLoader)
 

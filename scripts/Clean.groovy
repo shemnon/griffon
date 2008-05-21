@@ -47,7 +47,8 @@ target ( cleanCompiledSources : "Cleans compiled Java and Groovy sources") {
 	Ant.delete(dir:classesDirPath)
 	Ant.delete(dir:resourcesDirPath)
 	Ant.delete(dir:testDirPath)
-}   
+    Ant.delete(dir:config.griffon.jars.destDir)
+}
 
 target (cleanGriffonApp : "Cleans the Griffon application sources") {
 	//def appDir = "${basedir}/web-app/WEB-INF/griffon-app"

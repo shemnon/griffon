@@ -17,7 +17,7 @@
  */
 
 /**
-* Gant script that handles general initialization of a Grails applications
+* Gant script that handles general initialization of a Griffon applications
 *
 * @author Graeme Rocher
 *

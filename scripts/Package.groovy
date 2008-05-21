@@ -1,18 +1,20 @@
+import groovy.xml.MarkupBuilder
+
 /*
- * Copyright 2004-2005 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- */
+* Copyright 2004-2005 the original author or authors.
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*      http://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*/
 
 /**
  * Gant script that packages a Griffon application (note: does not create WAR)
@@ -46,6 +48,11 @@ configFile = new File("${basedir}/griffon-app/conf/Config.groovy")
 log4jFile = new File("${resourcesDirPath}/log4j.properties")
 generateLog4jFile = false
 
+
+String i18nDir = null
+String jardir = null
+
+
 target ('default': "Packages a Griffon application. Note: To create WAR use 'griffon war'") {
      depends( checkVersion)
 
@@ -57,12 +64,10 @@ target( createConfig: "Creates the configuration object") {
         try {
             config = configSlurper.parse(classLoader.loadClass("Config"))
             config.setConfigFile(configFile.toURI().toURL())
-
 //            ConfigurationHolder.setConfig(config)
         }
         catch(Exception e) {
             e.printStackTrace()
-
             event("StatusFinal", ["Failed to compile configuration file ${configFile}: ${e.message}"])
             exit(1)
         }
@@ -71,8 +76,6 @@ target( createConfig: "Creates the configuration object") {
 //   def dataSourceFile = new File("${basedir}/griffon-app/conf/DataSource.groovy")
 //   if(dataSourceFile.exists()) {
 //        try {
-//            println classLoader
-//            println classLoader.getClass()
 //           def dataSourceConfig = configSlurper.parse(classLoader.loadClass("DataSource"))
 //           config.merge(dataSourceConfig)
 //           ConfigurationHolder.setConfig(config)
@@ -83,6 +86,7 @@ target( createConfig: "Creates the configuration object") {
 //   }
 //   ConfigurationHelper.initConfig(config, null, classLoader)
 }
+
 target( packageApp : "Implementation of package target") {
     depends(createStructure) //,packagePlugins)
 
@@ -100,7 +104,7 @@ target( packageApp : "Implementation of package target") {
         createConfig()
     }
 
-    String i18nDir = "${resourcesDirPath}/griffon-app/i18n"
+    i18nDir = "${resourcesDirPath}/griffon-app/i18n"
     Ant.mkdir(dir:i18nDir)
 
 //    def files = Ant.fileScanner {
@@ -132,7 +136,7 @@ target( packageApp : "Implementation of package target") {
         fileset(dir:"${basedir}", includes:"application.properties")
     }
     Ant.copy(todir:resourcesDirPath, failonerror:false) {
-        fileset(dir:"${basedir}/griffon-app/conf", includes:"**", excludes:"*.groovy, log4j*, hibernate, spring")
+        fileset(dir:"${basedir}/griffon-app/conf", includes:"**", excludes:"*.groovy, log4j*, webstart")
         //fileset(dir:"${basedir}/griffon-app/conf/hibernate", includes:"**/**")
         //fileset(dir:"${basedir}/src/java") {
         fileset(dir:"${basedir}/src/main") {
@@ -153,8 +157,69 @@ target( packageApp : "Implementation of package target") {
 
     //loadPlugins()
     //generateWebXml()
+
+    jarFiles()
+    signFiles()
+    generateJNLP()
     event("PackagingEnd",[])
 }
+
+target(checkKey: "Check to see if the keystore exists")  {
+    if (!(new File(Ant.antProject.replaceProperties(config.signingkey.params.keystore)).exists())) {
+        println "Auto-generating a local self-signed key"
+        Ant.genkey(config.signingkey.params + [dname:'CN=Auto Gen Self-Signed Key -- Not for Production, OU=Development, O=Griffon'])
+    }
+}
+
+target(jarFiles: "Jar up the package files") {
+    jardir = args?.getAt(0)?.trim() ?: config.griffon.jars.destDir
+    Ant.mkdir(dir:jardir)
+
+    Ant.jar(destfile:"$jardir/${config.griffon.jars.jarName}") {
+        fileset(dir:classesDirPath)   
+        fileset(dir:i18nDir)
+    }
+
+    Ant.copy(todir:jardir) { fileset(dir:"${griffonHome}/dist", includes:"griffon-rt-*.jar") }
+    Ant.copy(todir:jardir) { fileset(dir:"${griffonHome}/lib/", includes:"groovy-all-*.jar") }
+
+    //TODO pack200 these files as well...
+    //TODO also unpack, so code signing will work.
+    
+}
+
+target(signFiles: "Sign all of the files") {
+    checkKey()
+    Ant.signjar(config.signingkey.params) {
+        fileset(dir:jardir, includes:"*.jar")
+    }
+}
+
+target(generateJNLP:"Generates the JNLP File") {
+    Ant.copy (todir:jardir) {
+        fileset(dir:"${basedir}/griffon-app/conf/webstart", includes:"*.jnlp")
+    }
+    Ant.replace(dir:jardir, includes:"*.jnlp",
+                token:"@griffonAppName@", value:"${griffonAppName}" )
+    Ant.replace(dir:jardir, includes:"*.jnlp",
+                token:"@griffonAppVersion@", value:"${griffonAppName}" )
+    Ant.replace(dir:jardir, includes:"*.jnlp",
+                token:"@griffonAppCodebase@", value:config.griffon.webstart.codebase)
+    jnlpJars = ''
+
+    // griffon-rt has to come first, it's got the launch classes
+    new File(Ant.antProject.replaceProperties(jardir)).eachFileMatch("griffon-rt-*.jnlp") { f ->
+        jnlpJars += "        <jar href='$f.name'/>\n"
+    }
+    new File(Ant.antProject.replaceProperties(jardir)).eachFileMatch("*.jnlp") { f ->
+        if (!(f.name +~ "griffon-rt-.*")) {
+            jnlpJars += "        <jar href='$f.name'/>\n"
+        }
+    }
+    Ant.replace(dir:jardir, includes:"*.jnlp",
+                token:"@jnlpJars@", value:jnlpJars )
+}
+
 
 target(generateLog4j:"Generates the Log4j config File") {
     profile("log4j-generation") {
@@ -291,21 +356,21 @@ log4j.rootLogger=error,stdout
 //    }
 //
 //}
-
-target(packageTemplates: "Packages templates into the app") {
-    Ant.mkdir(dir:scaffoldDir)
-    if(new File("${basedir}/src/templates/scaffolding").exists()) {
-        Ant.copy(todir:scaffoldDir, overwrite:true) {
-            fileset(dir:"${basedir}/src/templates/scaffolding", includes:"**")
-        }
-    }
-    else {
-        Ant.copy(todir:scaffoldDir, overwrite:true) {
-            fileset(dir:"${griffonHome}/src/griffon/templates/scaffolding", includes:"**")
-        }
-    }
-
-}
+//
+//target(packageTemplates: "Packages templates into the app") {
+//    Ant.mkdir(dir:scaffoldDir)
+//    if(new File("${basedir}/src/templates/scaffolding").exists()) {
+//        Ant.copy(todir:scaffoldDir, overwrite:true) {
+//            fileset(dir:"${basedir}/src/templates/scaffolding", includes:"**")
+//        }
+//    }
+//    else {
+//        Ant.copy(todir:scaffoldDir, overwrite:true) {
+//            fileset(dir:"${griffonHome}/src/griffon/templates/scaffolding", includes:"**")
+//        }
+//    }
+//
+//}
 
 
 // Checks whether the project's sources have changed since the last
