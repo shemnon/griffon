@@ -1,6 +1,6 @@
 #!/bin/sh
 
 DIRNAME=`dirname "$0"`
-. "$DIRNAME/startGrails"
+. "$DIRNAME/startGriffon"
 
-startGrails org.codehaus.groovy.grails.cli.GrailsScriptRunner "$@"
+startGriffon org.codehaus.groovy.griffon.cli.GriffonScriptRunner "$@"

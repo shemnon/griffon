@@ -75,8 +75,8 @@ fi
 
 # For Cygwin, ensure paths are in UNIX format before anything is touched
 if $cygwin ; then
-    [ -n "$GRAILS_HOME" ] &&
-        GRAILS_HOME=`cygpath --unix "$GRAILS_HOME"`
+    [ -n "$GRIFFON_HOME" ] &&
+        GRIFFON_HOME=`cygpath --unix "$GRIFFON_HOME"`
     [ -n "$JAVACMD" ] &&
         JAVACMD=`cygpath --unix "$JAVACMD"`
     [ -n "$JAVA_HOME" ] &&
@@ -86,10 +86,10 @@ if $cygwin ; then
 fi
 
 # Remove possible trailing slash (after possible cygwin correction)
-GRAILS_HOME=`echo $GRAILS_HOME | sed -e 's|/$||g'`
+GRIFFON_HOME=`echo $GRIFFON_HOME | sed -e 's|/$||g'`
 
-# Locate GRAILS_HOME if not it is not set
-if [ -z "$GRAILS_HOME" -o ! -d "$GRAILS_HOME" ] ; then
+# Locate GRIFFON_HOME if not it is not set
+if [ -z "$GRIFFON_HOME" -o ! -d "$GRIFFON_HOME" ] ; then
   # resolve links - $0 may be a link to groovy's home
   PRG="$0"
 
@@ -106,15 +106,15 @@ if [ -z "$GRAILS_HOME" -o ! -d "$GRAILS_HOME" ] ; then
 
   SAVED="`pwd`"
   cd "`dirname \"$PRG\"`/.."
-  GRAILS_HOME="`pwd -P`"
+  GRIFFON_HOME="`pwd -P`"
   cd "$SAVED"
 fi
 
 # Use default groovy-conf config
 if [ -z "$GROOVY_CONF" ]; then
-    GROOVY_CONF="$GRAILS_HOME/conf/groovy-starter.conf"
+    GROOVY_CONF="$GRIFFON_HOME/conf/groovy-starter.conf"
 fi
-STARTER_CLASSPATH="$GRAILS_HOME/lib/groovy-all-1.5.6.jar:$GRAILS_HOME/dist/grails-cli-1.0.3-SNAPSHOT.jar"
+STARTER_CLASSPATH="$GRIFFON_HOME/lib/groovy-all-1.5.6.jar:$GRIFFON_HOME/dist/griffon-cli-0.0-SNAPSHOT.jar"
 
 # Allow access to Cocoa classes on OS X
 if $darwin; then
@@ -192,7 +192,7 @@ TOOLS_JAR="$JAVA_HOME/lib/tools.jar"
 
 # For Cygwin, switch paths to Windows format before running java
 if $cygwin; then
-    GRAILS_HOME=`cygpath --path --mixed "$GRAILS_HOME"`
+    GRIFFON_HOME=`cygpath --path --mixed "$GRIFFON_HOME"`
     JAVA_HOME=`cygpath --path --mixed "$JAVA_HOME"`
     GROOVY_CONF=`cygpath --path --mixed "$GROOVY_CONF"`
     CP=`cygpath --path --mixed "$CP"`    
@@ -223,11 +223,11 @@ if $cygwin; then
     done
 fi
 
-STARTER_MAIN_CLASS=org.codehaus.groovy.grails.cli.support.GrailsStarter
+STARTER_MAIN_CLASS=org.codehaus.groovy.griffon.cli.support.GriffonStarter
 
 lateInit
 
-startGrails() {
+startGriffon() {
   CLASS=$1
   shift
   JAVA_OPTS="-server -Xmx512M $JAVA_OPTS"
@@ -240,7 +240,7 @@ startGrails() {
           -classpath "$STARTER_CLASSPATH" \
           -Dprogram.name="$PROGNAME" \
           -Dgroovy.starter.conf="$GROOVY_CONF" \
-          -Dgrails.home="$GRAILS_HOME" \
+          -Dgriffon.home="$GRIFFON_HOME" \
           -Dbase.dir="." \
           -Dtools.jar="$TOOLS_JAR" \
           $STARTER_MAIN_CLASS \
@@ -252,7 +252,7 @@ startGrails() {
           -classpath "$STARTER_CLASSPATH" \
           -Dprogram.name="$PROGNAME" \
           -Dgroovy.starter.conf="$GROOVY_CONF" \
-          -Dgrails.home="$GRAILS_HOME" \
+          -Dgriffon.home="$GRIFFON_HOME" \
           -Dbase.dir="." \
           -Dtools.jar="$TOOLS_JAR" \
           $STARTER_MAIN_CLASS \
