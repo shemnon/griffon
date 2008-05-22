@@ -24,3 +24,10 @@
 
 // the menu bar to attach to the applet or JFrame, if present.
 //primaryMenuBar =  basicController.menu
+
+// configuration for default frames in applicaiton mode
+//application {
+//    title = "Root JFrame title"
+//    size = [320,640]
+//    location = [50, 50] // a null will cause platform automated locaiton
+//}

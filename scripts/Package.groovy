@@ -172,7 +172,7 @@ target(checkKey: "Check to see if the keystore exists")  {
 }
 
 target(jarFiles: "Jar up the package files") {
-    jardir = args?.getAt(0)?.trim() ?: config.griffon.jars.destDir
+    jardir = Ant.antProject.replaceProperties(config.griffon.jars.destDir)
     Ant.mkdir(dir:jardir)
 
     Ant.jar(destfile:"$jardir/${config.griffon.jars.jarName}") {
@@ -204,15 +204,15 @@ target(generateJNLP:"Generates the JNLP File") {
     Ant.replace(dir:jardir, includes:"*.jnlp",
                 token:"@griffonAppVersion@", value:"${griffonAppName}" )
     Ant.replace(dir:jardir, includes:"*.jnlp",
-                token:"@griffonAppCodebase@", value:config.griffon.webstart.codebase)
+                token:"@griffonAppCodebase@", value:"${config.griffon.webstart.codebase}")
     jnlpJars = ''
 
     // griffon-rt has to come first, it's got the launch classes
-    new File(Ant.antProject.replaceProperties(jardir)).eachFileMatch("griffon-rt-*.jnlp") { f ->
+    new File(jardir).eachFileMatch(~/griffon-rt-.*.jar/) { f ->
         jnlpJars += "        <jar href='$f.name'/>\n"
     }
-    new File(Ant.antProject.replaceProperties(jardir)).eachFileMatch("*.jnlp") { f ->
-        if (!(f.name +~ "griffon-rt-.*")) {
+    new File(jardir).eachFileMatch(~/.*\.jar/) { f ->
+        if (!(f.name =~ /griffon-rt-.*/)) {
             jnlpJars += "        <jar href='$f.name'/>\n"
         }
     }

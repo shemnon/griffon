@@ -17,7 +17,9 @@
 package griffon.applet
 
 import javax.swing.JApplet
-import griffon.GriffonApplication
+import griffon.util.GriffonApplicationHelper
+import griffon.util.IGriffonApplication
+import java.awt.Container
 
 /**
  * Created by IntelliJ IDEA.
@@ -25,25 +27,58 @@ import griffon.GriffonApplication
  * Date: May 17, 2008
  * Time: 12:47:33 PM
  */
-class GriffonApplet extends JApplet {
+class GriffonApplet extends JApplet implements IGriffonApplication {
 
-    GriffonApplication app
+    Map controllers = [:]
+    Map views = [:]
+    Binding bindings = new Binding()
+    ConfigObject config
 
     public void init() {
-        app = GriffonApplication.launch({contentPane = it}, {}, "Application" as Class)
+        GriffonApplicationHelper.prepare(this)
+        GriffonApplicationHelper.startup(this)
     }
 
     public void start() {
-        app.appletStart()
+        //GriffonApplicaitonHelper.callReady()
+        // skip the EDT sillyness, just call ready
+        ready()
     }
 
     public void stop() {
-        app.appletStop()
+        GriffonApplicationHelper.runScriptInsideEDT("Stop", this)
     }
 
     public void destroy() {
-        app.appletDestroy()
+        shutdown()
     }
 
 
+    public void attachMenuBar(Container menuBar) {
+        JMenuBar = menuBar
+    }
+
+    public void attachRootPanel(Container rootPane) {
+        contentPane = rootPane
+    }
+
+    public Class getConfigClass() {
+        return getClass().classLoader.loadClass("Application")
+    }
+
+    public void initialize() {
+        GriffonApplicationHelper.runScriptInsideEDT("Initialize", this)
+    }
+
+    public void ready() {
+        GriffonApplicationHelper.runScriptInsideEDT("Ready", this)
+    }
+
+    public void shutdown() {
+        GriffonApplicationHelper.runScriptInsideEDT("Shutdown", this)
+    }
+
+    public void startup() {
+        GriffonApplicationHelper.runScriptInsideEDT("Startup", this)
+    }
 }

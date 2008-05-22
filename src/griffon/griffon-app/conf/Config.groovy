@@ -43,4 +43,4 @@ signingkey {
 
 griffon.jars.destDir = '${base.dir}/target'
 griffon.jars.jarName = "${appName}.jar"
-griffon.webstart.codebase = 'file:${griffon.jars.destDir}'
+griffon.webstart.codebase = "file:${griffon.jars.destDir}"

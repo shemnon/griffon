@@ -34,12 +34,9 @@
     </security>
     <resources>
         <j2se version="1.5+"/>
-        <!-- auto-added jars follow, app, griffon-rt, and groovy -->
+        <!-- auto-added jars follow, griffon-rt, app, and groovy -->
 @jnlpJars@
-        <!-- hand added resources -->
-        <!--<jar href="file:C:\svn\codehaus.org\groovy\trunk\groovy\modules\griffon\dist\griffon-rt-0.0-SNAPSHOT.jar"/>-->
-        <!--<jar href="file:C:\temp\greet\grifgreet.jar"/>-->
-        <!--<jar href="file:C:\temp\greet\groovy-all-1.6-beta-2-SNAPSHOT.jar"/>-->
+        <!-- Add all extra jars below here, or the app may break -->
     </resources>
   <applet-desc
       documentbase="@griffonAppCodebase@"

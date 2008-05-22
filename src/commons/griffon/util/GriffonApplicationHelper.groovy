@@ -1,4 +1,4 @@
-package griffon
+package griffon.util
 
 import groovy.swing.SwingBuilder
 import java.awt.Toolkit
@@ -10,33 +10,30 @@ import javax.swing.SwingUtilities
  * Date: May 17, 2008
  * Time: 3:28:46 PM
  */
-class GriffonApplication {
+class GriffonApplicationHelper {
 
-    Map controllers = [:]
-    Map views = [:]
-    Binding initBindings = new Binding() 
+    static void prepare(IGriffonApplication app) {
 
-    static GriffonApplication launch(Closure attachRootPanelDelegate, Closure attachMenuBarDelegate = {}, Class c = "Application" as Class) {
+        app.config = new ConfigSlurper().parse(app.configClass)
 
-        GriffonApplication app = new GriffonApplication()
+        app.bindings.app = app
 
-        def config = new ConfigSlurper().parse(c)
+        app.initialize();
+    }
 
-        app.initBindings.app = app
-        app.runScriptInsideEDT('Initialize')
-
+    static void startup(IGriffonApplication app) {
         // init the builders
         // this is where a composite gets made and composites are added
         // for now we punt and make a SwingBuilder
-        config.controllers.each {k, v ->
+        app.config.controllers.each {k, v ->
             //todo wire in previous controllers?
-            def controller = GriffonApplication.classLoader.loadClass(v).newInstance()
+            def controller = app.getClass().classLoader.loadClass(v).newInstance()
             safeSet(controller, "app", app)
             app.controllers[k] = controller
         }
 
         // instantiate controllers
-        config.viewMap.each {k, v ->
+        app.config.viewMap.each {k, v ->
             def controller = app.controllers[k]
             SwingBuilder builder = new SwingBuilder() // use composite here whenr eady
             safeSet(controller, "builder", builder)
@@ -52,17 +49,22 @@ class GriffonApplication {
         }
 
         // attach the root panel
-        if (config.primaryView =~ /\w+\.\w+/) {
-            def loc = config.primaryView.split(/\./)
-            attachRootPanelDelegate(app.views[loc[0]][loc[1]])
+        if (app.config.primaryView =~ /\w+\.\w+/) {
+            def loc = app.config.primaryView.split(/\./)
+            app.attachRootPanel(app.views[loc[0]][loc[1]])
         }
-        if (config.primaryMenuBar =~ /\w+\.\w+/) {
-            def loc = config.primaryMenuBar.split(/\./)
-            attachMenuBarDelegate(app.views[loc[0]][loc[1]])
+        if (app.config.primaryMenuBar =~ /\w+\.\w+/) {
+            def loc = app.config.primaryMenuBar.split(/\./)
+            app.attachMenuBar(app.views[loc[0]][loc[1]])
         }
 
-        app.runScriptInsideEDT('Startup')
+        app.startup();
+    }
 
+    /**
+     * Calls the ready lifecycle mehtod after the EDT calms down
+     */
+    public static void callReady(IGriffonApplication app) {
         // wait for EDT to empty out.... somehow
         boolean empty = false
         while (true) {
@@ -71,9 +73,7 @@ class GriffonApplication {
             sleep(100)
         }
 
-        app.runScriptInsideEDT('Ready')
-
-        return app
+        app.ready();
     }
 
 
@@ -86,22 +86,9 @@ class GriffonApplication {
 
     }
 
-    public void appletStart() {
-        runScriptInsideEDT('AppletStart')
-    }
-
-
-    public void appletStop() {
-        runScriptInsideEDT('AppletStart')
-    }
-
-    public void appletDestroy() {
-        runScriptInsideEDT('AppletDestroy')
-    }
-
-    protected void runScriptInsideEDT(String scriptName) {
+    public static void runScriptInsideEDT(String scriptName, IGriffonApplication app) {
         try {
-            def script = GriffonApplication.classLoader.loadClass(scriptName).newInstance(initBindings)
+            def script = GriffonApplicationHelper.classLoader.loadClass(scriptName).newInstance(app.bindings)
             if (SwingUtilities.isEventDispatchThread()) {
                 script.run()
             } else {
