@@ -18,10 +18,9 @@ package greet
 
 import groovy.beans.Bindable
 import groovy.swing.SwingBuilder
-import javax.swing.JOptionPane
-import griffon.gui.GUIBuilder
-import javax.swing.event.HyperlinkEvent
 import java.awt.Cursor
+import javax.swing.JOptionPane
+import javax.swing.event.HyperlinkEvent
 
 /**
  *@author Danno Ferrin
@@ -149,8 +148,11 @@ class Greet {
         switch (evt.getEventType()) {
             case HyperlinkEvent.EventType.ACTIVATED:
                 def url = evt.URL
-                if (url.host == 'twitter.com') {
+                if (url.host =~ 'http://twitter.com/\\w+') {
                     SwingBuilder.doOutside(builder) {selectUser(url.file.substring(1))}
+                } else {
+                    // TODO wire in the jnlp libs into the build
+                    ("javax.jnlp.ServiceManager" as Class).lookup('javax.jnlp.BasicService').showDocument(url)
                 }
                 break;
             case HyperlinkEvent.EventType.ENTERED:
@@ -161,20 +163,4 @@ class Greet {
                 break;
         }
     }
-
-//    public static void main(String[] args) {
-//        def model = new TwitterAPI()
-//        def controller = new Greet()
-//        def view = new SwingBuilder()
-//
-//        controller.api = model
-//        controller.builder = view
-//
-//        view.controller = controller
-//
-//        view.build(View)
-//        view.view = view
-//
-//        controller.startUp()
-//    }
 }

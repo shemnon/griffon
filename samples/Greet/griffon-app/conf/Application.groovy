@@ -6,7 +6,7 @@ controllers = [greet:'greet.Greet']
 
 
 // list of views to be auto-wired with certian controllers
-viewMap = [ greet:[greetPanel:'greet.View'] ]
+viewMap = [ greet:[greetPanel:'greet.GreetPanel'] ]
 
 
 // The primary builder.

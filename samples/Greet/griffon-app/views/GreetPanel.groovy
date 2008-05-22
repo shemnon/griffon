@@ -166,13 +166,7 @@ controller.addPropertyChangeListener("lastUpdate", {evt ->
                 if (tweetLine.name == oldName) {
                     found = true
                     doLater {
-                        println w.components[0].bounds
-                        println tweetLine.y
-                        println topInset
-                        println scrollPos
-                        println tweetLine.height
                         float pos = tweetLine.y - topInset
-                        println pos
                         if (scrollPos < (tweetLine.height + tweetLine.y)) {
                             float step = pos / 500 * 18
                             Timer t
