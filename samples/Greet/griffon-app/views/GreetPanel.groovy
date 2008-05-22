@@ -180,7 +180,6 @@ controller.addPropertyChangeListener("lastUpdate", {evt ->
                             t.repeats = true
                             t.start()
                         } else {
-                            println scrollPos + pos 
                             parentScrollPane.verticalScrollBar.value = scrollPos + pos
                         }
                     }

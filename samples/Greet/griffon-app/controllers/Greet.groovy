@@ -147,12 +147,14 @@ class Greet {
     def hyperlinkPressed(HyperlinkEvent evt) {
         switch (evt.getEventType()) {
             case HyperlinkEvent.EventType.ACTIVATED:
-                def url = evt.URL
-                if (url.host =~ 'http://twitter.com/\\w+') {
-                    SwingBuilder.doOutside(builder) {selectUser(url.file.substring(1))}
-                } else {
-                    // TODO wire in the jnlp libs into the build
-                    ("javax.jnlp.ServiceManager" as Class).lookup('javax.jnlp.BasicService').showDocument(url)
+                SwingBuilder.doOutside(builder) {
+                    def url = evt.URL
+                    if (url.toExternalForm() =~ 'http://twitter.com/\\w+') {
+                        selectUser(url.file.substring(1))
+                    } else {
+                        // TODO wire in the jnlp libs into the build
+                        ("javax.jnlp.ServiceManager" as Class).lookup('javax.jnlp.BasicService').showDocument(url)
+                    }
                 }
                 break;
             case HyperlinkEvent.EventType.ENTERED:
