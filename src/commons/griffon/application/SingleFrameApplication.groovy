@@ -22,7 +22,7 @@ class SingleFrameApplication implements IGriffonApplication {
         // prepare the frame
         mainFrame = new JFrame(config.application?.title ?: "")
         mainFrame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
-        mainFrame.windowClosing = this.&shutdown
+        mainFrame.windowClosing = { shutdown() }
 
         if (config.application?.size) {
             mainFrame.size = config.application.size as Dimension
