@@ -27,7 +27,7 @@ import javax.swing.event.HyperlinkEvent
  */
 class Greet {
 
-    TwitterAPI api
+    @Bindable TwitterAPI api
     Binding builder
 
     @Bindable boolean allowLogin = true
@@ -78,7 +78,6 @@ class Greet {
 
     void filterTweets(evt = null) {
         setAllowSelection(false)
-        setAllowTweet(false)
         SwingBuilder.doOutside(builder) {
             try {
                 [Statuses: { friends.collect {it.status}.findAll {it.text =~ builder.searchField.text} },
@@ -95,7 +94,6 @@ class Greet {
             } finally {
                 SwingBuilder.edt(builder) {
                     setAllowSelection(true)
-                    setAllowTweet(true)
                     setLastUpdate(System.currentTimeMillis())
                 }
             }
@@ -114,7 +112,6 @@ class Greet {
 
     def selectUser(String screen_name) {
         setAllowSelection(false)
-        setAllowTweet(false)
         try {
             def newFriend = friends.find {it.screen_name == screen_name} ?: api.getUser(screen_name)
             setFocusedUser(newFriend)
@@ -123,7 +120,6 @@ class Greet {
         } finally {
             SwingBuilder.edt(builder) {
                 setAllowSelection(true)
-                setAllowTweet(true)
                 setLastUpdate(System.currentTimeMillis())
             }
         }

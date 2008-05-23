@@ -105,11 +105,10 @@ userCellRenderer = {list, user, index, isSelected, isFocused ->
                 gridwidth:REMAINDER, fill:HORIZONTAL, insets:[1,3,1,3]
         )
         separator(fill: HORIZONTAL, gridwidth: REMAINDER)
-        statusLine = label(text: bind(source: controller.api, sourceProperty: 'status'),
+        statusLine = label(text: "\u00a0",
             gridwidth: REMAINDER, insets: [3, 6, 3, 6], anchor: WEST
         )
     }
-
 
     loginDialog = dialog(
         title: "Login to Greet", pack: true, resizable: false,
@@ -193,5 +192,5 @@ controller.addPropertyChangeListener("lastUpdate", {evt ->
 
 def refreshTimer = new Timer(120000, filterTweets)
 controller.addPropertyChangeListener("focusedUser", {refreshTimer.start()} as PropertyChangeListener)
-
+controller.addPropertyChangeListener("api", {bind(source:controller.api, sourceProperty:'status', target:statusLine, targetProperty:'text'); println 'hi'} as PropertyChangeListener)                
 return mainPanel
