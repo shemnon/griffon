@@ -35,7 +35,8 @@ class GriffonApplicationHelper {
         // instantiate controllers
         app.config.viewMap.each {k, v ->
             def controller = app.controllers[k]
-            SwingBuilder builder = new SwingBuilder() // use composite here whenr eady
+            SwingBuilder builder = new SwingBuilder() // use composite here when ready
+            builder.containingWindows += app.bindings.rootWindow
             safeSet(controller, "builder", builder)
             builder.controller = controller
             app.views[k] = [:]

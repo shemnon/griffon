@@ -32,6 +32,7 @@ class SingleFrameApplication implements IGriffonApplication {
         } else {
             mainFrame.locationByPlatform = true
         }
+        bindings.rootWindow = mainFrame
 
         GriffonApplicationHelper.startup(this)
 

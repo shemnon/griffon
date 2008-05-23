@@ -20,6 +20,7 @@ import javax.swing.JApplet
 import griffon.util.GriffonApplicationHelper
 import griffon.util.IGriffonApplication
 import java.awt.Container
+import javax.swing.SwingUtilities
 
 /**
  * Created by IntelliJ IDEA.
@@ -35,6 +36,7 @@ class GriffonApplet extends JApplet implements IGriffonApplication {
     ConfigObject config
 
     public void init() {
+        bindings.rootWindow = SwingUtilities.getRoot(this)
         GriffonApplicationHelper.prepare(this)
         GriffonApplicationHelper.startup(this)
     }
