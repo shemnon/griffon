@@ -2,7 +2,7 @@
 
 
 // List the controllers to be instantiated and the names to sotre in the builder
-controllers = [greet:'greet.Greet']
+controllers = [greet:'greet.GreetController']
 
 
 // list of views to be auto-wired with certian controllers

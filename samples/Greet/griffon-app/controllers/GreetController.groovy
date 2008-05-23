@@ -25,9 +25,9 @@ import javax.swing.event.HyperlinkEvent
 /**
  *@author Danno Ferrin
  */
-class Greet {
+class GreetController {
 
-    @Bindable TwitterAPI api
+    TwitterService twitterService
     Binding builder
 
     @Bindable boolean allowLogin = true
@@ -39,12 +39,9 @@ class Greet {
     @Bindable def timeline = []
     @Bindable def statuses = []
     @Bindable long lastUpdate = 0
+    @Bindable String statusLine
 
-
-    void startUp() {
-        setAllowSelection(false)
-        setAllowTweet(false)
-        //builder.greetFrame.show()
+    void showLoginDialog() {
         builder.loginDialog.show()
     }
 
@@ -52,10 +49,10 @@ class Greet {
         setAllowLogin(false)
         SwingBuilder.doOutside(builder) {
             try {
-                if (api.login(builder.twitterNameField.text, builder.twitterPasswordField.password)) {
-                    setFriends(api.getFriends(api.authenticatedUser))
+                if (twitterService.login(builder.twitterNameField.text, builder.twitterPasswordField.password)) {
+                    setFriends(twitterService.getFriends(twitterService.authenticatedUser))
                     setStatuses(friends.collect {it.status})
-                    selectUser(api.authenticatedUser)
+                    selectUser(twitterService.authenticatedUser)
                     builder.edt {
                         setLastUpdate(System.currentTimeMillis())
                         //builder.greetFrame.show()
@@ -81,8 +78,8 @@ class Greet {
         SwingBuilder.doOutside(builder) {
             try {
                 [Statuses: { friends.collect {it.status}.findAll {it.text =~ builder.searchField.text} },
-                 Timeline: { api.getFriendsTimeline(focusedUser).findAll {it.text =~ builder.searchField.text} },
-                 Tweets : { api.getTweets(focusedUser).findAll {it.text =~ builder.searchField.text} },
+                 Timeline: { twitterService.getFriendsTimeline(focusedUser).findAll {it.text =~ builder.searchField.text} },
+                 Tweets : { twitterService.getTweets(focusedUser).findAll {it.text =~ builder.searchField.text} },
                 ].each {k, v ->
                     def newVal = v()
                     SwingBuilder.edt(builder) {
@@ -113,10 +110,10 @@ class Greet {
     def selectUser(String screen_name) {
         setAllowSelection(false)
         try {
-            def newFriend = friends.find {it.screen_name == screen_name} ?: api.getUser(screen_name)
+            def newFriend = friends.find {it.screen_name == screen_name} ?: twitterService.getUser(screen_name)
             setFocusedUser(newFriend)
-            setTweets(api.getTweets(focusedUser).findAll {it.text =~ builder.searchField.text})
-            setTimeline(api.getFriendsTimeline(focusedUser).findAll {it.text =~ builder.searchField.text})
+            setTweets(twitterService.getTweets(focusedUser).findAll {it.text =~ builder.searchField.text})
+            setTimeline(twitterService.getFriendsTimeline(focusedUser).findAll {it.text =~ builder.searchField.text})
         } finally {
             SwingBuilder.edt(builder) {
                 setAllowSelection(true)
@@ -130,7 +127,7 @@ class Greet {
         SwingBuilder.doOutside(builder) {
             def cleanup = { setAllowTweet(true) }
             try {
-                api.tweet(builder.tweetBox.text)
+                twitterService.tweet(builder.tweetBox.text)
                 // true story: it froze w/o the EDT call here
                 cleanup = {setAllowTweet(true); tweetBox.text = ""}
                 filterTweets()

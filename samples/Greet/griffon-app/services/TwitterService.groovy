@@ -23,7 +23,7 @@ import java.text.SimpleDateFormat
 /**
  * @author Danno Ferrin
  */
-class TwitterAPI {
+class TwitterService {
 
     @Bindable String status = "\u00a0"
     def authenticatedUser
@@ -161,14 +161,14 @@ class TwitterAPI {
 
     static final DateFormat twitterFormat = new SimpleDateFormat("EEE MMM dd hh:mm:ss Z yyyy")
 
-    def timeAgo(date) {
+    static def timeAgo(date) {
         if (date as String)
             return timeAgo(twitterFormat.parse(date as String))
         else
             return ""
     }
 
-    def timeAgo(Date d) {
+    static def timeAgo(Date d) {
         int secs = (System.currentTimeMillis() - d.getTime()) / 1000
         def dir = (secs < 0) ? "from now" : "ago"
         if (secs < 0) secs = -secs

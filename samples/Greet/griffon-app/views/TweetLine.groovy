@@ -34,6 +34,6 @@ panel(new RoundedPanel(foreground: java.awt.Color.WHITE, opaque:true),
         hyperlinkUpdate:controller.&hyperlinkPressed,
         opaque: false, editable: false, font: tweetLineFont,
         gridwidth: REMAINDER, weightx: 1.0, fill: BOTH, insets: [3, 3, 3, 6])
-    label(controller.api.timeAgo(tweet.created_at), font:tweetTimeFont, 
+    label(TwitterService.timeAgo(tweet.created_at), font:tweetTimeFont,
         anchor:EAST, gridwidth: REMAINDER, weightx: 1.0, insets: [0, 3, 3, 6])
 }
