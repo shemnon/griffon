@@ -15,7 +15,8 @@
  */
 package griffon.groovy.swing
 
-import groovy.swing.factory.*
+import griffon.groovy.swing.factory.*
+import griffon.groovy.util.FactoryBuilderSupport
 import java.awt.*
 import java.lang.reflect.InvocationTargetException
 import java.util.logging.Logger
@@ -24,7 +25,7 @@ import javax.swing.border.BevelBorder
 import javax.swing.border.EtchedBorder
 import javax.swing.table.TableColumn
 import org.codehaus.groovy.runtime.MethodClosure
-import groovy.swing.LookAndFeelHelper
+import griffon.groovy.swing.LookAndFeelHelper
 
 /**
  * A helper class for creating Swing widgets using GroovyMarkup
@@ -38,16 +39,14 @@ public class SwingBuilder  extends FactoryBuilderSupport {
     private static final Logger LOG = Logger.getLogger(SwingBuilder.name)
     private static boolean headless = false
 
-    public SwingBuilder() {
-        registerWidgets()
+    public SwingBuilder(boolean init = true) {
+        super(init)
+        //registerWidgets()
         headless = GraphicsEnvironment.isHeadless()
         containingWindows = new LinkedList()
     }
 
-    protected void registerWidgets() {
-        //
-        // non-widget support classes
-        //
+    def registerSupportNodes() {
         registerFactory("action", new ActionFactory())
         registerFactory("actions", new CollectionFactory())
         registerFactory("map", new MapFactory())
@@ -57,32 +56,31 @@ public class SwingBuilder  extends FactoryBuilderSupport {
 
         //object id delegage, for propertyNotFound
         addAttributeDelegate(SwingBuilder.&objectIDAttributeDelegate)
+    }
 
-        // binding related classes
+    def registerBinding() {
         BindFactory bindFactory = new BindFactory()
         registerFactory("bind", bindFactory)
         addAttributeDelegate(bindFactory.&bindingAttributeDelegate)
         registerFactory("bindProxy", new BindProxyFactory())
+    }
 
-        // ulimate pass through types
+    def registerPassThruNodes() {
         registerFactory("widget", new WidgetFactory(Component, true))
         registerFactory("container", new WidgetFactory(Component, false))
         registerFactory("bean", new WidgetFactory(Object, true))
+    }
 
 
-        //
-        // standalone window classes
-        //
+    def registerWindows() {
         registerFactory("dialog", new DialogFactory())
         registerBeanFactory("fileChooser", JFileChooser)
         registerFactory("frame", new FrameFactory())
         registerBeanFactory("optionPane", JOptionPane)
         registerFactory("window", new WindowFactory())
+    }
 
-
-        //
-        // widgets
-        //
+    def registerActionButtonWidgets() {
         registerFactory("button", new RichActionWidgetFactory(JButton))
         registerFactory("checkBox", new RichActionWidgetFactory(JCheckBox))
         registerFactory("checkBoxMenuItem", new RichActionWidgetFactory(JCheckBoxMenuItem))
@@ -90,77 +88,88 @@ public class SwingBuilder  extends FactoryBuilderSupport {
         registerFactory("radioButton", new RichActionWidgetFactory(JRadioButton))
         registerFactory("radioButtonMenuItem", new RichActionWidgetFactory(JRadioButtonMenuItem))
         registerFactory("toggleButton", new RichActionWidgetFactory(JToggleButton))
+    }
 
+    def registerTextWidgets() {
         registerFactory("editorPane", new TextArgWidgetFactory(JEditorPane))
         registerFactory("label", new TextArgWidgetFactory(JLabel))
         registerFactory("passwordField", new TextArgWidgetFactory(JPasswordField))
         registerFactory("textArea", new TextArgWidgetFactory(JTextArea))
         registerFactory("textField", new TextArgWidgetFactory(JTextField))
-        registerFactory("textPane", new TextArgWidgetFactory(JTextPane))
-
-        registerBeanFactory("colorChooser", JColorChooser)
-        registerFactory("comboBox", new ComboBoxFactory())
-        registerBeanFactory("desktopPane", JDesktopPane)
         registerFactory("formattedTextField", new FormattedTextFactory())
+        registerFactory("textPane", new TextArgWidgetFactory(JTextPane))
+    }
+
+    def registerMDIWidgets() {
+        registerBeanFactory("desktopPane", JDesktopPane)
         registerFactory("internalFrame", new InternalFrameFactory())
-        registerBeanFactory("layeredPane", JLayeredPane)
+    }
+
+    def registerBasicWidgets() {
+        registerBeanFactory("colorChooser", JColorChooser)
+
+        registerFactory("comboBox", new ComboBoxFactory())
         registerFactory("list", new ListFactory())
-        registerBeanFactory("menu", JMenu)
-        registerBeanFactory("menuBar", JMenuBar)
-        registerBeanFactory("panel", JPanel)
-        registerBeanFactory("popupMenu", JPopupMenu)
         registerBeanFactory("progressBar", JProgressBar)
-        registerBeanFactory("scrollBar", JScrollBar)
-        registerFactory("scrollPane", new ScrollPaneFactory())
         registerFactory("separator", new SeparatorFactory())
+        registerBeanFactory("scrollBar", JScrollBar)
         registerBeanFactory("slider", JSlider)
         registerBeanFactory("spinner", JSpinner)
+        registerBeanFactory("tree", JTree)
+    }
+
+    def registerMenuWidgets() {
+        registerBeanFactory("menu", JMenu)
+        registerBeanFactory("menuBar", JMenuBar)
+        registerBeanFactory("popupMenu", JPopupMenu)
+    }
+
+    def registerContainers() {
+        registerBeanFactory("panel", JPanel)
+        registerFactory("scrollPane", new ScrollPaneFactory())
         registerFactory("splitPane", new SplitPaneFactory())
         registerFactory("tabbedPane", new TabbedPaneFactory(JTabbedPane))
-        registerFactory("table", new TableFactory())
-        registerBeanFactory("tableColumn", TableColumn)
         registerBeanFactory("toolBar", JToolBar)
-        //registerBeanFactory("tooltip", JToolTip) // doesn't work, use toolTipText property
-        registerBeanFactory("tree", JTree)
         registerBeanFactory("viewport", JViewport) // sub class?
+        registerBeanFactory("layeredPane", JLayeredPane)
+    }
 
-
-        //
-        // MVC models
-        //
+    def registerDataModels() {
         registerBeanFactory("boundedRangeModel", DefaultBoundedRangeModel)
 
         // spinner models
         registerBeanFactory("spinnerDateModel", SpinnerDateModel)
         registerBeanFactory("spinnerListModel", SpinnerListModel)
         registerBeanFactory("spinnerNumberModel", SpinnerNumberModel)
+    }
 
-        // table models
+    def registerTableComponents() {
+        registerFactory("table", new TableFactory())
+        registerBeanFactory("tableColumn", TableColumn)
         registerFactory("tableModel", new TableModelFactory())
         registerFactory("propertyColumn", new PropertyColumnFactory())
         registerFactory("closureColumn", new ClosureColumnFactory())
+    }
 
-
-        //
-        // Layouts
-        //
+    def registerBasicLayouts() {
         registerFactory("borderLayout", new LayoutFactory(BorderLayout))
         registerFactory("cardLayout", new LayoutFactory(CardLayout))
         registerFactory("flowLayout", new LayoutFactory(FlowLayout))
         registerFactory("gridLayout", new LayoutFactory(GridLayout))
         registerFactory("overlayLayout", new LayoutFactory(OverlayLayout))
         registerFactory("springLayout", new LayoutFactory(SpringLayout))
+        addAttributeDelegate(SwingBuilder.&constraintsAttributeDelegate)
+    }
 
+    def registerGridBagLayout() {
         registerFactory("gridBagLayout", new GridBagFactory())
         registerBeanFactory("gridBagConstraints", GridBagConstraints)
         registerBeanFactory("gbc", GridBagConstraints) // shortcut name
         // constraints delegate
         addAttributeDelegate(GridBagFactory.&processGridBagConstraintsAttributes)
+    }
 
-        addAttributeDelegate(SwingBuilder.&constraintsAttributeDelegate)
-
-
-        // Box layout and friends
+    def registerBoxLayout() {
         registerFactory("boxLayout", new BoxLayoutFactory())
         registerFactory("box", new BoxFactory())
         registerFactory("hbox", new HBoxFactory())
@@ -171,15 +180,15 @@ public class SwingBuilder  extends FactoryBuilderSupport {
         registerFactory("vstrut", new VStrutFactory())
         registerFactory("glue", new GlueFactory())
         registerFactory("rigidArea", new RigidAreaFactory())
+    }
 
-        // table layout
+    def registerTableLayout() {
         registerFactory("tableLayout", new TableLayoutFactory())
         registerFactory("tr", new TRFactory())
         registerFactory("td", new TDFactory())
+    }
 
-        //
-        // borders
-        //
+    def registerBorders() {
         registerFactory("lineBorder", new LineBorderFactory())
         registerFactory("loweredBevelBorder", new BevelBorderFactory(BevelBorder.LOWERED))
         registerFactory("raisedBevelBorder", new BevelBorderFactory(BevelBorder.RAISED))
@@ -190,15 +199,15 @@ public class SwingBuilder  extends FactoryBuilderSupport {
         registerFactory("emptyBorder", new EmptyBorderFactory())
         registerFactory("compoundBorder", new CompoundBorderFactory())
         registerFactory("matteBorder", new MatteBorderFactory())
+    }
 
-        //
-        // Renderers
-        //
+    def registerRenderers() {
         RendererFactory renderFactory = new RendererFactory()
         registerFactory("tableCellRenderer", renderFactory)
         registerFactory("listCellRenderer", renderFactory)
-        registerFactory("onRender", new RendererUpdateFactory())        
+        registerFactory("onRender", new RendererUpdateFactory())
     }
+
 
     /**
      * Do some overrides for standard component handlers, else use super
@@ -418,5 +427,24 @@ public class SwingBuilder  extends FactoryBuilderSupport {
 
     public static constraintsAttributeDelegate(def builder, def node, def attributes) {
         builder.context.constraints = attributes.remove('constraints')
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // these appear to be Groovy 1.6beta2 bugs?  It breaks without it!
+    ///////////////////////////////////////////////////////////////////////////
+    public Object invokeMethod(String methodName) {
+        return super.invokeMethod(methodName)
+    }
+
+    public Object invokeMethod(String methodName, Object args) {
+        return super.invokeMethod(methodName, args)
+    }
+
+    public Object getProperty(String property) {
+        return super.getProperty(property)
+    }
+
+    public void setProperty(String property, Object newValue) {
+        super.setProperty(property, newValue)
     }
 }

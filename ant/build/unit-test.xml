@@ -97,8 +97,8 @@
             <classpath location="${coverage.build}" />
             <!-- must be first in cp!    -->
             <!--<classpath location="cruise/coverage/lib/cobertura.jar" />-->
+            <classpath location="${griffon.build}" />
             <!-- only neede for coverage -->
-            <classpath refid="classpath" />
             <classpath location="${griffon.test.build}" />
             <!--<classpath location="${griffon.test.src.web}" />-->
             <classpath location="${griffon.test.src.commons}" />
@@ -108,6 +108,8 @@
             <!--<classpath location="${griffon.test.src.tiger}" />-->
             <!-- needed to load codecs -->
             <!--<classpath location="${griffon.src.codecs}" />-->
+            <!-- System classpath last because of overrides -->
+            <classpath refid="classpath" />
             <formatter type="xml" />
             <batchtest todir="${griffon.test.reports}" failureproperty="griffon.test.failure">
                 <fileset dir="${griffon.test.build}">

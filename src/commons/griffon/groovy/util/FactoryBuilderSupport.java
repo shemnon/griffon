@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-package groovy.util;
+package griffon.groovy.util;
 
 import groovy.lang.*;
-import groovy.util.Factory;
-import groovy.util.AbstractFactory;
 import org.codehaus.groovy.runtime.InvokerHelper;
 import org.codehaus.groovy.runtime.metaclass.MissingMethodExceptionNoStack;
 
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Mix of BuilderSupport and SwingBuilder's factory support.
@@ -115,11 +115,31 @@ public abstract class FactoryBuilderSupport extends Binding {
     protected LinkedList <Closure> postNodeCompletionDelegates = new LinkedList <Closure> ();
 
     public FactoryBuilderSupport() {
-        this.proxyBuilder = this;
+        this(true);
     }
 
+    public FactoryBuilderSupport(boolean init) {
+        System.out.println("Initing...");
+        this.proxyBuilder = this;
+        if (init) {
+            for (Method method : getClass().getMethods()) {
+                if (method.getName().startsWith("register") && method.getParameterTypes().length == 0) {
+                    try {
+                        method.invoke(this);
+                        System.out.println("Registered " + method.getName());
+                    } catch (IllegalAccessException e) {
+                        throw new RuntimeException("Cound not init " + getClass().getName() + " because of an access error in " + method.getName(), e);
+                    } catch (InvocationTargetException e) {
+                        throw new RuntimeException("Cound not init " + getClass().getName() + " because of an exception in " + method.getName(), e);
+                    }
+                }
+            }
+
+        }
+    }
+
+    @Deprecated
     public FactoryBuilderSupport( Closure nameMappingClosure ) {
-        this.nameMappingClosure = nameMappingClosure;
         this.proxyBuilder = this;
     }
 
@@ -295,16 +315,22 @@ public abstract class FactoryBuilderSupport extends Binding {
      * @param methodName the name of the method to invoke
      */
     public Object invokeMethod( String methodName ) {
+        System.out.println("Calling " + methodName);
+
         return proxyBuilder.invokeMethod( methodName, null );
     }
 
     public Object invokeMethod( String methodName, Object args ) {
+        System.out.println("Calling " + methodName + " with args ");
+        try {
+        System.out.println("Calling " + methodName + " with args " + InvokerHelper.asList( args ));
         Object name = proxyBuilder.getName( methodName );
         Object result;
         Object previousContext = proxyBuilder.getContext();
         try{
             result = proxyBuilder.doInvokeMethod( methodName, name, args );
         }catch( RuntimeException e ){
+            e.printStackTrace(System.out);
             // remove contexts created after we started
             if (proxyBuilder.contexts.contains(previousContext)) {
                 while (proxyBuilder.getContext() != previousContext) {
@@ -314,6 +340,12 @@ public abstract class FactoryBuilderSupport extends Binding {
             throw e;
         }
         return result;
+        }catch( RuntimeException e ){
+            throw e;
+        } catch (Throwable t) {
+            t.printStackTrace(System.out);
+            return null;
+        }
     }
 
     /**
@@ -468,6 +500,8 @@ public abstract class FactoryBuilderSupport extends Binding {
                 LOG.fine( "For name: " + name + " created node: " + node );
             }
         }catch( Exception e ){
+            new RuntimeException( "Failed to create component for '" + name + "' reason: "
+                    + e, e ).printStackTrace(System.out);
             throw new RuntimeException( "Failed to create component for '" + name + "' reason: "
                     + e, e );
         }
@@ -591,7 +625,7 @@ public abstract class FactoryBuilderSupport extends Binding {
      * @return the object representing the name
      */
     public Object getName( String methodName ) {
-        if( proxyBuilder.nameMappingClosure != null ){
+        if (proxyBuilder.nameMappingClosure != null) {
             return proxyBuilder.nameMappingClosure.call( methodName );
         }
         return methodName;
@@ -604,6 +638,14 @@ public abstract class FactoryBuilderSupport extends Binding {
      */
     protected FactoryBuilderSupport getProxyBuilder() {
         return proxyBuilder;
+    }
+
+    public Closure getNameMappingClosure() {
+        return nameMappingClosure;
+    }
+
+    public void setNameMappingClosure(Closure nameMappingClosure) {
+        this.nameMappingClosure = nameMappingClosure;
     }
 
     /**

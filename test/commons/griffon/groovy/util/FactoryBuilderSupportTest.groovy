@@ -1,4 +1,4 @@
-package groovy.util
+package griffon.groovy.util
 
 import groovy.lang.MissingMethodException
 

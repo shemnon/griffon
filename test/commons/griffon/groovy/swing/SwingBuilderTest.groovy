@@ -14,13 +14,20 @@
  * limitations under the License.
  */
 
-package groovy.swing
+package griffon.groovy.swing
 
 import javax.swing.JPopupMenu.Separator as JPopupMenu_Separator
 import javax.swing.JToolBar.Separator as JToolBar_Separator
 
+import griffon.groovy.util.AbstractFactory
+import griffon.groovy.util.GroovySwingTestCase
+import groovy.model.DefaultTableColumn
+import groovy.model.DefaultTableModel
+import groovy.model.PropertyModel
+import groovy.model.ValueHolder
 import groovy.ui.Console
 import java.awt.*
+import java.awt.event.ActionEvent
 import java.awt.event.InputEvent
 import java.awt.event.KeyEvent
 import java.text.SimpleDateFormat
@@ -29,11 +36,7 @@ import javax.swing.border.TitledBorder
 import javax.swing.plaf.metal.MetalLookAndFeel
 import javax.swing.text.DateFormatter
 import javax.swing.text.NumberFormatter
-import groovy.model.ValueHolder
-import groovy.model.DefaultTableModel
-import groovy.model.DefaultTableColumn
-import groovy.model.PropertyModel
-import java.awt.event.ActionEvent
+
 
 class SwingBuilderTest extends GroovySwingTestCase {
 
@@ -335,7 +338,7 @@ class SwingBuilderTest extends GroovySwingTestCase {
         if (headless) return
 
         def swing = new SwingBuilder()
-        assert swing.class.name == 'groovy.swing.SwingBuilder'
+        assert swing.class.name == SwingBuilder.class.name
     }
 
     void testFormattedTextField() {

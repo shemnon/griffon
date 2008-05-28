@@ -22,7 +22,7 @@
             <fileset dir="${griffon.src.main}" includes="**/*.properties" />
         </copy>
 
-        <groovyc includeantruntime="false" destdir="${griffon.build}"  encoding="UTF-8">
+        <groovyc fork="true" includeantruntime="false" destdir="${griffon.build}"  encoding="UTF-8">
             <classpath>
                 <pathelement location="${griffon.build}"/>
                 <path refid="classpath"/>

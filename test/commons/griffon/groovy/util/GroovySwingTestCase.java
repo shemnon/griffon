@@ -1,4 +1,6 @@
-package groovy.util;
+package griffon.groovy.util;
+
+import groovy.util.GroovyTestCase;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
