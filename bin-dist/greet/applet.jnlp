@@ -41,9 +41,14 @@
 
         <!-- Add all extra jars below here, or the app may break -->
     </resources>
-  <application-desc main-class="griffon.application.SingleFrameApplication">
+  <applet-desc
+      documentbase="http://svn.codehaus.org/groovy/trunk/groovy/modules/griffon/bin-dist/greet/"
+      name="GreetApplet"
+      main-class="griffon.applet.GriffonApplet"
+      width="320"
+      height="640">
       <!-- params are ignored when referenced from web page for 6u10 -->
     <!--<param name="key1" value="value1"/>-->
     <!--<param name="key2" value="value2"/>-->
-  </application-desc>
+  </applet-desc>
 </jnlp>
