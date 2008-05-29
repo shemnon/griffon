@@ -165,6 +165,18 @@ target( packageApp : "Implementation of package target") {
 }
 
 target(checkKey: "Check to see if the keystore exists")  {
+    // check for passwords
+    // pw is echoed, but jarsigner does that too...
+    // when we go to 1.6 only we should use java.io.Console
+    if (!config.signingkey.params.storepass) {
+        print "Enter the keystore password:"
+        config.signingkey.params.storepass = System.in.newReader().readLine()
+    }
+    if (!config.signingkey.params.keypass) {
+        print "Enter the key password [blank if same as keystore] :"
+        config.signingkey.params.keypass = System.in.newReader().readLine() ?: config.signingkey.params.storepass
+    }
+
     if (!(new File(Ant.antProject.replaceProperties(config.signingkey.params.keystore)).exists())) {
         println "Auto-generating a local self-signed key"
         Ant.genkey(config.signingkey.params + [dname:'CN=Auto Gen Self-Signed Key -- Not for Production, OU=Development, O=Griffon'])
