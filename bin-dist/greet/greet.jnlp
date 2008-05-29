@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE jnlp SYSTEM "http://java.sun.com/dtd/JNLP-1.5.dtd">
 <jnlp
-    version="Greet"
+    href="greet.jnlp"
     codebase="http://svn.codehaus.org/groovy/trunk/groovy/modules/griffon/bin-dist/greet/"
     spec="1.5+"
 >
     <information>
         <title>Greet</title>
-        <vendor>Greet</vendor>
-        <!--<homepage href="http://app.example.com/"/>-->
+        <vendor>Groovy @ Codehaus</vendor>
+        <homepage href="http://docs.codehaus.org/display/GROOVY/Greet/"/>
         <!--fallback description-->
-        <description>Greet</description>
-        <description kind="one-line">Greet</description>
+        <description>Greet - A Groovy Twitter Client</description>
+        <description kind="one-line">Greet - A Groovy Twitter Client</description>
         <description kind="short">Greet</description>
-        <description kind="tooltip">Greet</description>
+        <description kind="tooltip">Greet - A Groovy Twitter Client</description>
         <!-- fallback icon -->
         <!--<icon href="http://example.com/icon.gif" kind="default" width="" height=""/>-->
         <!-- icon used for splash screen -->
