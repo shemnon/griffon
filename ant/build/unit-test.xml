@@ -54,12 +54,12 @@
 
     <target name="build-test" depends="build">
 
-        <groovyc srcdir="src/test" destdir="${griffon.test.build}"  >
+        <groovyc destdir="${griffon.test.build}"  >
             <src path="${griffon.test.src.commons}" />
             <!--<src path="${griffon.test.src.web}" />-->
             <!--<src path="${griffon.test.src.persistence}" />-->
             <!--<src path="${griffon.test.src.scaffolding}" />-->
-            <src path="src/test" />
+            <!--<src path="src/test" />-->
             <javac debug="on" deprecation="on" encoding="UTF-8"/>
             <classpath refid="classpath" />
             <classpath location="${griffon.test.build}" />
