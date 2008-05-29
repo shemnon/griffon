@@ -32,15 +32,34 @@ log4j {
 }
 
 // key signing information
-signingkey {
-    params {
-        keystore = '${base.dir}/griffon-app/conf/keys/devKeystore'
-        alias = 'development'
-        storepass = 'BadStorePassword'
-        keypass   = 'BadKeyPassword'
+
+environments {
+    development {
+        signingkey {
+            params {
+                keystore = '${base.dir}/griffon-app/conf/keys/devKeystore'
+                alias = 'development'
+                storepass = 'BadStorePassword'
+                keypass   = 'BadKeyPassword'
+            }
+        }
+
+        griffon.jars.destDir = '${base.dir}/target'
+        griffon.jars.jarName = "${appName}.jar"
+        griffon.webstart.codebase = "file:${griffon.jars.destDir}"
+    }
+    production {
+        signingkey {
+            params {
+                keystore = '${base.dir}/griffon-app/conf/keys/productionKeystore'
+                alias = 'greetkey'
+                //storepass = 'BadStorePassword' // no value means we will prompt
+                //keypass   = 'BadKeyPassword' // no value means we will prompt
+            }
+        }
+
+        griffon.jars.destDir = '${base.dir}/../../bin-dist/greet'
+        griffon.jars.jarName = "${appName}.jar"
+        griffon.webstart.codebase = "http://svn.codehaus.org/groovy/trunk/groovy/modules/griffon/bin-dist/greet/"
     }
 }
-
-griffon.jars.destDir = '${base.dir}/target'
-griffon.jars.jarName = "${appName}.jar"
-griffon.webstart.codebase = "file:${griffon.jars.destDir}"
