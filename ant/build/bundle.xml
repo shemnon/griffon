@@ -141,4 +141,12 @@
         <antcall target="create-source-release"/>
     </target>
 
+    <target name="install" depends="clean,test,jar,javadoc" description="Installs the package into GRIFFON_HOME">
+        <delete dir="tmp" failonerror="true"/>
+        <antcall target="create-binary-release"/>
+        <unzip src="${griffon.dist}/${griffon.dist.binary}.zip" dest="${env.GRIFFON_HOME}">
+            <mapper type="regexp" from="griffon-${griffon.version}/(.*)" to="\1"/>
+        </unzip>
+    </target>
+
 </project>
