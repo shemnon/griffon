@@ -147,7 +147,7 @@ class TwitterService {
         withStatus("Tweeting") {
             def urlConnection = new URL("http://twitter.com/statuses/update.xml").openConnection()
             urlConnection.doOutput = true
-            urlConnection.outputStream << "status=${URLEncoder.encode(message, 'UTF-8')}"
+            urlConnection.outputStream << "source=greet&status=${URLEncoder.encode(message, 'UTF-8')}"
             return slurper.parse(urlConnection.inputStream)
         }
     }
