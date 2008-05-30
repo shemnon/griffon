@@ -49,7 +49,7 @@ class Greet {
 
     void login(evt) {
         setAllowLogin(false)
-        SwingBuilder.doOutside(view) {
+        view.doOutside {
             try {
                 if (api.login(view.twitterNameField.text, view.twitterPasswordField.password)) {
                     setFriends(api.getFriends(api.authenticatedUser))
@@ -63,7 +63,7 @@ class Greet {
             } catch (Exception e) {
                 e.printStackTrace()
             } finally {
-                SwingBuilder.edt(view) {
+                view.edt {
                     setAllowLogin(true)
                     setAllowSelection(true)
                     setAllowTweet(true)
@@ -75,7 +75,7 @@ class Greet {
     void filterTweets(evt = null) {
         setAllowSelection(false)
         setAllowTweet(false)
-        SwingBuilder.doOutside(view) {
+        view.doOutside {
             try {
                 setStatuses(
                     friends.collect {it.status}.findAll {it.text =~ view.searchField.text}
@@ -89,7 +89,7 @@ class Greet {
             } catch (Exception e) {
                 e.printStackTrace()
             } finally {
-                SwingBuilder.edt(view) {
+                view.edt {
                     setAllowSelection(true)
                     setAllowTweet(true)
                 }
@@ -98,7 +98,7 @@ class Greet {
     }
 
     def userSelected(evt) {
-        SwingBuilder.doOutside(view) {
+        view.doOutside {
             selectUser(view.users.selectedItem)
         }
     }
@@ -116,7 +116,7 @@ class Greet {
             setTweets(api.getTweets(focusedUser).findAll {it.text =~ view.searchField.text})
             setTimeline(api.getFriendsTimeline(focusedUser).findAll {it.text =~ view.searchField.text})
         } finally {
-            SwingBuilder.edt(view) {
+            view.edt {
                 setAllowSelection(true)
                 setAllowTweet(true)
             }
@@ -125,11 +125,11 @@ class Greet {
 
     def tweet(evt = null) {
         setAllowTweet(false)
-        SwingBuilder.doOutside(view) {
+        view.doOutside {
             try {
                 api.tweet(view.tweetBox.text)
                 // true story: it froze w/o the EDT call here
-                SwingBuilder.edt(view) {tweetBox.text = ""}
+                view.edt {tweetBox.text = ""}
                 filterTweets()
             } finally {
                 setAllowTweet(true)
@@ -142,7 +142,7 @@ class Greet {
             case HyperlinkEvent.EventType.ACTIVATED:
                 def url = evt.URL
                 if (url.host == 'twitter.com') {
-                    SwingBuilder.doOutside(view) {selectUser(url.file.substring(1))}
+                    view.doOutside {selectUser(url.file.substring(1))}
                 }
                 break;
             case HyperlinkEvent.EventType.ENTERED:
