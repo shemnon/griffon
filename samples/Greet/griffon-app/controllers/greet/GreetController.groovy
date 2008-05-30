@@ -28,7 +28,7 @@ import javax.swing.event.HyperlinkEvent
 class GreetController {
 
     TwitterService twitterService
-    Binding builder
+    //Binding builder // now auto-iinjected via EMC
 
     @Bindable boolean allowLogin = true
     @Bindable boolean allowSelection = true
@@ -47,13 +47,13 @@ class GreetController {
 
     void login(evt) {
         setAllowLogin(false)
-        SwingBuilder.doOutside(builder) {
+        doOutside {
             try {
                 if (twitterService.login(builder.twitterNameField.text, builder.twitterPasswordField.password)) {
                     setFriends(twitterService.getFriends(twitterService.authenticatedUser))
                     setStatuses(friends.collect {it.status})
                     selectUser(twitterService.authenticatedUser)
-                    builder.edt {
+                    edt {
                         setLastUpdate(System.currentTimeMillis())
                         //builder.greetFrame.show()
                         builder.loginDialog.dispose()
@@ -64,7 +64,7 @@ class GreetController {
             } catch (Exception e) {
                 e.printStackTrace()
             } finally {
-                SwingBuilder.edt(builder) {
+                edt {
                     setAllowLogin(true)
                     setAllowSelection(true)
                     setAllowTweet(true)
@@ -75,21 +75,21 @@ class GreetController {
 
     void filterTweets(evt = null) {
         setAllowSelection(false)
-        SwingBuilder.doOutside(builder) {
+        doOutside {
             try {
                 [Statuses: { friends.collect {it.status}.findAll {it.text =~ builder.searchField.text} },
                  Timeline: { twitterService.getFriendsTimeline(focusedUser).findAll {it.text =~ builder.searchField.text} },
                  Tweets : { twitterService.getTweets(focusedUser).findAll {it.text =~ builder.searchField.text} },
                 ].each {k, v ->
                     def newVal = v()
-                    SwingBuilder.edt(builder) {
+                    edt {
                         "set$k"(newVal)
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace()
             } finally {
-                SwingBuilder.edt(builder) {
+                edt {
                     setAllowSelection(true)
                     setLastUpdate(System.currentTimeMillis())
                 }
@@ -98,7 +98,7 @@ class GreetController {
     }
 
     def userSelected(evt) {
-        SwingBuilder.doOutside(builder) {
+        doOutside {
             selectUser(builder.users.selectedItem)
         }
     }
@@ -115,7 +115,7 @@ class GreetController {
             setTweets(twitterService.getTweets(focusedUser).findAll {it.text =~ builder.searchField.text})
             setTimeline(twitterService.getFriendsTimeline(focusedUser).findAll {it.text =~ builder.searchField.text})
         } finally {
-            SwingBuilder.edt(builder) {
+            edt {
                 setAllowSelection(true)
                 setLastUpdate(System.currentTimeMillis())
             }
@@ -124,7 +124,7 @@ class GreetController {
 
     def tweet(evt = null) {
         setAllowTweet(false)
-        SwingBuilder.doOutside(builder) {
+        doOutside {
             def cleanup = { setAllowTweet(true) }
             try {
                 twitterService.tweet(builder.tweetBox.text)
@@ -132,7 +132,7 @@ class GreetController {
                 cleanup = {setAllowTweet(true); tweetBox.text = ""}
                 filterTweets()
             } finally {
-                SwingBuilder.edt(builder, cleanup)
+                edt(cleanup)
             }
         }
     }
@@ -140,7 +140,7 @@ class GreetController {
     def hyperlinkPressed(HyperlinkEvent evt) {
         switch (evt.getEventType()) {
             case HyperlinkEvent.EventType.ACTIVATED:
-                SwingBuilder.doOutside(builder) {
+                doOutside {
                     def url = evt.URL
                     if (url.toExternalForm() =~ 'http://twitter.com/\\w+') {
                         selectUser(url.file.substring(1))

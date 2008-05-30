@@ -128,7 +128,7 @@ loginDialog = dialog(
 }
 
 controller.addPropertyChangeListener("friends", {evt ->
-    SwingBuilder.edt(binding) { users.model = new DefaultComboBoxModel(evt.newValue as Object[]) }
+    edt { users.model = new DefaultComboBoxModel(evt.newValue as Object[]) }
 } as PropertyChangeListener)
 
 // add data change listeners

@@ -1,6 +1,6 @@
 package griffon.util
 
-import groovy.swing.SwingBuilder
+import griffon.groovy.swing.SwingBuilder
 import java.awt.Toolkit
 import javax.swing.SwingUtilities
 
@@ -13,11 +13,8 @@ import javax.swing.SwingUtilities
 class GriffonApplicationHelper {
 
     static void prepare(IGriffonApplication app) {
-
         app.config = new ConfigSlurper().parse(app.configClass)
-
         app.bindings.app = app
-
         app.initialize();
     }
 
@@ -27,8 +24,16 @@ class GriffonApplicationHelper {
         // for now we punt and make a SwingBuilder
         app.config.controllers.each {k, v ->
             //todo wire in previous controllers?
-            def controller = app.getClass().classLoader.loadClass(v).newInstance()
+            Class controllerClass = app.getClass().classLoader.loadClass(v)
+
+            // inject app via EMC
+            controllerClass.metaClass.app = app
+
+            def controller = controllerClass.newInstance()
+
+            // just in case it's a field... set app
             safeSet(controller, "app", app)
+
             app.controllers[k] = controller
         }
 
@@ -36,8 +41,22 @@ class GriffonApplicationHelper {
         app.config.viewMap.each {k, v ->
             def controller = app.controllers[k]
             SwingBuilder builder = new SwingBuilder() // use composite here when ready
+
+            // add declared composite controller injections
+            // for now we statically add threading methods
+            Class controllerClass = controller.getClass()
+            controllerClass.metaClass.edt = builder.&edt
+            controllerClass.metaClass.doOutside = builder.&doOutside
+            controllerClass.metaClass.doLater = builder.&doLater
+
+            // set the single frame as the defaut parent
             builder.containingWindows += app.bindings.rootWindow
+
+            // inject builder via EMC
+            controllerClass.metaClass.builder = builder
+            // just in case it's a field...
             safeSet(controller, "builder", builder)
+
             builder.controller = controller
             app.views[k] = [:]
             // link views to controllers

@@ -158,15 +158,14 @@ public class SwingBuilder  extends FactoryBuilderSupport {
         registerFactory("gridLayout", new LayoutFactory(GridLayout))
         registerFactory("overlayLayout", new LayoutFactory(OverlayLayout))
         registerFactory("springLayout", new LayoutFactory(SpringLayout))
-        addAttributeDelegate(SwingBuilder.&constraintsAttributeDelegate)
-    }
 
-    def registerGridBagLayout() {
         registerFactory("gridBagLayout", new GridBagFactory())
         registerBeanFactory("gridBagConstraints", GridBagConstraints)
         registerBeanFactory("gbc", GridBagConstraints) // shortcut name
         // constraints delegate
         addAttributeDelegate(GridBagFactory.&processGridBagConstraintsAttributes)
+
+        addAttributeDelegate(SwingBuilder.&constraintsAttributeDelegate)
     }
 
     def registerBoxLayout() {
@@ -239,16 +238,14 @@ public class SwingBuilder  extends FactoryBuilderSupport {
      *
      * @param c this closure is run in the EDT
      */
-    public static Binding edt(Binding that, Closure c) {
-        if (that) {
-            c.setDelegate(that)
-        }
+    public SwingBuilder edt(Closure c) {
+        c.setDelegate(this)
         if (headless || SwingUtilities.isEventDispatchThread()) {
-            c.call(that)
+            c.call(this)
         } else {
             try {
                 if (!(c instanceof MethodClosure)) {
-                    c = c.curry([that])
+                    c = c.curry([this])
                 }
                 SwingUtilities.invokeAndWait(c)
             } catch (InterruptedException e) {
@@ -257,38 +254,7 @@ public class SwingBuilder  extends FactoryBuilderSupport {
                 throw new GroovyRuntimeException("exception in event dispatch thread", e.getTargetException())
             }
         }
-        return that
-    }
-
-    /**
-     * Utilitiy method to run a closure in EDT,
-     * using <code>SwingUtilities.invokeAndWait</cod>.
-     *
-     * @param c this closure is run in the EDT
-     */
-    public SwingBuilder edt(Closure c) {
-        return SwingBuilder.edt(this, c);
-    }
-
-    /**
-     * Utilitiy method to run a closure in EDT,
-     * using <code>SwingUtilities.invokeLater</cod>.
-     *
-     * @param c this closure is run in the EDT
-     */
-    public static Binding doLater(Binding that, Closure c) {
-        if (that) {
-            c.setDelegate(that)
-        }
-        if (headless) {
-            c.call()
-        } else {
-            if (!(c instanceof MethodClosure)) {
-                c = c.curry([that])
-            }
-            SwingUtilities.invokeLater(c)
-        }
-        return that
+        return this
     }
 
     /**
@@ -298,26 +264,16 @@ public class SwingBuilder  extends FactoryBuilderSupport {
      * @param c this closure is run in the EDT
      */
     public SwingBuilder doLater(Closure c) {
-        return SwingBuilder.doLater(this, c);
-    }
-
-    /**
-     * Utility method to run a closure in a separate Thread.
-     * <p>
-     * The closure is wrapped in a thread, and the thread is started
-     * immediatly.
-     *
-     * @param c this closure is started in a separate thread
-     */
-    public static Binding doOutside(Binding that, Closure c) {
-        if (that) {
-            c.setDelegate(that)
+        c.setDelegate(this)
+        if (headless) {
+            c.call()
+        } else {
+            if (!(c instanceof MethodClosure)) {
+                c = c.curry([this])
+            }
+            SwingUtilities.invokeLater(c)
         }
-        if (!(c instanceof MethodClosure)) {
-            c = c.curry([that])
-        }
-        Thread.start(c)
-        return that
+        return this
     }
 
     /**
@@ -329,7 +285,12 @@ public class SwingBuilder  extends FactoryBuilderSupport {
      * @param c this closure is started in a separate thread
      */
     public SwingBuilder doOutside(Closure c) {
-        return SwingBuilder.doOutside(this, c)
+        c.setDelegate(this)
+        if (!(c instanceof MethodClosure)) {
+            c = c.curry([this])
+        }
+        Thread.start(c)
+        return this
     }
 
     /**
