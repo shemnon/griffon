@@ -1,7 +1,10 @@
 package greet;
 
-import javax.swing.*;
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Rectangle;
+import javax.swing.JPanel;
+import javax.swing.Scrollable;
+import javax.swing.SwingConstants;
 
 /**
  * Created by IntelliJ IDEA.
@@ -27,6 +30,6 @@ public class ScrollablePanel extends JPanel implements Scrollable{
     }
 
     public boolean getScrollableTracksViewportHeight() {
-        return false;  //To change body of implemented methods use File | Settings | File Templates.
+        return false;
     }
 }

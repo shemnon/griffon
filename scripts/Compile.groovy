@@ -79,6 +79,8 @@ compilerClasspath = { testSources ->
 
 
     src(path:"${basedir}/src/main")
+    include(name:'**/*.groovy')
+    include(name:'**/*.java')
     javac(classpathref:"griffon.classpath", debug:"yes")
     if(testSources) {
          src(path:"${basedir}/test/unit")
@@ -96,7 +98,6 @@ target(compile : "Implementation of compilation phase") {
                    classpathref:"griffon.classpath",
 //                       resourcePattern:"file:${basedir}/**/griffon-app/**/*.groovy",
                    srcdir: "${basedir}",
-                   includes: "**/griffon-app/**/*.groovy",
                    encoding:"UTF-8",
                    compilerClasspath.curry(false))
     }
