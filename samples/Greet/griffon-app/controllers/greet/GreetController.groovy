@@ -17,7 +17,6 @@
 package greet
 
 import groovy.beans.Bindable
-import groovy.swing.SwingBuilder
 import java.awt.Cursor
 import javax.swing.JOptionPane
 import javax.swing.event.HyperlinkEvent
