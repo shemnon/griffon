@@ -97,7 +97,6 @@ target(compile : "Implementation of compilation phase") {
 //                       projectName:baseName,
                    classpathref:"griffon.classpath",
 //                       resourcePattern:"file:${basedir}/**/griffon-app/**/*.groovy",
-                   srcdir: "${basedir}",
                    encoding:"UTF-8",
                    compilerClasspath.curry(false))
     }
