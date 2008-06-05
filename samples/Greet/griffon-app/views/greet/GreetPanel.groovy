@@ -27,25 +27,31 @@ import javax.swing.WindowConstants
 actions() {
     loginAction = action(
         name: 'Login',
-        enabled: bind(source: controller, sourceProperty: 'allowLogin'),
+        enabled: bind {controller.allowLogin},
         closure: controller.&login
     )
 
     filterTweets = action(
         name: 'Filter',
-        enabled: bind(source: controller, sourceProperty: 'allowSelection'),
+        enabled: bind {controller.allowSelection},
         closure: controller.&filterTweets
+    )
+
+    updateTimeline = action(
+        name: 'Update',
+        enabled: bind {controller.allowSelection},
+        closure: controller.&updateTimeline
     )
 
     userSelected = action(
         name: 'Select User',
-        enabled: bind(source: controller, sourceProperty: 'allowSelection'),
+        enabled: bind {controller.allowSelection},
         closure: controller.&userSelected
     )
 
     tweetAction = action(
         name: 'Update',
-        enabled: bind(source: controller, sourceProperty: 'allowTweet'),
+        enabled: bind {controller.allowTweet},
         closure: controller.&tweet
     )
 }
@@ -64,13 +70,11 @@ userCellRenderer = {list, user, index, isSelected, isFocused ->
     userCell
 } as ListCellRenderer
 
-mainPanel = panel(cursor: bind(source: controller, sourceProperty: 'allowSelection',
-    converter: {it ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)})
-) {
+mainPanel = panel(cursor: bind {controller.allowSelection ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)}) {
 
     gridBagLayout()
     users = comboBox(renderer: userCellRenderer, action: userSelected,
-        selectedItem:bind(source:controller, sourceProperty:'focusedUser'),
+        selectedItem:bind {controller.focusedUser},
         gridwidth: REMAINDER, insets: [6, 6, 3, 6], fill: HORIZONTAL
     )
     label('Search:', insets: [3, 6, 3, 3])
@@ -93,15 +97,14 @@ mainPanel = panel(cursor: bind(source: controller, sourceProperty: 'allowSelecti
     tweetBox = textField(action:tweetAction,
         fill:BOTH, weightx:1.0, insets:[3,3,1,3], gridwidth:2)
     tweetButton = button(tweetAction,
-        enabled:bind(source:tweetBox, sourceProperty:'text', converter:{it.length() in  1..140}),
+        enabled:bind {tweetBox.text.length() in  1..140},
         gridwidth:REMAINDER, insets:[3,3,1,3])
-    progressBar(value:bind(source:tweetBox, 'text', converter: {Math.min(140, it.length())}),
-            string: bind(source:tweetBox, 'text', converter: {
-                int count = it.length();
+    progressBar(value:bind {Math.min(140, tweetBox.text.length())},
+            string: bind { int count = tweetBox.text.length();
                 ((count <= 140)
-                    ? "${140 - it.length()} characters left"
-                    : "${it.length() - 140} characters too many")
-            }),
+                    ? "${140 - count} characters left"
+                    : "${count - 140} characters too many")
+            },
             minimum:0, maximum:140, stringPainted: true,
             gridwidth:REMAINDER, fill:HORIZONTAL, insets:[1,3,1,3]
     )
@@ -117,9 +120,7 @@ loginDialog = dialog(
     locationByPlatform:true)
 {
     panel(border: emptyBorder(3),
-        cursor: bind(source: controller, sourceProperty: 'allowLogin',
-            converter: {it ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)})
-    ) {
+        cursor: bind {controller.allowLogin ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)}) {
         gridBagLayout()
         label("Username:",
             anchor: EAST, insets: [3, 3, 3, 3])
@@ -190,7 +191,7 @@ controller.addPropertyChangeListener("lastUpdate", {evt ->
     }
 } as PropertyChangeListener)
 
-def refreshTimer = new Timer(120000, filterTweets)
+def refreshTimer = new Timer(180000, filterTweets)
 controller.addPropertyChangeListener("focusedUser", {refreshTimer.start()} as PropertyChangeListener)
 
 return mainPanel

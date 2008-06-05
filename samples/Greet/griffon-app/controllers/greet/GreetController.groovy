@@ -72,6 +72,26 @@ class GreetController {
         }
     }
 
+    void updateTimeline(evt = null) {
+        setAllowSelection(false)
+        doOutside {
+            try {
+                def newVal = twitterService.getFriendsTimeline(focusedUser).findAll {it.text =~ builder.searchField.text}
+                edt {
+                    setTimeline(newVal)
+                }
+            } catch (Exception e) {
+                e.printStackTrace()
+            } finally {
+                edt {
+                    setAllowSelection(true)
+                    setLastUpdate(System.currentTimeMillis())
+                }
+            }
+        }
+
+    }
+
     void filterTweets(evt = null) {
         setAllowSelection(false)
         doOutside {

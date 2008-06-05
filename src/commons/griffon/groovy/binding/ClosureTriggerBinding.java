@@ -50,6 +50,9 @@ public class ClosureTriggerBinding implements TriggerBinding, SourceBinding {
                     closure.setDelegate(delegate);
                     closure.setResolveStrategy(Closure.DELEGATE_ONLY);
                     closure.call();
+                } catch (Exception e) {
+                    //LOGME
+                    // ignore it, likely failing because we are faking out properties
                 } finally {
                     closure.setResolveStrategy(oldResolveStrategy);
                     closure.setDelegate(oldDelegate);
