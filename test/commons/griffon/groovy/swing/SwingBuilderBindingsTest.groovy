@@ -427,12 +427,27 @@ public class BeanPathTestB {
         beanB = null
         swing.actions() {
             beanA = new BeanPathTestA(foo:'x', bar:'y', bif:'z', qux:'w')
-            beanB = bean(new BeanPathTestB(), foo:bind {beanA.foo}, baz:bind {beanA.bar * 2})
+            beanC = new BeanPathTestA(foo:beanA, bar:'a')
+            beanB = bean(new BeanPathTestB(), foo:bind {beanA.foo}, baz:bind {beanA.bar * 2}, bif: bind {beanC.foo.bar})
         }
         assert beanB.foo == 'x'
         assert beanB.baz == 'yy'
+
+        // bif is chained two levels down
+        assert beanB.bif == 'y'
+
         beanA.bar = 3
         assert beanB.baz == 6
+
+        // assert change at deepest level
+        assert beanB.bif == 3
+        //assert change at first level
+        beanC.foo = beanC
+        assert beanB.bif == 'a'
+
+        // assert change at deepest level again
+        beanC.bar = 'c'
+        assert beanB.bif == 'c'
 ''')
     }
 }
