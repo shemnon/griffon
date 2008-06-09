@@ -105,7 +105,6 @@ public class BindPath {
                     updateSet.add(newObject);
                     newValue = InvokerHelper.getProperty(newObject, propertyName);
                 }
-                //System.out.println("Considering " + newObject + " as value for " + propertyName);
                 for (BindPath child : children) {
                     child.addAllListeners(listener, newValue, updateSet);
                 }
@@ -133,12 +132,10 @@ public class BindPath {
             MetaClass mc = InvokerHelper.getMetaClass(newObject);
             if (!mc.respondsTo(newObject, "addPropertyChangeListener", NAME_PARAMS).isEmpty()) {
                 InvokerHelper.invokeMethod(newObject, "addPropertyChangeListener", new Object[] {propertyName, listener});
-                //System.out.println("Bound to name " + propertyName + " on " + newObject);
                 boundName = true;
                 updateSet.add(newObject);
             } else if (!mc.respondsTo(newObject, "addPropertyChangeListener", GLOBAL_PARAMS).isEmpty()) {
                 InvokerHelper.invokeMethod(newObject, "addPropertyChangeListener", listener);
-                //System.out.println("Bound  globally on " + newObject);
                 boundGlobal = true;
                 updateSet.add(newObject);
             }

@@ -54,7 +54,7 @@
 
     <target name="build-test" depends="build">
 
-        <groovyc destdir="${griffon.test.build}"  >
+        <groovyc destdir="${griffon.test.build}" fork="true" >
             <src path="${griffon.test.src.commons}" />
             <!--<src path="${griffon.test.src.web}" />-->
             <!--<src path="${griffon.test.src.persistence}" />-->

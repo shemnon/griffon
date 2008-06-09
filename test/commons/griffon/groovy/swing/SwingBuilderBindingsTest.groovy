@@ -402,34 +402,19 @@ public class SwingBuilderBindingsTest extends GroovySwingTestCase {
 
     public void testClosureBinding() {
         if (isHeadless()) return
-        GroovyShell shell = new GroovyShell()
-        shell.evaluate('''
-import griffon.groovy.swing.SwingBuilder
-import groovy.beans.Bindable
-
-@Bindable
-public class BeanPathTestA {
-    @Bindable Object foo
-    @Bindable Object bar
-    Object bif
-    @Bindable Object qux
-}
-
-@Bindable
-public class BeanPathTestB {
-    @Bindable Object foo
-    @Bindable Object baz
-    @Bindable Object  bif
-    Object qux
-}
         SwingBuilder swing = new SwingBuilder()
-        beanA = null
-        beanB = null
+
+//        def beanA = null
+//        def beanB = null
+//        def beanC = null
         swing.actions() {
             beanA = new BeanPathTestA(foo:'x', bar:'y', bif:'z', qux:'w')
             beanC = new BeanPathTestA(foo:beanA, bar:'a')
-            beanB = bean(new BeanPathTestB(), foo:bind {beanA.foo}, baz:bind {beanA.bar * 2}, bif: bind {beanC.foo.bar})
+            beanB = bean(new BeanPathTestB(), foo:bind {println 'hi'; beanA.foo}, baz:bind {beanA.bar * 2}, bif: bind {beanC.foo.bar})
         }
+        def beanA = swing.beanA
+        def beanB = swing.beanB
+        def beanC = swing.beanC
         assert beanB.foo == 'x'
         assert beanB.baz == 'yy'
 
@@ -448,8 +433,19 @@ public class BeanPathTestB {
         // assert change at deepest level again
         beanC.bar = 'c'
         assert beanB.bif == 'c'
-''')
     }
 }
 
+public class BeanPathTestA {
+    @Bindable Object foo
+    @Bindable Object bar
+    Object bif
+    @Bindable Object qux
+}
 
+public class BeanPathTestB {
+    @Bindable Object foo
+    @Bindable Object baz
+    @Bindable Object  bif
+    Object qux
+}
