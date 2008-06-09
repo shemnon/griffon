@@ -410,7 +410,7 @@ public class SwingBuilderBindingsTest extends GroovySwingTestCase {
         swing.actions() {
             beanA = new BeanPathTestA(foo:'x', bar:'y', bif:'z', qux:'w')
             beanC = new BeanPathTestA(foo:beanA, bar:'a')
-            beanB = bean(new BeanPathTestB(), foo:bind {println 'hi'; beanA.foo}, baz:bind {beanA.bar * 2}, bif: bind {beanC.foo.bar})
+            beanB = bean(new BeanPathTestB(), foo:bind {beanA.foo}, baz:bind {beanA.bar * 2}, bif: bind {beanC.foo.bar})
         }
         def beanA = swing.beanA
         def beanB = swing.beanB
