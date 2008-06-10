@@ -21,6 +21,8 @@ import java.beans.PropertyChangeListener;
 import java.util.Set;
 
 import groovy.lang.MetaClass;
+import groovy.lang.MissingPropertyException;
+import groovy.lang.Reference;
 
 /**
  * The bind path object.  This class represents one "step" in the bind path.
@@ -72,7 +74,7 @@ public class BindPath {
                 Object newValue = null;
                 if (newObject != null) {
                     updateSet.add(newObject);
-                    newValue = InvokerHelper.getProperty(newObject, propertyName);
+                    newValue = extractNewValue(newObject);
                 }
                 for (BindPath child : children) {
                     child.updatePath(listener, newValue, updateSet);
@@ -103,16 +105,38 @@ public class BindPath {
                 Object newValue = null;
                 if (newObject != null) {
                     updateSet.add(newObject);
-                    newValue = InvokerHelper.getProperty(newObject, propertyName);
+                    newValue = extractNewValue(newObject);
                 }
                 for (BindPath child : children) {
                     child.addAllListeners(listener, newValue, updateSet);
                 }
             } catch (Exception e) {
+                e.printStackTrace(System.out);
                 //LOGME
                 // do we ignore it, or fail?
             }
         }
+    }
+
+    private Object extractNewValue(Object newObject) {
+        Object newValue;
+        try {
+            newValue = InvokerHelper.getProperty(newObject, propertyName);
+
+        } catch (MissingPropertyException mpe) {
+            //todo we should flag this whent he path is created that this is a field not a prop...
+            // try direct method...
+            try {
+                newValue = InvokerHelper.getAttribute(newObject, propertyName);
+                if (newValue instanceof Reference) {
+                    newValue = ((Reference) newValue).get();
+                }
+            } catch (Exception e) {
+                //LOGME?
+                newValue = null;
+            }
+        }
+        return newValue;
     }
 
     static final Class[] NAME_PARAMS = {String.class, PropertyChangeListener.class};

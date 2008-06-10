@@ -17,8 +17,12 @@ package griffon.groovy.binding;
 
 import groovy.lang.Closure;
 import groovy.lang.GroovyObjectSupport;
+import groovy.lang.Reference;
 import org.codehaus.groovy.binding.*;
 
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -36,11 +40,11 @@ public class ClosureTriggerBinding implements TriggerBinding, SourceBinding {
         this.closure = closure;
     }
 
-    private BindPath createBindPath(String propertyName, BindPathSnopper proxy) {
+    private BindPath createBindPath(String propertyName, BindPathSnooper proxy) {
         BindPath bp = new BindPath();
         bp.propertyName = propertyName;
         List<BindPath> childPaths = new ArrayList<BindPath>();
-        for (Map.Entry<String, BindPathSnopper> entry : proxy.fields.entrySet()) {
+        for (Map.Entry<String, BindPathSnooper> entry : proxy.fields.entrySet()) {
             childPaths.add(createBindPath(entry.getKey(), entry.getValue()));
         }
         bp.children = childPaths.toArray(new BindPath[childPaths.size()]);
@@ -51,36 +55,54 @@ public class ClosureTriggerBinding implements TriggerBinding, SourceBinding {
         if (source != this) {
             throw new RuntimeException("Source binding must the Trigger Binding as well");
         }
-        BindPathSnopper delegate = new BindPathSnopper();
+        final BindPathSnooper delegate = new BindPathSnooper();
         try {
-            // first, pick out the property references
-            final Closure closureLocalCopy = closure;
-            synchronized (closureLocalCopy) {
-                // be obsessive and asseret total ownership over the closure while being snopped at
-                Object oldDelegate = closureLocalCopy.getDelegate();
-                int oldResolveStrategy = closureLocalCopy.getResolveStrategy();
+            // create our own local copy of the closure
+            final Class closureClass = closure.getClass();
 
-                try {
-                    closureLocalCopy.setDelegate(delegate);
-                    closureLocalCopy.setResolveStrategy(Closure.DELEGATE_ONLY);
-                    closureLocalCopy.call();
-                } catch (DeadEndException e) {
-                    // we want this exception exposed.
-                    throw e;
-                } catch (Exception e) {
-                    //LOGME
-                    // ignore it, likely failing because we are faking out properties
-                } finally {
-                    closureLocalCopy.setResolveStrategy(oldResolveStrategy);
-                    closureLocalCopy.setDelegate(oldDelegate);
+            // do in privileged block since we may be looking at private stuff
+            Closure closureLocalCopy = java.security.AccessController.doPrivileged(new PrivilegedAction<Closure>() {
+                public Closure run() {
+                    // assume closures have only 1 constructor, of the form (Object, Reference*)
+                    Constructor constructor = closureClass.getConstructors()[0];
+                    int paramCount = constructor.getParameterTypes().length;
+                    Object[] args = new Object[paramCount];
+                    args[0] = delegate;
+                    for (int i = 1; i < paramCount; i++) {
+                        args[i] = new Reference(new BindPathSnooper());
+                    }
+                    try {
+                        boolean acc = constructor.isAccessible();
+                        constructor.setAccessible(true);
+                        Closure localCopy = (Closure) constructor.newInstance(args);
+                        if (!acc) { constructor.setAccessible(false); }
+                        localCopy.setResolveStrategy(Closure.DELEGATE_ONLY);
+                        for (Field f:closureClass.getDeclaredFields()) {
+                            acc = f.isAccessible();
+                            f.setAccessible(true);
+                            if (f.getType() == Reference.class) {
+                                delegate.fields.put(f.getName(),
+                                        (BindPathSnooper) ((Reference) f.get(localCopy)).get());
+                            }
+                            if (!acc) { f.setAccessible(false); }
+                        }
+                        return localCopy;
+                    } catch (Exception e) {
+                        throw new RuntimeException("Error snooping closure", e);
+                    }
                 }
-            }
+            });
+
+            closureLocalCopy.call();
+        } catch (DeadEndException e) {
+            // we want this exception exposed.
+            throw e;
         } catch (Exception e) {
             e.printStackTrace(System.out);
             throw new RuntimeException("A closure expression binding could not be created because of " + e.getClass().getName() + ":\n\t" + e.getMessage());
         }
         List<BindPath> rootPaths = new ArrayList<BindPath>();
-        for (Map.Entry<String, BindPathSnopper> entry : delegate.fields.entrySet()) {
+        for (Map.Entry<String, BindPathSnooper> entry : delegate.fields.entrySet()) {
             BindPath bp =createBindPath(entry.getKey(), entry.getValue());
             bp.currentObject = closure;
             rootPaths.add(bp);
@@ -110,16 +132,16 @@ class DeadEndObject {
     }
 }
 
-class BindPathSnopper extends GroovyObjectSupport {
+class BindPathSnooper extends GroovyObjectSupport {
     static final DeadEndObject DEAD_END = new DeadEndObject();
 
-    Map<String, BindPathSnopper> fields = new LinkedHashMap<String, BindPathSnopper>();
+    Map<String, BindPathSnooper> fields = new LinkedHashMap<String, BindPathSnooper>();
 
     public Object getProperty(String property) {
         if (fields.containsKey(property)) {
             return fields.get(property);
         } else {
-            BindPathSnopper proxy = new BindPathSnopper();
+            BindPathSnooper proxy = new BindPathSnooper();
             fields.put(property, proxy);
             return proxy;
         }
