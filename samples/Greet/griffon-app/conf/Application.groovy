@@ -1,18 +1,18 @@
 
 
-
-// List the controllers to be instantiated and the names to sotre in the builder
-controllers = [greet:'greet.GreetController']
-
-
-// list of views to be auto-wired with certian controllers
-viewMap = [ greet:[greetPanel:'greet.GreetPanel'] ]
+mvcGroups {
+    root {
+        model = 'greet.GreetModel'
+        view = 'greet.GreetPanel'
+        controller = 'greet.GreetController'
+    }
+}
 
 
 // The primary builder.
 // for an Applicaiton this will be placed in a JFrame
 // for an Applet, this will be placed in the JApplet
-primaryView="greet.greetPanel"
+primaryView="mainPanel"
 
 // the menu bar to attach to the applet or JFrame, if present.
 //primaryMenuBar =  basicController.menu

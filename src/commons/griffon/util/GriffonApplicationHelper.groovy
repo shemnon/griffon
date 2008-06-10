@@ -37,60 +37,20 @@ class GriffonApplicationHelper {
         // init the builders
         // this is where a composite gets made and composites are added
         // for now we punt and make a SwingBuilder
-        app.config.controllers.each {k, v ->
-            //todo wire in previous controllers?
-            Class controllerClass = app.getClass().classLoader.loadClass(v)
 
-            // inject app via EMC
-            controllerClass.metaClass.app = app
+        def model
+        def view
+        def controller
 
-            def controller = controllerClass.newInstance()
+        [model, view, controller] = createMVCGroup(app, 'root')
 
-            // just in case it's a field... set app
-            safeSet(controller, "app", app)
-
-            app.controllers[k] = controller
-        }
-
-        // instantiate controllers
-        app.config.viewMap.each {k, v ->
-            def controller = app.controllers[k]
-            SwingBuilder builder = new SwingBuilder() // use composite here when ready
-
-            // add declared composite controller injections
-            // for now we statically add threading methods
-            Class controllerClass = controller.getClass()
-            controllerClass.metaClass.edt = builder.&edt
-            controllerClass.metaClass.doOutside = builder.&doOutside
-            controllerClass.metaClass.doLater = builder.&doLater
-
-            // set the single frame as the defaut parent
-            builder.containingWindows += app.bindings.rootWindow
-
-            // inject builder via EMC
-            controllerClass.metaClass.builder = builder
-            // just in case it's a field...
-            safeSet(controller, "builder", builder)
-
-            builder.controller = controller
-            app.views[k] = [:]
-            // link views to controllers
-            v.each {label, klass ->
-                def built
-                builder.edt {built = builder.build(klass as Class) }
-                safeSet(controller, label, built)
-                app.views[k][label] = built
-            }
-        }
 
         // attach the root panel
-        if (app.config.primaryView =~ /\w+\.\w+/) {
-            def loc = app.config.primaryView.split(/\./)
-            app.attachRootPanel(app.views[loc[0]][loc[1]])
+        if (app.config.primaryView) {
+            app.attachRootPanel(view[app.config.primaryView])
         }
-        if (app.config.primaryMenuBar =~ /\w+\.\w+/) {
-            def loc = app.config.primaryMenuBar.split(/\./)
-            app.attachMenuBar(app.views[loc[0]][loc[1]])
+        if (app.config.primaryMenuBar) {
+            app.attachMenuBar(view[app.config.primaryMenuBar])
         }
 
         app.startup();
@@ -130,7 +90,58 @@ class GriffonApplicationHelper {
                 SwingUtilities.invokeAndWait script.&run
             }
         } catch (Exception e) {
-            //e.printStackTrace(System.out)
+            e.printStackTrace(System.out)
         }
+    }
+
+    private static Object createInstance(String mvcName, String className, IGriffonApplication app) {
+        ClassLoader classLoader = app.getClass().classLoader
+
+        Class klass = classLoader.loadClass(app.config.mvcGroups[mvcName][className]);
+
+        // inject app via EMC
+        // this also insures EMC metaclasses later
+        klass.metaClass.app = app
+        def instance = klass.newInstance()
+
+        // just in case it's a field... set app
+        safeSet(instance, "app", app)
+        return instance
+    }
+
+    public static createMVCGroup(IGriffonApplication app, def mvcName) {
+        //TODO do we get this from app or pass it in as a param?
+        SwingBuilder builder = new SwingBuilder() // use composite here when ready
+
+        def model = createInstance(mvcName, "model", app)
+        def view = createInstance(mvcName, "view", app)
+        def controller = createInstance(mvcName, "controller", app)
+        app.models[mvcName] = model
+        app.views[mvcName] = view
+        app.controllers[mvcName] = controller
+
+        // add declared composite controller injections
+        // for now we statically add threading methods
+        controller.getMetaClass().edt = builder.&edt
+        controller.getMetaClass().doOutside = builder.&doOutside
+        controller.getMetaClass().doLater = builder.&doLater
+
+        // set the single frame as the defaut parent
+        //TODO get this from usage context, whenw e figure out how it is done
+        builder.containingWindows += app.bindings.rootWindow
+
+        safeSet(model,      "controller", controller)
+        safeSet(model,      "view",       view)
+        safeSet(view,       "model",      model)
+        safeSet(view,       "controller", controller)
+        safeSet(controller, "model",      model)
+        safeSet(controller, 'view',       view)
+        safeSet(controller, "builder",    builder)
+
+        builder.controller = controller
+        builder.model = model
+        builder.edt {builder.build(view) }
+
+        return [model, view, controller]
     }
 }

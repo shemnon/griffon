@@ -16,7 +16,6 @@
 
 package greet
 
-import groovy.beans.Bindable
 import java.awt.Cursor
 import javax.swing.JOptionPane
 import javax.swing.event.HyperlinkEvent
@@ -27,65 +26,54 @@ import javax.swing.event.HyperlinkEvent
 class GreetController {
 
     TwitterService twitterService
-    //Binding builder // now auto-iinjected via EMC
-
-    @Bindable boolean allowLogin = true
-    @Bindable boolean allowSelection = true
-    @Bindable boolean allowTweet = true
-    @Bindable def focusedUser = ""
-    @Bindable def friends  = []
-    @Bindable def tweets   = []
-    @Bindable def timeline = []
-    @Bindable def statuses = []
-    @Bindable long lastUpdate = 0
-    @Bindable String statusLine
+    GreetModel model
+    GreetPanel view
 
     void showLoginDialog() {
-        builder.loginDialog.show()
+        view.loginDialog.show()
     }
 
     void login(evt) {
-        setAllowLogin(false)
+        model.allowLogin = false
         doOutside {
             try {
-                if (twitterService.login(builder.twitterNameField.text, builder.twitterPasswordField.password)) {
-                    setFriends(twitterService.getFriends(twitterService.authenticatedUser))
-                    setStatuses(friends.collect {it.status})
+                if (twitterService.login(view.twitterNameField.text, view.twitterPasswordField.password)) {
+                    model.friends = twitterService.getFriends(twitterService.authenticatedUser)
+                    model.statuses = model.friends.collect {it.status}
                     selectUser(twitterService.authenticatedUser)
                     edt {
-                        setLastUpdate(System.currentTimeMillis())
-                        //builder.greetFrame.show()
-                        builder.loginDialog.dispose()
+                        model.lastUpdate = System.currentTimeMillis()
+                        view.loginDialog.dispose()
                     }
                 } else {
-                    JOptionPane.showMessageDialog(builder.loginDialog, "Login failed")
+                    JOptionPane.showMessageDialog(view.loginDialog, "Login failed")
                 }
             } catch (Exception e) {
                 e.printStackTrace()
             } finally {
                 edt {
-                    setAllowLogin(true)
-                    setAllowSelection(true)
-                    setAllowTweet(true)
+                    model.allowLogin = true
+                    model.allowSelection = true
+                    model.allowTweet = true
                 }
             }
         }
     }
 
     void updateTimeline(evt = null) {
-        setAllowSelection(false)
+        model.allowSelection = false
         doOutside {
             try {
-                def newVal = twitterService.getFriendsTimeline(focusedUser).findAll {it.text =~ builder.searchField.text}
+                def newVal = twitterService.getFriendsTimeline(model.focusedUser).findAll {it.text =~ view.searchField.text}
                 edt {
-                    setTimeline(newVal)
+                    model.timeline = newVal
                 }
             } catch (Exception e) {
                 e.printStackTrace()
             } finally {
                 edt {
-                    setAllowSelection(true)
-                    setLastUpdate(System.currentTimeMillis())
+                    model.allowSelection = true
+                    model.lastUpdate = System.currentTimeMillis()
                 }
             }
         }
@@ -93,24 +81,24 @@ class GreetController {
     }
 
     void filterTweets(evt = null) {
-        setAllowSelection(false)
+        model.allowSelection =false
         doOutside {
             try {
-                [Statuses: { friends.collect {it.status}.findAll {it.text =~ builder.searchField.text} },
-                 Timeline: { twitterService.getFriendsTimeline(focusedUser).findAll {it.text =~ builder.searchField.text} },
-                 Tweets : { twitterService.getTweets(focusedUser).findAll {it.text =~ builder.searchField.text} },
+                [statuses: { model.friends.collect {it.status}.findAll {it.text =~ view.searchField.text} },
+                 timeline: { twitterService.getFriendsTimeline(model.focusedUser).findAll {it.text =~ view.searchField.text} },
+                 tweets : { twitterService.getTweets(model.focusedUser).findAll {it.text =~ view.searchField.text} },
                 ].each {k, v ->
                     def newVal = v()
                     edt {
-                        "set$k"(newVal)
+                        model."$k" = newVal
                     }
                 }
             } catch (Exception e) {
                 e.printStackTrace()
             } finally {
                 edt {
-                    setAllowSelection(true)
-                    setLastUpdate(System.currentTimeMillis())
+                    model.allowSelection = true
+                    model.lastUpdate = System.currentTimeMillis()
                 }
             }
         }
@@ -118,7 +106,7 @@ class GreetController {
 
     def userSelected(evt) {
         doOutside {
-            selectUser(builder.users.selectedItem)
+            selectUser(view.users.selectedItem)
         }
     }
 
@@ -127,28 +115,28 @@ class GreetController {
     }
 
     def selectUser(String screen_name) {
-        setAllowSelection(false)
+        model.allowSelection = false
         try {
-            def newFriend = friends.find {it.screen_name == screen_name} ?: twitterService.getUser(screen_name)
-            setFocusedUser(newFriend)
-            setTweets(twitterService.getTweets(focusedUser).findAll {it.text =~ builder.searchField.text})
-            setTimeline(twitterService.getFriendsTimeline(focusedUser).findAll {it.text =~ builder.searchField.text})
+            def newFriend = model.friends.find {it.screen_name == screen_name} ?: twitterService.getUser(screen_name)
+            model.focusedUser = newFriend
+            model.tweets = twitterService.getTweets(model.focusedUser).findAll {it.text =~ view.searchField.text}
+            model.timeline = twitterService.getFriendsTimeline(model.focusedUser).findAll {it.text =~ view.searchField.text}
         } finally {
             edt {
-                setAllowSelection(true)
-                setLastUpdate(System.currentTimeMillis())
+                model.allowSelection = true
+                model.lastUpdate = System.currentTimeMillis()
             }
         }
     }
 
     def tweet(evt = null) {
-        setAllowTweet(false)
+        model.allowTweet = false
         doOutside {
-            def cleanup = { setAllowTweet(true) }
+            def cleanup = { model.allowTweet = true }
             try {
-                twitterService.tweet(builder.tweetBox.text)
+                twitterService.tweet(view.tweetBox.text)
                 // true story: it froze w/o the EDT call here
-                cleanup = {setAllowTweet(true); tweetBox.text = ""}
+                cleanup = {model.allowTweet = true; view.tweetBox.text = ""}
                 filterTweets()
             } finally {
                 edt(cleanup)

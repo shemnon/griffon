@@ -37,8 +37,9 @@ public interface IGriffonApplication {
 
     public Class getConfigClass();
 
-    public Map<String, ?> getControllers();
+    public Map<String, ?> getModels();
     public Map<String, ?> getViews();
+    public Map<String, ?> getControllers();
 
     public void attachRootPanel(Container rootPane);
     public void attachMenuBar(Container menuBar);

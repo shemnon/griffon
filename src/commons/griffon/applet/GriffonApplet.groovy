@@ -29,8 +29,9 @@ import javax.swing.SwingUtilities
  */
 class GriffonApplet extends JApplet implements IGriffonApplication {
 
-    Map controllers = [:]
+    Map models = [:]
     Map views = [:]
+    Map controllers = [:]
     Binding bindings = new Binding()
     ConfigObject config
 

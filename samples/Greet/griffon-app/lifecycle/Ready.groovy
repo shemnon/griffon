@@ -15,9 +15,9 @@
  */
 import greet.TwitterService
 
-app.controllers.greet.twitterService = new TwitterService()
-app.controllers.greet.setAllowSelection(false)
-app.controllers.greet.setAllowTweet(false)
-app.controllers.greet.showLoginDialog()
-app.controllers.greet.builder.bind(source:app.controllers.greet.twitterService, sourceProperty:'status', target:app.controllers.greet, targetProperty:'statusLine')
+app.controllers.root.twitterService = new TwitterService()
+app.models.root.allowSelection = false
+app.models.root.allowTweet = false
+app.views.root.bind(source:app.controllers.root.twitterService, sourceProperty:'status', target:app.models.root, targetProperty:'statusLine')
 
+app.controllers.root.showLoginDialog()

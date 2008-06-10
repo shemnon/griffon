@@ -27,31 +27,31 @@ import javax.swing.WindowConstants
 actions() {
     loginAction = action(
         name: 'Login',
-        enabled: bind {controller.allowLogin},
+        enabled: bind {model.allowLogin},
         closure: controller.&login
     )
 
     filterTweets = action(
         name: 'Filter',
-        enabled: bind {controller.allowSelection},
+        enabled: bind {model.allowSelection},
         closure: controller.&filterTweets
     )
 
     updateTimeline = action(
         name: 'Update',
-        enabled: bind {controller.allowSelection},
+        enabled: bind {model.allowSelection},
         closure: controller.&updateTimeline
     )
 
     userSelected = action(
         name: 'Select User',
-        enabled: bind {controller.allowSelection},
+        enabled: bind {model.allowSelection},
         closure: controller.&userSelected
     )
 
     tweetAction = action(
         name: 'Update',
-        enabled: bind {controller.allowTweet},
+        enabled: bind {model.allowTweet},
         closure: controller.&tweet
     )
 }
@@ -70,11 +70,11 @@ userCellRenderer = {list, user, index, isSelected, isFocused ->
     userCell
 } as ListCellRenderer
 
-mainPanel = panel(cursor: bind {controller.allowSelection ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)}) {
+mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)}) {
 
     gridBagLayout()
     users = comboBox(renderer: userCellRenderer, action: userSelected,
-        selectedItem:bind {controller.focusedUser},
+        selectedItem:bind {model.focusedUser},
         gridwidth: REMAINDER, insets: [6, 6, 3, 6], fill: HORIZONTAL
     )
     label('Search:', insets: [3, 6, 3, 3])
@@ -109,7 +109,7 @@ mainPanel = panel(cursor: bind {controller.allowSelection ? null : Cursor.getPre
             gridwidth:REMAINDER, fill:HORIZONTAL, insets:[1,3,1,3]
     )
     separator(fill: HORIZONTAL, gridwidth: REMAINDER)
-    statusLine = label(text: bind(source:controller, "statusLine"),
+    statusLine = label(text: bind {model.statusLine},
         gridwidth: REMAINDER, insets: [3, 6, 3, 6], anchor: WEST
     )
 }
@@ -120,7 +120,7 @@ loginDialog = dialog(
     locationByPlatform:true)
 {
     panel(border: emptyBorder(3),
-        cursor: bind {controller.allowLogin ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)}) {
+        cursor: bind {model.allowLogin ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)}) {
         gridBagLayout()
         label("Username:",
             anchor: EAST, insets: [3, 3, 3, 3])
@@ -136,12 +136,12 @@ loginDialog = dialog(
     }
 }
 
-controller.addPropertyChangeListener("friends", {evt ->
+model.addPropertyChangeListener("friends", {evt ->
     edt { users.model = new DefaultComboBoxModel(evt.newValue as Object[]) }
 } as PropertyChangeListener)
 
 // add data change listeners
-controller.addPropertyChangeListener("lastUpdate", {evt ->
+model.addPropertyChangeListener("lastUpdate", {evt ->
     [timeline:timelinePanel, tweets:tweetPanel, statuses:statusPanel].each {p, w ->
         edt {
             def oldName = null
@@ -156,7 +156,7 @@ controller.addPropertyChangeListener("lastUpdate", {evt ->
             w.removeAll()
             panel(w) {
                 gridBagLayout()
-                controller."$p".each {
+                model."$p".each {
                     tweet = it
                     build(TweetLine)
                 }
@@ -192,6 +192,6 @@ controller.addPropertyChangeListener("lastUpdate", {evt ->
 } as PropertyChangeListener)
 
 def refreshTimer = new Timer(180000, filterTweets)
-controller.addPropertyChangeListener("focusedUser", {refreshTimer.start()} as PropertyChangeListener)
+model.addPropertyChangeListener("focusedUser", {refreshTimer.start()} as PropertyChangeListener)
 
 return mainPanel
