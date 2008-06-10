@@ -92,11 +92,16 @@ public class ClosureTriggerBinding implements TriggerBinding, SourceBinding {
                     }
                 }
             });
-
-            closureLocalCopy.call();
-        } catch (DeadEndException e) {
-            // we want this exception exposed.
-            throw e;
+            try {
+                closureLocalCopy.call();
+            } catch (DeadEndException e) {
+                // we want this exception exposed.
+                throw e;
+            } catch (Exception e) {
+                //LOGME
+                // ignore it, likely failing because we are faking out properties
+                // such as a call to Math.min(int, BindPathSnooper)
+            }
         } catch (Exception e) {
             e.printStackTrace(System.out);
             throw new RuntimeException("A closure expression binding could not be created because of " + e.getClass().getName() + ":\n\t" + e.getMessage());
