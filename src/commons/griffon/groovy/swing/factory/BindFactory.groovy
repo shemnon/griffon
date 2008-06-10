@@ -135,7 +135,7 @@ public class BindFactory extends AbstractFactory {
             newAttributes.putAll(attributes)
             builder.context.put(tb, newAttributes)
             attributes.clear()
-            return new ClosureTriggerBinding()
+            return new ClosureTriggerBinding(syntheticBindings)
         }
 
         if (attributes.containsKey("value")) {

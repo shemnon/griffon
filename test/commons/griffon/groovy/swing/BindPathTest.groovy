@@ -75,6 +75,34 @@ class BindPathTest extends GroovySwingTestCase {
         beanC.bar = 'c'
         assert beanB.bif == 'c'
     }
+
+    public void testSyntheticBindings() {
+        if (isHeadless()) return
+        SwingBuilder swing = new SwingBuilder()
+
+        swing.panel() {
+            tweetBox = textField()
+            tweetButton = button(enabled:bind {tweetBox.text.length() in  1..140})
+            tweetLimit = progressBar(value:bind {Math.min(140, tweetBox.text.length())},
+                    string: bind { int count = tweetBox.text.length();
+                        ((count <= 140)
+                            ? "+${140 - count}"
+                            : "-${count - 140}")
+                    })
+        }
+        assert !swing.tweetButton.enabled
+        assert swing.tweetLimit.string == "+140"
+
+        swing.tweetBox.text = 'xxx'
+        assert swing.tweetButton.enabled
+        assert swing.tweetLimit.string == "+137"
+
+        swing.tweetBox.text = 'x'*141
+        assert !swing.tweetButton.enabled
+        assert swing.tweetLimit.string == "-1"
+
+
+    }
 }
 
 public class BeanPathTestA {

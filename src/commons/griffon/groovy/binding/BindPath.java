@@ -16,9 +16,14 @@
 package griffon.groovy.binding;
 
 import org.codehaus.groovy.runtime.InvokerHelper;
+import org.codehaus.groovy.binding.TriggerBinding;
+import org.codehaus.groovy.binding.BindingUpdatable;
+import org.codehaus.groovy.binding.PropertyBinding;
 
 import java.beans.PropertyChangeListener;
 import java.util.Set;
+import java.util.Map;
+import java.util.TreeMap;
 
 import groovy.lang.MetaClass;
 import groovy.lang.MissingPropertyException;
@@ -31,6 +36,11 @@ import groovy.lang.Reference;
 public class BindPath {
 
     /**
+     * The local lookup for syhtnetic properties, like JTextField#text
+     */
+    Map<String, TriggerBinding> localSynthetics;
+
+    /**
      * The object we think we are bound to
      */
     Object currentObject;
@@ -40,15 +50,9 @@ public class BindPath {
      */
     String propertyName;
 
-    /**
-     * Are we bound to the object-wide PropertyChangeListener?
-     */
-    boolean boundGlobal;
-
-    /**
-     * Are we bound to a property-specific PropertyChangeListner
-     */
-    boolean boundName;
+    PropertyChangeListener localListener;
+    PropertyChangeListener globalListener;
+    BindingUpdatable syntheticFullBinding;
 
     /**
      * The steps further down the path from us
@@ -67,7 +71,7 @@ public class BindPath {
      */
     public synchronized void updatePath(PropertyChangeListener listener, Object newObject, Set updateSet) {
         if (currentObject != newObject) {
-            removeListeners(listener);
+            removeListeners();
         }
         if ((children != null) && (children.length > 0)) {
             try {
@@ -150,17 +154,25 @@ public class BindPath {
      * @param updateSet The list of objects we have added listeners to
      */
     public void addListeners(PropertyChangeListener listener, Object newObject, Set updateSet) {
-        boundName = false;
-        boundGlobal = false;
+        removeListeners();
         if (newObject != null) {
+            // check for local synthetics
+            TriggerBinding syntheticTrigger = getSyntheticTriggerBinding(newObject);
             MetaClass mc = InvokerHelper.getMetaClass(newObject);
-            if (!mc.respondsTo(newObject, "addPropertyChangeListener", NAME_PARAMS).isEmpty()) {
+            if (syntheticTrigger != null) {
+                PropertyBinding psb = new PropertyBinding(newObject, propertyName);
+                PropertyChangeProxyTargetBinding proxytb = new PropertyChangeProxyTargetBinding(newObject, propertyName, listener);
+
+                syntheticFullBinding = syntheticTrigger.createBinding(psb, proxytb);
+                syntheticFullBinding.bind();
+                updateSet.add(newObject);
+            } else if (!mc.respondsTo(newObject, "addPropertyChangeListener", NAME_PARAMS).isEmpty()) {
                 InvokerHelper.invokeMethod(newObject, "addPropertyChangeListener", new Object[] {propertyName, listener});
-                boundName = true;
+                localListener = listener;
                 updateSet.add(newObject);
             } else if (!mc.respondsTo(newObject, "addPropertyChangeListener", GLOBAL_PARAMS).isEmpty()) {
                 InvokerHelper.invokeMethod(newObject, "addPropertyChangeListener", listener);
-                boundGlobal = true;
+                globalListener = listener;
                 updateSet.add(newObject);
             }
         }
@@ -170,24 +182,57 @@ public class BindPath {
     /**
      * Remove listeners, believeing that our bould flags are accurate and it removes
      * only as declared.
-     *
-     * @param listener This listener to attach.
      */
-    public void removeListeners(PropertyChangeListener listener) {
-        if (boundGlobal) {
+    public void removeListeners() {
+        if (globalListener != null) {
             try {
-                InvokerHelper.invokeMethod(currentObject, "removePropertyChangeListener", listener);
+                InvokerHelper.invokeMethod(currentObject, "removePropertyChangeListener", globalListener);
             } catch (Exception e) {
                 //LOGME ignore the failure
             }
+            globalListener = null;
         }
-        if (boundName) {
+        if (localListener != null) {
             try {
-                InvokerHelper.invokeMethod(currentObject, "removePropertyChangeListener", new Object[] {propertyName, listener});
+                InvokerHelper.invokeMethod(currentObject, "removePropertyChangeListener", new Object[] {propertyName, localListener});
             } catch (Exception e) {
                 //LOGME ignore the failure
             }
+            localListener = null;
         }
+        if (syntheticFullBinding != null) {
+            syntheticFullBinding.unbind();
+        }
+    }
+
+    public synchronized void updateLocalSyntheticProperties(Map<String, TriggerBinding> synthetics) {
+        localSynthetics = null;
+        String endName = "#" + propertyName;
+        for (Map.Entry<String, TriggerBinding> synteticEntry : synthetics.entrySet()) {
+            if (synteticEntry.getKey().endsWith(endName)) {
+                if (localSynthetics == null) {
+                    localSynthetics = new TreeMap();
+                }
+                localSynthetics.put(synteticEntry.getKey(), synteticEntry.getValue());
+            }
+        }
+    }
+
+    public TriggerBinding getSyntheticTriggerBinding(Object newObject) {
+        if (localSynthetics == null) {
+            return null;
+        }
+        Class currentClass = newObject.getClass();
+        while (currentClass != null) {
+            // should we check interfaces as well?  if so at what level?
+            TriggerBinding trigger =
+                    localSynthetics.get(currentClass.getName() + "#" + propertyName);
+            if (trigger != null) {
+                return trigger;
+            }
+            currentClass = currentClass.getSuperclass();
+        }
+        return null;
     }
 
 }

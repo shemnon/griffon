@@ -30,7 +30,12 @@ import java.util.Map;
 
 public class ClosureTriggerBinding implements TriggerBinding, SourceBinding {
 
+    Map<String, TriggerBinding> syntheticBindings;
     Closure closure;
+
+    public ClosureTriggerBinding(Map<String, TriggerBinding> syntheticBindings) {
+        this.syntheticBindings = syntheticBindings;
+    }
 
     public Closure getClosure() {
         return closure;
@@ -40,11 +45,12 @@ public class ClosureTriggerBinding implements TriggerBinding, SourceBinding {
         this.closure = closure;
     }
 
-    private BindPath createBindPath(String propertyName, BindPathSnooper proxy) {
+    private BindPath createBindPath(String propertyName, BindPathSnooper snooper) {
         BindPath bp = new BindPath();
         bp.propertyName = propertyName;
+        bp.updateLocalSyntheticProperties(syntheticBindings);
         List<BindPath> childPaths = new ArrayList<BindPath>();
-        for (Map.Entry<String, BindPathSnooper> entry : proxy.fields.entrySet()) {
+        for (Map.Entry<String, BindPathSnooper> entry : snooper.fields.entrySet()) {
             childPaths.add(createBindPath(entry.getKey(), entry.getValue()));
         }
         bp.children = childPaths.toArray(new BindPath[childPaths.size()]);
@@ -146,9 +152,9 @@ class BindPathSnooper extends GroovyObjectSupport {
         if (fields.containsKey(property)) {
             return fields.get(property);
         } else {
-            BindPathSnooper proxy = new BindPathSnooper();
-            fields.put(property, proxy);
-            return proxy;
+            BindPathSnooper snooper = new BindPathSnooper();
+            fields.put(property, snooper);
+            return snooper;
         }
     }
 

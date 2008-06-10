@@ -55,7 +55,7 @@ public class PropertyPathFullBinding extends AbstractFullBinding implements Prop
         for (BindPath path : bindPaths) {
             // we can't just remove from the update set,
             // because we may be local or global, the path knows
-            path.removeListeners(this);
+            path.removeListeners();
         }
         bound = false;
     }
