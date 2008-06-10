@@ -97,7 +97,7 @@ mainPanel = panel(cursor: bind {controller.allowSelection ? null : Cursor.getPre
     tweetBox = textField(action:tweetAction,
         fill:BOTH, weightx:1.0, insets:[3,3,1,3], gridwidth:2)
     tweetButton = button(tweetAction,
-        enabled:bind {tweetBox.text.length() in  1..140},
+        enabled:bind {tweetAction.enabled && tweetBox.text.length() in  1..140},
         gridwidth:REMAINDER, insets:[3,3,1,3])
     progressBar(value:bind {Math.min(140, tweetBox.text.length())},
             string: bind { int count = tweetBox.text.length();
