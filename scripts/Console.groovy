@@ -54,7 +54,7 @@ target(console:"The console implementation target") {
 //            consoleui.run()
 //        }
 //        monitorApp()
-        //while(true) { sleep(Long.MAX_VALUE) }
+        while(Console.consoleControllers) { sleep(3500) }
     } catch (Exception e) {
         event("StatusFinal", ["Error starting console: ${e.message}"])
     }
