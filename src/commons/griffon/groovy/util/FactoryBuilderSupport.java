@@ -113,6 +113,8 @@ public abstract class FactoryBuilderSupport extends Binding {
     protected LinkedList <Closure> preInstantiateDelegates = new LinkedList <Closure> ();
     protected LinkedList <Closure> postInstantiateDelegates = new LinkedList <Closure> ();
     protected LinkedList <Closure> postNodeCompletionDelegates = new LinkedList <Closure> ();
+    protected Map<String, Closure[]> explicitProperties = new HashMap<String, Closure[]>();
+    protected Map<String, Closure> explicitMethods = new HashMap<String, Closure>();
 
     public FactoryBuilderSupport() {
         this(true);
@@ -193,7 +195,17 @@ public abstract class FactoryBuilderSupport extends Binding {
     }
 
     private Object doGetProperty(String property) {
-        return super.getProperty(property);
+        if (explicitProperties.containsKey(property)) {
+            Closure[] accessors = explicitProperties.get(property);
+            if (accessors[0] == null) {
+                // write only property
+                throw new MissingPropertyException(property + " is declared as write only");
+            } else {
+                return accessors[0].call();
+            }
+        } else {
+            return super.getProperty(property);
+        }
     }
 
     /**
@@ -204,7 +216,17 @@ public abstract class FactoryBuilderSupport extends Binding {
     }
 
     private void doSetProperty(String property, Object newValue) {
-        super.setProperty(property, newValue);
+        if (explicitProperties.containsKey(property)) {
+            Closure[] accessors = explicitProperties.get(property);
+            if (accessors[1] == null) {
+                // read only property
+                throw new MissingPropertyException(property + " is declared as read only");
+            } else {
+                accessors[1].call(newValue);
+            }
+        } else {
+            super.setProperty(property, newValue);
+        }
     }
 
     /**
@@ -415,6 +437,19 @@ public abstract class FactoryBuilderSupport extends Binding {
         return delegate;
     }
 
+    public void registerExplicitProperty(String name, Closure getter, Closure setter) {
+        // set the delegate to FBS so the closure closes over the builder
+        getter.setDelegate(this);
+        setter.setDelegate(this);
+        explicitProperties.put(name, new Closure[] {getter, setter});
+    }
+
+    public void registerExplicitMethod(String name, Closure closure) {
+        // set the delegate to FBS so the closure closes over the builder
+        closure.setDelegate(this);
+        explicitMethods.put(name, closure);
+    }
+
     /**
      * Remove the most recently added instance of the nodeCompletion delegate.
      *
@@ -519,6 +554,15 @@ public abstract class FactoryBuilderSupport extends Binding {
      * @return the object from the factory
      */
     private Object doInvokeMethod( String methodName, Object name, Object args ) {
+        if (explicitMethods.containsKey(methodName)) {
+            if (args instanceof Object[]) {
+                return explicitMethods.get(methodName).call((Object[])args);
+            } else {
+                //todo push through InvokerHelper.asList?
+                return explicitMethods.get(methodName).call(args);
+            }
+        }
+
         Object node;
         Closure closure = null;
         List list = InvokerHelper.asList( args );

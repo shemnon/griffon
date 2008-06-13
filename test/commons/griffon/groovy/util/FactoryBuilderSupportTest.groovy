@@ -229,6 +229,63 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
         builder.inner()
     }
 
+    void testExplicitProperty() {
+        def b = new SpoofFactoryBuilder();
+        // property neither set in the binding or explcitly, should fail
+        shouldFail { b.exp }
+
+        // setting first should set the value in the binding and make it usable 
+        b.notExp = 1
+        assert b.notExp == 1
+
+        int val = 0
+        b.registerExplicitProperty ('exp', {val++}, {val = it ^ 1})
+
+        // test getter
+        assert b.exp == 0
+        assert b.exp == 1
+        assert b.exp == val - 1
+
+        // test setter
+        b.exp = 3
+        assert val == 2
+        b.exp = 4
+        assert val == 5
+
+        // symbols in the property closure shold also resolve to the builder...
+        b.registerExplicitProperty ('exp2', {exp}, {exp = it })
+
+        assert b.exp2 == val - 1
+        b.exp2 = 4
+        assert val == 5
+    }
+
+    void testExplicitMethod() {
+        def b = new SpoofFactoryBuilder();
+        // property neither set in the binding or explcitly, should fail
+        shouldFail { b.exp() }
+
+
+        int val = 0
+        b.registerExplicitMethod ('exp', {it -> val+= it})
+
+        // test calls
+        assert b.exp(0) == 0
+        assert b.exp(1) == 1
+        assert (val - 1) == b.exp(-1)
+        b.exp(3 - val)
+        assert val == 3
+        b.exp(5)
+        assert val == 8
+
+        // symbols in the method closure shold also resolve to the builder...
+        b.registerExplicitMethod ('exp2', {exp(it)})
+
+        assert b.exp2(-2) == 6
+        b.exp2(4 - val)
+        assert val == 4
+    }
+
     // ==================================
 
     void testNestedBuilderSimpleNode() {
