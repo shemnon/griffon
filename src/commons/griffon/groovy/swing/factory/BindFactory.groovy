@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 the original author or authors.
+ * Copyright 2007=2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,20 +15,13 @@
  */
 package griffon.groovy.swing.factory
 
+import griffon.groovy.binding.ClosureTriggerBinding
+import griffon.groovy.swing.binding.*
 import griffon.groovy.util.AbstractFactory
 import griffon.groovy.util.FactoryBuilderSupport
-import griffon.groovy.swing.binding.AbstractButtonProperties
-import griffon.groovy.swing.binding.JScrollBarProperties;
-import griffon.groovy.swing.binding.JSliderProperties
-import griffon.groovy.swing.binding.JTextComponentProperties
 import java.util.Map.Entry
-import org.codehaus.groovy.binding.ClosureSourceBinding
-import org.codehaus.groovy.binding.EventTriggerBinding
-import org.codehaus.groovy.binding.FullBinding
-import org.codehaus.groovy.binding.PropertyBinding
-import org.codehaus.groovy.binding.TargetBinding
-import org.codehaus.groovy.binding.TriggerBinding
-import griffon.groovy.binding.ClosureTriggerBinding
+import org.codehaus.groovy.binding.*
+
 
 /**
  * @author <a href="mailto:shemnon@yahoo.com">Danno Ferrin</a>
@@ -77,6 +70,8 @@ public class BindFactory extends AbstractFactory {
         // JTable.elements
         // JTable.selectedElement
         // JTable.selectedElements
+        syntheticBindings.putAll(JTableProperties.getSyntheticProperties());
+
         // JTree.root
         // JTree.selectedElement
         // JTree.selectedElements

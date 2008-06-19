@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2007 the original author or authors.
+ * Copyright 2003-2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,16 @@
 
 package griffon.groovy.swing.factory
 
+import griffon.groovy.model.DefaultTableModel
 import griffon.groovy.util.AbstractFactory
 import griffon.groovy.util.FactoryBuilderSupport
-import groovy.model.DefaultTableModel
 import groovy.model.ValueHolder
 import groovy.model.ValueModel
-import java.beans.PropertyChangeListener
 import java.beans.PropertyChangeEvent
+import java.beans.PropertyChangeListener
 import javax.swing.JTable
 import javax.swing.table.TableModel
+
 
 public class TableModelFactory extends AbstractFactory {
     
