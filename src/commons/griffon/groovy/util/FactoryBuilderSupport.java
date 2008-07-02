@@ -18,13 +18,14 @@ package griffon.groovy.util;
 
 import groovy.lang.*;
 import org.codehaus.groovy.runtime.InvokerHelper;
+import org.codehaus.groovy.runtime.MetaClassHelper;
 import org.codehaus.groovy.runtime.metaclass.MissingMethodExceptionNoStack;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.lang.reflect.Method;
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Mix of BuilderSupport and SwingBuilder's factory support.
@@ -115,6 +116,8 @@ public abstract class FactoryBuilderSupport extends Binding {
     protected LinkedList <Closure> postNodeCompletionDelegates = new LinkedList <Closure> ();
     protected Map<String, Closure[]> explicitProperties = new HashMap<String, Closure[]>();
     protected Map<String, Closure> explicitMethods = new HashMap<String, Closure>();
+    protected Map<String, Set<String>> registrationGroup = new HashMap<String, Set<String>>();
+    protected String registringGroupName = ""; // use binding to store?
 
     public FactoryBuilderSupport() {
         this(true);
@@ -122,16 +125,20 @@ public abstract class FactoryBuilderSupport extends Binding {
 
     public FactoryBuilderSupport(boolean init) {
         this.proxyBuilder = this;
+        registrationGroup.put(registringGroupName, new TreeSet<String>());
         if (init) {
             for (Method method : getClass().getMethods()) {
                 if (method.getName().startsWith("register") && method.getParameterTypes().length == 0) {
+                    registringGroupName = method.getName().substring("register".length());
+                    registrationGroup.put(registringGroupName, new TreeSet<String>());
                     try {
                         method.invoke(this);
-                        //System.out.println("Registered " + method.getName());
                     } catch (IllegalAccessException e) {
                         throw new RuntimeException("Cound not init " + getClass().getName() + " because of an access error in " + method.getName(), e);
                     } catch (InvocationTargetException e) {
                         throw new RuntimeException("Cound not init " + getClass().getName() + " because of an exception in " + method.getName(), e);
+                    } finally {
+                        registringGroupName = "";
                     }
                 }
             }
@@ -234,6 +241,14 @@ public abstract class FactoryBuilderSupport extends Binding {
      */
     public Map<String, Factory> getFactories() {
         return Collections.unmodifiableMap( proxyBuilder.factories );
+    }
+
+    public Set<String> getRegistrationGroups() {
+        return Collections.unmodifiableSet(proxyBuilder.registrationGroup.keySet());
+    }
+
+    public Set<String> getRegistrationGroupItems(String group) {
+        return Collections.unmodifiableSet(proxyBuilder.registrationGroup.get(group));
     }
 
     public List<Closure> getAttributeDelegates() {
@@ -346,7 +361,7 @@ public abstract class FactoryBuilderSupport extends Binding {
         Object previousContext = proxyBuilder.getContext();
         try{
             result = proxyBuilder.doInvokeMethod( methodName, name, args );
-        }catch( RuntimeException e ){
+        } catch(RuntimeException e) {
             // remove contexts created after we started
             if (proxyBuilder.contexts.contains(previousContext)) {
                 while (proxyBuilder.getContext() != previousContext) {
@@ -442,12 +457,20 @@ public abstract class FactoryBuilderSupport extends Binding {
         getter.setDelegate(this);
         setter.setDelegate(this);
         explicitProperties.put(name, new Closure[] {getter, setter});
+        String methodNameBase = MetaClassHelper.capitalize(name);
+        if (getter != null) {
+            registrationGroup.get(registringGroupName).add("get" + methodNameBase);
+        }
+        if (setter != null) {
+            registrationGroup.get(registringGroupName).add("set" + methodNameBase);
+        }
     }
 
     public void registerExplicitMethod(String name, Closure closure) {
         // set the delegate to FBS so the closure closes over the builder
         closure.setDelegate(this);
         explicitMethods.put(name, closure);
+        registrationGroup.get(registringGroupName).add(name);
     }
 
     /**
@@ -478,6 +501,7 @@ public abstract class FactoryBuilderSupport extends Binding {
             }
 
         } );
+        registrationGroup.get(registringGroupName).add(theName);
     }
 
     /**
@@ -488,6 +512,7 @@ public abstract class FactoryBuilderSupport extends Binding {
      */
     public void registerFactory( String name, Factory factory ) {
         proxyBuilder.factories.put( name, factory );
+        registrationGroup.get(registringGroupName).add(name);
         factory.onFactoryRegistration(this, name);
     }
 
@@ -888,18 +913,18 @@ public abstract class FactoryBuilderSupport extends Binding {
      */ 
     public Object withBuilder( FactoryBuilderSupport builder, Closure closure ) {
         if( builder == null || closure == null ) {
-	    return null;
-	}
+            return null;
+        }
 
-	Object result = null;
+        Object result = null;
         Object previousContext = proxyBuilder.getContext();
-	FactoryBuilderSupport previousProxyBuilder = proxyBuilder;
-	try {
+        FactoryBuilderSupport previousProxyBuilder = proxyBuilder;
+        try {
             proxyBuilder = builder;
-	    closure.setDelegate( builder );
-	    result = closure.call();
-	}
-	catch( RuntimeException e ) {
+            closure.setDelegate( builder );
+            result = closure.call();
+        }
+        catch( RuntimeException e ) {
             // remove contexts created after we started
             proxyBuilder = previousProxyBuilder;
             if (proxyBuilder.contexts.contains(previousContext)) {
@@ -908,10 +933,10 @@ public abstract class FactoryBuilderSupport extends Binding {
                 }
             }
             throw e;
-	}
-	finally {
+        }
+        finally {
             proxyBuilder = previousProxyBuilder;
-	}
+        }
 
         return result;
     }

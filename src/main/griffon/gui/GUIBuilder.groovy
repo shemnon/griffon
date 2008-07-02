@@ -24,7 +24,7 @@
 package griffon.gui
 
 import griffon.builder.UberBuilder
-import groovy.swing.SwingBuilder
+import griffon.groovy.swing.SwingBuilder
 //import groovy.swing.SwingXBuilder
 //import groovy.swing.j2d.GraphicsBuilder
 import org.codehaus.groovy.reflection.ReflectionUtils
@@ -67,4 +67,32 @@ class GUIBuilder extends UberBuilder {
         }
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // these appear to be Groovy 1.6beta2 bugs?  It breaks without it!
+    ///////////////////////////////////////////////////////////////////////////
+    public Object invokeMethod(String methodName) {
+        return super.invokeMethod(methodName)
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // these appear to be Groovy 1.6beta2 bugs?  It breaks without it!
+    ///////////////////////////////////////////////////////////////////////////
+    public Object invokeMethod(String methodName, Object args) {
+        return super.invokeMethod(methodName, args)
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // these appear to be Groovy 1.6beta2 bugs?  It breaks without it!
+    ///////////////////////////////////////////////////////////////////////////
+    public Object getProperty(String property) {
+        return super.getProperty(property)
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // these appear to be Groovy 1.6beta2 bugs?  It breaks without it!
+    ///////////////////////////////////////////////////////////////////////////
+    public void setProperty(String property, Object newValue) {
+        super.setProperty(property, newValue)
+    }
+    
 }

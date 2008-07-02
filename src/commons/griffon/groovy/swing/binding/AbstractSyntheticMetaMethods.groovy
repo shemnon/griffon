@@ -19,7 +19,6 @@ class AbstractSyntheticMetaMethods {
             init = true
         //}
         enhancedMethods.each {k, v ->
-            println mc.getMetaMethod(k)
             if (mc.getMetaMethod(k) == null) {
                 mc.registerInstanceMethod(k, v)
             }

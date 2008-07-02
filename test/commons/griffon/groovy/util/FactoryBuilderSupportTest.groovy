@@ -742,6 +742,8 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
             'post_node_completion',null, 'x'
             ]
     }
+
+    //TODO registration groups test
 }
 
 /**

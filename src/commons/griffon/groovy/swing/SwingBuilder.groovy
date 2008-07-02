@@ -15,6 +15,7 @@
  */
 package griffon.groovy.swing
 
+import griffon.groovy.swing.LookAndFeelHelper
 import griffon.groovy.swing.factory.*
 import griffon.groovy.util.FactoryBuilderSupport
 import java.awt.*
@@ -25,7 +26,6 @@ import javax.swing.border.BevelBorder
 import javax.swing.border.EtchedBorder
 import javax.swing.table.TableColumn
 import org.codehaus.groovy.runtime.MethodClosure
-import griffon.groovy.swing.LookAndFeelHelper
 
 /**
  * A helper class for creating Swing widgets using GroovyMarkup
@@ -205,6 +205,12 @@ public class SwingBuilder  extends FactoryBuilderSupport {
         registerFactory("tableCellRenderer", renderFactory)
         registerFactory("listCellRenderer", renderFactory)
         registerFactory("onRender", new RendererUpdateFactory())
+    }
+
+    def registerThreading() {
+        registerExplicitMethod "edt", this.&edt
+        registerExplicitMethod "doOutside", this.&doOutside
+        registerExplicitMethod "doLater", this.&doLater
     }
 
 

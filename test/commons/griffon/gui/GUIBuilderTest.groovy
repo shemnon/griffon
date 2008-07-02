@@ -1,8 +1,8 @@
 package griffon.gui;
 
 import groovy.util.GroovyTestCase
-import groovy.swing.SwingBuilder
-import groovy.swing.factory.BeanFactory
+import griffon.groovy.swing.SwingBuilder
+import griffon.groovy.swing.factory.BeanFactory
 import javax.swing.JPanel
 //import groovy.swing.SwingXBuilder
 

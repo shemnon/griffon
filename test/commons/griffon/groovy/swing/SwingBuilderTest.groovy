@@ -1306,10 +1306,9 @@ class SwingBuilderTest extends GroovySwingTestCase {
             }
             shouldFail {
                 swing.lookAndFeel() {laf ->
-                    println "shouldn't get here"
+                    "do" + "Nothing"
                 }
             }
-
         } finally {
             UIManager.setLookAndFeel(oldLAF)
         }

@@ -7,7 +7,7 @@
  */
 package griffon.builder
 
-import groovy.swing.SwingBuilder
+import griffon.groovy.swing.SwingBuilder
 //import groovy.swing.SwingXBuilder
 
 class UberBuilderConstructorsTest extends GroovyTestCase {
