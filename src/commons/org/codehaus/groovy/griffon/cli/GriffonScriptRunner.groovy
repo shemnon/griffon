@@ -1,3 +1,5 @@
+package org.codehaus.groovy.griffon.cli
+
 import gant.Gant
 //import griffon.util.GriffonUtil
 //import org.springframework.core.io.support.PathMatchingResourcePatternResolver

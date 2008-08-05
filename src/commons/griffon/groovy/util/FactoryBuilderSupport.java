@@ -1,5 +1,5 @@
 /*
- * Copyright 2003-2007 the original author or authors.
+ * Copyright 2003-2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -119,14 +119,33 @@ public abstract class FactoryBuilderSupport extends Binding {
     protected Map<String, Set<String>> registrationGroup = new HashMap<String, Set<String>>();
     protected String registringGroupName = ""; // use binding to store?
 
+    protected boolean autoRegistrationRunning = false;
+    protected boolean autoRegistrationComplete = false;
+
     public FactoryBuilderSupport() {
-        this(true);
+        this(false);
     }
 
     public FactoryBuilderSupport(boolean init) {
         this.proxyBuilder = this;
         registrationGroup.put(registringGroupName, new TreeSet<String>());
         if (init) {
+            autoRegisterNodes();
+        }
+    }
+
+    /**
+     * Ask the nodes to be registered
+     */
+    public void autoRegisterNodes() {
+        synchronized (this) {
+            if (autoRegistrationRunning || autoRegistrationComplete) {
+                // registration alreadu don or in process, abort
+                return;
+            }
+        }
+        autoRegistrationRunning = true;
+        try {
             for (Method method : getClass().getMethods()) {
                 if (method.getName().startsWith("register") && method.getParameterTypes().length == 0) {
                     registringGroupName = method.getName().substring("register".length());
@@ -142,7 +161,9 @@ public abstract class FactoryBuilderSupport extends Binding {
                     }
                 }
             }
-
+        } finally {
+            autoRegistrationComplete = true;
+            autoRegistrationRunning = false;
         }
     }
 
@@ -452,27 +473,6 @@ public abstract class FactoryBuilderSupport extends Binding {
         return delegate;
     }
 
-    public void registerExplicitProperty(String name, Closure getter, Closure setter) {
-        // set the delegate to FBS so the closure closes over the builder
-        getter.setDelegate(this);
-        setter.setDelegate(this);
-        explicitProperties.put(name, new Closure[] {getter, setter});
-        String methodNameBase = MetaClassHelper.capitalize(name);
-        if (getter != null) {
-            registrationGroup.get(registringGroupName).add("get" + methodNameBase);
-        }
-        if (setter != null) {
-            registrationGroup.get(registringGroupName).add("set" + methodNameBase);
-        }
-    }
-
-    public void registerExplicitMethod(String name, Closure closure) {
-        // set the delegate to FBS so the closure closes over the builder
-        closure.setDelegate(this);
-        explicitMethods.put(name, closure);
-        registrationGroup.get(registringGroupName).add(name);
-    }
-
     /**
      * Remove the most recently added instance of the nodeCompletion delegate.
      *
@@ -482,6 +482,35 @@ public abstract class FactoryBuilderSupport extends Binding {
         proxyBuilder.postNodeCompletionDelegates.remove( delegate );
     }
 
+    public void registerExplicitProperty(String name, Closure getter, Closure setter) {
+        registerExplicitProperty(name, registringGroupName, getter, setter);
+    }
+
+    public void registerExplicitProperty(String name, String groupName, Closure getter, Closure setter) {
+        // set the delegate to FBS so the closure closes over the builder
+        getter.setDelegate(this);
+        setter.setDelegate(this);
+        explicitProperties.put(name, new Closure[] {getter, setter});
+        String methodNameBase = MetaClassHelper.capitalize(name);
+        if (getter != null) {
+            registrationGroup.get(groupName).add("get" + methodNameBase);
+        }
+        if (setter != null) {
+            registrationGroup.get(groupName).add("set" + methodNameBase);
+        }
+    }
+
+    public void registerExplicitMethod(String name, Closure closure) {
+        registerExplicitMethod(name, registringGroupName, closure);
+    }
+
+    public void registerExplicitMethod(String name, String groupName, Closure closure) {
+        // set the delegate to FBS so the closure closes over the builder
+        closure.setDelegate(this);
+        explicitMethods.put(name, closure);
+        registrationGroup.get(groupName).add(name);
+    }
+
     /**
      * Registers a factory for a JavaBean.<br>
      * The JavaBean clas should have a no-args constructor.
@@ -489,8 +518,20 @@ public abstract class FactoryBuilderSupport extends Binding {
      * @param theName name of the node
      * @param beanClass the factory to handle the name
      */
-    public void registerBeanFactory( String theName, final Class beanClass ) {
-        proxyBuilder.registerFactory( theName, new AbstractFactory(){
+    public void registerBeanFactory(String theName, Class beanClass) {
+        registerBeanFactory(theName, registringGroupName, beanClass);
+    }
+
+    /**
+      * Registers a factory for a JavaBean.<br>
+      * The JavaBean clas should have a no-args constructor.
+      *
+      * @param theName name of the node
+      * @param groupName thr group to register this node in 
+      * @param beanClass the factory to handle the name
+      */
+     public void registerBeanFactory( String theName, String groupName, final Class beanClass ) {
+         proxyBuilder.registerFactory( theName, new AbstractFactory(){
             public Object newInstance( FactoryBuilderSupport builder, Object name, Object value,
                     Map properties ) throws InstantiationException, IllegalAccessException {
                 if( checkValueIsTypeNotString( value, name, beanClass ) ){
@@ -501,7 +542,7 @@ public abstract class FactoryBuilderSupport extends Binding {
             }
 
         } );
-        registrationGroup.get(registringGroupName).add(theName);
+        registrationGroup.get(groupName).add(theName);
     }
 
     /**
@@ -510,10 +551,21 @@ public abstract class FactoryBuilderSupport extends Binding {
      * @param name the name of the node
      * @param factory the factory to return the values
      */
-    public void registerFactory( String name, Factory factory ) {
+    public void registerFactory(String name, Factory factory) {
+        registerFactory(name, registringGroupName, factory);
+    }
+
+    /**
+     * Registers a factory for a node name.
+     *
+     * @param name the name of the node
+     * @param groupName thr group to register this node in
+     * @param factory the factory to return the values
+     */
+    public void registerFactory( String name, String groupName, Factory factory ) {
         proxyBuilder.factories.put( name, factory );
-        registrationGroup.get(registringGroupName).add(name);
-        factory.onFactoryRegistration(this, name);
+        registrationGroup.get(groupName).add(name);
+        factory.onFactoryRegistration(this, name, groupName);
     }
 
     /**
