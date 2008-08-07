@@ -53,7 +53,7 @@ String i18nDir = null
 String jardir = null
 
 
-target ('default': "Packages a Griffon application. Note: To create WAR use 'griffon war'") {
+target ('default': "Packages a Griffon application.") {
      depends( checkVersion)
 
      packageApp()
