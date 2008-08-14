@@ -30,6 +30,7 @@ class SingleFrameApplication implements IGriffonApplication {
     Map controllers = [:]
     Binding bindings = new Binding()
     ConfigObject config
+    ConfigObject builderConfig
 
     JFrame mainFrame
 
@@ -68,6 +69,10 @@ class SingleFrameApplication implements IGriffonApplication {
 
     public Class getConfigClass() {
         return getClass().classLoader.loadClass("Application") 
+    }
+
+    public Class getBuilderClass() {
+        return getClass().classLoader.loadClass("Builder")
     }
 
     public void initialize() {

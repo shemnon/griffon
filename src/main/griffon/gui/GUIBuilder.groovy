@@ -59,12 +59,13 @@ class GUIBuilder extends UberBuilder {
 //        this.@builderLookup.gfx = GraphicsBuilder
 //        this.@builderLookup.GraphicsBuilder = GraphicsBuilder
 
-        this.@getters['resources'] = {->
-            ResourceBundle.getBundle(ReflectionUtils.getCallingClass(1, builderPackages)
+        registerExplicitProperty(
+            'resources',
+            {-> ResourceBundle.getBundle(ReflectionUtils.getCallingClass(1, builderPackages)
                 .name
-                .split(/\$/)[0]
-                .replace('.', '/'))
-        }
+                .split('$')[0]
+                .replace('.', '/'))},
+            null);
     }
 
     ///////////////////////////////////////////////////////////////////////////
@@ -94,5 +95,5 @@ class GUIBuilder extends UberBuilder {
     public void setProperty(String property, Object newValue) {
         super.setProperty(property, newValue)
     }
-    
+
 }

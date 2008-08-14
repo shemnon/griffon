@@ -223,8 +223,8 @@ public abstract class FactoryBuilderSupport extends Binding {
     }
 
     private Object doGetProperty(String property) {
-        if (explicitProperties.containsKey(property)) {
-            Closure[] accessors = explicitProperties.get(property);
+        Closure[] accessors = resolveExplicitProperty(property);
+        if (accessors != null) {
             if (accessors[0] == null) {
                 // write only property
                 throw new MissingPropertyException(property + " is declared as write only");
@@ -244,8 +244,8 @@ public abstract class FactoryBuilderSupport extends Binding {
     }
 
     private void doSetProperty(String property, Object newValue) {
-        if (explicitProperties.containsKey(property)) {
-            Closure[] accessors = explicitProperties.get(property);
+        Closure[] accessors = resolveExplicitProperty(property);
+        if (accessors != null) {
             if (accessors[1] == null) {
                 // read only property
                 throw new MissingPropertyException(property + " is declared as read only");
@@ -264,12 +264,31 @@ public abstract class FactoryBuilderSupport extends Binding {
         return Collections.unmodifiableMap( proxyBuilder.factories );
     }
 
+    /**
+     * @return the explicit methods map (Unmodifiable Map).
+     */
+    public Map<String, Closure> getExplicitMethods() {
+        return Collections.unmodifiableMap(explicitMethods);
+    }
+
+    /**
+     * @return the explicit properties map (Unmodifiable Map).
+     */
+    public Map<String, Closure[]> getExplicitProperties() {
+        return Collections.unmodifiableMap(explicitProperties);
+    }
+
     public Set<String> getRegistrationGroups() {
-        return Collections.unmodifiableSet(proxyBuilder.registrationGroup.keySet());
+        return Collections.unmodifiableSet(registrationGroup.keySet());
     }
 
     public Set<String> getRegistrationGroupItems(String group) {
-        return Collections.unmodifiableSet(proxyBuilder.registrationGroup.get(group));
+        Set<String> groupSet = registrationGroup.get(group);
+        if (groupSet != null) {
+            return Collections.unmodifiableSet(groupSet);
+        } else {
+            return Collections.emptySet();
+        }
     }
 
     public List<Closure> getAttributeDelegates() {
@@ -488,8 +507,8 @@ public abstract class FactoryBuilderSupport extends Binding {
 
     public void registerExplicitProperty(String name, String groupName, Closure getter, Closure setter) {
         // set the delegate to FBS so the closure closes over the builder
-        getter.setDelegate(this);
-        setter.setDelegate(this);
+        if (getter != null) getter.setDelegate(this);
+        if (setter != null) setter.setDelegate(this);
         explicitProperties.put(name, new Closure[] {getter, setter});
         String methodNameBase = MetaClassHelper.capitalize(name);
         if (getter != null) {
@@ -623,6 +642,29 @@ public abstract class FactoryBuilderSupport extends Binding {
     }
 
     /**
+     * This is a hook for subclasses to plugin a custom strategy for mapping
+     * names to explicit methods.
+     *
+     * @param methodName the name of the explicit method
+     * @param args the arguments for the method
+     * @return the closure for the matched explicit method.<br>
+     */
+    protected Closure resolveExplicitMethod(String methodName, Object args) {
+        return explicitMethods.get(methodName);
+    }
+
+    /**
+     * This is a hook for subclasses to plugin a custom strategy for mapping
+     * names to property methods.
+     *
+     * @param propertyName the name of the explicit method
+     * @return the get and set closures (in that order) for the matched explicit property.<br>
+     */
+    protected Closure[] resolveExplicitProperty(String propertyName) {
+        return explicitProperties.get(propertyName);
+    }
+
+    /**
      * This method is the workhorse of the builder.
      *
      * @param methodName the name of the method being invoked
@@ -631,15 +673,15 @@ public abstract class FactoryBuilderSupport extends Binding {
      * @return the object from the factory
      */
     private Object doInvokeMethod( String methodName, Object name, Object args ) {
-        if (explicitMethods.containsKey(methodName)) {
+        Closure explicitMethod = resolveExplicitMethod(methodName, args);
+        if (explicitMethod != null) {
             if (args instanceof Object[]) {
-                return explicitMethods.get(methodName).call((Object[])args);
+                return explicitMethod.call((Object[])args);
             } else {
                 //todo push through InvokerHelper.asList?
-                return explicitMethods.get(methodName).call(args);
+                return explicitMethod.call(args);
             }
         }
-
         Object node;
         Closure closure = null;
         List list = InvokerHelper.asList( args );

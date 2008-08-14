@@ -34,6 +34,7 @@ class GriffonApplet extends JApplet implements IGriffonApplication {
     Map controllers = [:]
     Binding bindings = new Binding()
     ConfigObject config
+    ConfigObject builderConfig
 
     public void init() {
         bindings.rootWindow = SwingUtilities.getRoot(this)
@@ -66,6 +67,10 @@ class GriffonApplet extends JApplet implements IGriffonApplication {
 
     public Class getConfigClass() {
         return getClass().classLoader.loadClass("Application")
+    }
+
+    public Class getBuilderClass() {
+        return getClass().classLoader.loadClass("Builder")
     }
 
     public void initialize() {

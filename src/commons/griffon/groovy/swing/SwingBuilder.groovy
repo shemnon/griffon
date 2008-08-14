@@ -217,23 +217,23 @@ public class SwingBuilder  extends FactoryBuilderSupport {
     /**
      * Do some overrides for standard component handlers, else use super
      */
-    public void registerBeanFactory(String nodeName, Class klass) {
+    public void registerBeanFactory(String nodeName, String groupName, Class klass) {
         // poke at the type to see if we need special handling
         if (LayoutManager.isAssignableFrom(klass)) {
-            registerFactory(nodeName, new LayoutFactory(klass))
+            registerFactory(nodeName, groupName, new LayoutFactory(klass))
         } else if (JScrollPane.isAssignableFrom(klass)) {
-            registerFactory(nodeName, new ScrollPaneFactory(klass))
+            registerFactory(nodeName, groupName, new ScrollPaneFactory(klass))
         } else if (JTable.isAssignableFrom(klass)) {
-            registerFactory(nodeName, new TableFactory(klass))
+            registerFactory(nodeName, groupName, new TableFactory(klass))
         } else if (JComponent.isAssignableFrom(klass)
             || JApplet.isAssignableFrom(klass)
             || JDialog.isAssignableFrom(klass)
             || JFrame.isAssignableFrom(klass)
             || JWindow.isAssignableFrom(klass)
         ) {
-            registerFactory(nodeName, new ComponentFactory(klass))
+            registerFactory(nodeName, groupName, new ComponentFactory(klass))
         } else {
-            super.registerBeanFactory(nodeName, klass)
+            super.registerBeanFactory(nodeName, groupName, klass)
         }
 
     }

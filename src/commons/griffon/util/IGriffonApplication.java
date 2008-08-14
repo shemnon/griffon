@@ -30,12 +30,14 @@ import java.util.Map;
 public interface IGriffonApplication {
 
     public ConfigObject getConfig();
+    public ConfigObject getBuilderConfig();
     public void setConfig(ConfigObject config);
 
     public Binding getBindings();
     public void setBindings(Binding bindings);
 
     public Class getConfigClass();
+    public Class getBuilderClass();
 
     public Map<String, ?> getModels();
     public Map<String, ?> getViews();

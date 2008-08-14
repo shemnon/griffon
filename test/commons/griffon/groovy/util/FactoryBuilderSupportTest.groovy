@@ -19,7 +19,6 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
             'register', 'inner', 'Layers',
         ]
         def node = b.foo()
-        println b.@log
         assert b.@log == [ 'register', 'foo', 'Meta',
                            'register', 'bar', 'Meta',
                            'register', 'outest', 'Layers',
@@ -35,7 +34,6 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
     void testSimpleNodeWithValue() {
         def b = new SpoofFactoryBuilder()
         def node = b.foo('value')
-        println b.@log
         assert b.@log == [ 'register', 'foo', 'Meta',
                            'register', 'bar', 'Meta',
                            'register', 'outest', 'Layers',
@@ -51,7 +49,6 @@ class FactoryBuilderSupportTest extends GroovyTestCase{
     void testSimpleNodeWithOneAttribute() {
         def b = new SpoofFactoryBuilder()
         def node = b.foo(name:'value')
-        println b.@log
         assert b.@log == [
                            'register', 'foo', 'Meta',
                            'register', 'bar', 'Meta',
@@ -796,7 +793,6 @@ class XFactory extends AbstractFactory {
     }
 
     public void onFactoryRegistration(FactoryBuilderSupport builder, String registerdName, String groupName) {
-        println (['register', "'$registerdName'", "'$groupName'"])
         builder.@log << 'register'
         builder.@log << registerdName
         builder.@log << groupName

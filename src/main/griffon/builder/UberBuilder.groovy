@@ -31,8 +31,6 @@ class UberBuilder extends FactoryBuilderSupport {
 
     protected final Map builderLookup = new LinkedHashMap()
     protected final List<UberBuilderRegistration> builderRegistration = new LinkedList<UberBuilderRegistration>()
-    protected final Map setters = [:]
-    protected final Map getters = [:]
 
     public UberBuilder() {
         loadBuilderLookups()
@@ -49,7 +47,7 @@ class UberBuilder extends FactoryBuilderSupport {
         if (prefix) {
             throw new RuntimeException("Prefixed maps not supported")
         } else {
-            builders.each {k, v -> uberInit(k, v)}
+            return builders.collect {k, v -> uberInit(k, v)}
         }
     }
 
@@ -57,7 +55,7 @@ class UberBuilder extends FactoryBuilderSupport {
         if (prefix) {
             throw new RuntimeException("Prefixed maps not supported")
         } else {
-            builders.each {v -> uberInit(prefix, v)}
+            return builders.collect {v -> uberInit(prefix, v)}
         }
     }
 
@@ -66,7 +64,7 @@ class UberBuilder extends FactoryBuilderSupport {
         // make sure we won't self-loop
         if (builder && (builder != builderKey)) {
             // if we get more than one, we have more than this base case, so look it up
-            uberInit(prefix, builder)
+            return uberInit(prefix, builder)
         } else {
             throw new RuntimeException("Cannot uberinit indirectly via key '$builderKey'")
         }
@@ -74,9 +72,9 @@ class UberBuilder extends FactoryBuilderSupport {
 
     protected uberInit(Object prefix, Class klass) {
         if (builderLookup.containsKey(klass)) {
-            uberInit(prefix, builderLookup[klass])
+            return uberInit(prefix, builderLookup[klass])
         } else if (FactoryBuilderSupport.isAssignableFrom(klass)) {
-            uberInit(prefix, klass.newInstance())
+            return uberInit(prefix, klass.newInstance())
         } else {
             throw new RuntimeException("Cannot uberinit indirectly from class'${klass.name}'")
         }
@@ -104,6 +102,7 @@ class UberBuilder extends FactoryBuilderSupport {
         }
 
         fbs.setProxyBuilder(this)
+        return fbs
     }
 
     protected uberInit(Object prefix, Factory factory) {
@@ -124,7 +123,20 @@ class UberBuilder extends FactoryBuilderSupport {
                 return factory
             }
         }
+        return super.resolveFactory(name, attributes, value);
     }
+
+    protected Closure resolveExplicitMethod(String methodName, Object args) {
+        for (UberBuilderRegistration ubr in builderRegistration) {
+            Closure explcitMethod = ubr.nominateExplicitMethod(methodName)
+            if (explcitMethod) {
+                return explcitMethod
+            }
+        }
+        return super.resolveExplicitMethod(methodName, args);
+    }
+
+
 
     protected void setClosureDelegate( Closure closure, Object node ) {
         closure.setDelegate( currentBuilder );
@@ -139,20 +151,34 @@ class UberBuilder extends FactoryBuilderSupport {
         }
     }
 
-    public Object getProperty(String s) {
-        if (getters[s]) {
-            return getters[s]()
-        } else {
-            return super.getProperty(s)
+    public Object getProperty(String property) {
+        for (UberBuilderRegistration ubr in builderRegistration) {
+            Closure[] accessors = ubr.nominateExplicitProperty(property)
+            if (accessors) {
+                if (accessors[0] == null) {
+                    // write only property
+                    throw new MissingPropertyException(property + " is declared as write only");
+                } else {
+                    return accessors[0].call();
+                }
+            }
         }
+        return super.getProperty(property)
     }
 
-    public void setProperty(String s, Object o) {
-        if (setters[s]) {
-            setters[s](o)
-        } else {
-            super.setProperty(s, o)
+    public void setProperty(String property, Object newValue) {
+        for (UberBuilderRegistration ubr in builderRegistration) {
+            Closure[] accessors = ubr.nominateExplicitProperty(property)
+            if (accessors) {
+                if (accessors[1] == null) {
+                    // read only property
+                    throw new MissingPropertyException(property + " is declared as read only");
+                } else {
+                    accessors[1].call(newValue);
+                }
+            }
         }
+        super.setProperty(property, newValue)
     }
 
 
@@ -208,6 +234,48 @@ class UberBuilderRegistration {
         if (factory) {
             if (name == prefixString) {
                 return factory
+            }
+        }
+        return null
+    }
+
+    Closure nominateExplicitMethod(String name) {
+        if (builder) {
+            // need to turn off proxy to get at class durring lookup
+            def oldProxy = builder.proxyBuilder
+            try {
+                builder.proxyBuilder = builder
+                String localName = name
+                if (prefixString && name.startsWith(prefixString)) {
+                    localName = name.substring(prefixString.length())
+                }
+                localName = builder.getName(localName)
+                if (builder.getExplicitMethods().containsKey(localName)) {
+                    return builder.getExplicitMethods()[localName]
+                }
+            } finally {
+                builder.proxyBuilder = oldProxy
+            }
+        }
+        return null
+    }
+
+    Closure[] nominateExplicitProperty(String name) {
+        if (builder) {
+            // need to turn off proxy to get at class durring lookup
+            def oldProxy = builder.proxyBuilder
+            try {
+                builder.proxyBuilder = builder
+                String localName = name
+                if (prefixString && name.startsWith(prefixString)) {
+                    localName = name.substring(prefixString.length())
+                }
+                localName = builder.getName(localName)
+                if (builder.explicitProperties.containsKey(localName)) {
+                    return builder.explicitProperties[localName]
+                }
+            } finally {
+                builder.proxyBuilder = oldProxy
             }
         }
         return null

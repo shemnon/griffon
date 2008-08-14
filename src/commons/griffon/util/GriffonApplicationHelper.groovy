@@ -15,7 +15,7 @@
  */
 package griffon.util
 
-import griffon.groovy.swing.SwingBuilder
+import griffon.builder.UberBuilder
 import java.awt.Toolkit
 import javax.swing.SwingUtilities
 
@@ -29,6 +29,7 @@ class GriffonApplicationHelper {
 
     static void prepare(IGriffonApplication app) {
         app.config = new ConfigSlurper().parse(app.configClass)
+        app.builderConfig = new ConfigSlurper().parse(app.builderClass)
         app.bindings.app = app
         app.initialize();
     }
@@ -110,9 +111,6 @@ class GriffonApplicationHelper {
     }
 
     public static createMVCGroup(IGriffonApplication app, def mvcName) {
-        //TODO do we get this from app or pass it in as a param?
-        SwingBuilder builder = new SwingBuilder() // use composite here when ready
-
         def model = createInstance(mvcName, "model", app)
         def view = createInstance(mvcName, "view", app)
         def controller = createInstance(mvcName, "controller", app)
@@ -120,11 +118,13 @@ class GriffonApplicationHelper {
         app.views[mvcName] = view
         app.controllers[mvcName] = controller
 
-        // add declared composite controller injections
-        // for now we statically add threading methods
-        controller.getMetaClass().edt = builder.&edt
-        controller.getMetaClass().doOutside = builder.&doOutside
-        controller.getMetaClass().doLater = builder.&doLater
+        //TODO do we get this from app or pass it in as a param?
+        //SwingBuilder builder = new SwingBuilder() // use composite here when ready
+        UberBuilder builder = CompositeBuilderHelper.createBuilder(
+            app.builderConfig,
+            [model:model, view:view, controller:controller])
+
+
 
         // set the single frame as the defaut parent
         //TODO get this from usage context, whenw e figure out how it is done
@@ -140,7 +140,7 @@ class GriffonApplicationHelper {
 
         builder.controller = controller
         builder.model = model
-        builder.edt {builder.build(view) }
+        builder.edt({builder.build(view) })
 
         return [model, view, controller]
     }
