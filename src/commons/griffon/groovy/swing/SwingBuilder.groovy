@@ -39,11 +39,15 @@ public class SwingBuilder  extends FactoryBuilderSupport {
     private static final Logger LOG = Logger.getLogger(SwingBuilder.name)
     private static boolean headless = false
 
+    public static final String DELEGATE_PROPERTY_OBJECT_ID = "_delegateProperty:id";
+    public static final String DEFAULT_DELEGATE_PROPERTY_OBJECT_ID = "id";
+
     public SwingBuilder(boolean init = true) {
         super(init)
-        //registerWidgets()
+         //registerWidgets()
         headless = GraphicsEnvironment.isHeadless()
         containingWindows = new LinkedList()
+        this[DELEGATE_PROPERTY_OBJECT_ID] = DEFAULT_DELEGATE_PROPERTY_OBJECT_ID
     }
 
     def registerSupportNodes() {
@@ -51,8 +55,8 @@ public class SwingBuilder  extends FactoryBuilderSupport {
         registerFactory("actions", new CollectionFactory())
         registerFactory("map", new MapFactory())
         registerFactory("imageIcon", new ImageIconFactory())
-        registerBeanFactory("buttonGroup", ButtonGroup)
-        addAttributeDelegate(SwingBuilder.&buttonGroupAttributeDelegate)
+        registerFactory("buttonGroup", new ButtonGroupFactory())
+        addAttributeDelegate(ButtonGroupFactory.&buttonGroupAttributeDelegate)
 
         //object id delegage, for propertyNotFound
         addAttributeDelegate(SwingBuilder.&objectIDAttributeDelegate)
@@ -165,7 +169,7 @@ public class SwingBuilder  extends FactoryBuilderSupport {
         // constraints delegate
         addAttributeDelegate(GridBagFactory.&processGridBagConstraintsAttributes)
 
-        addAttributeDelegate(SwingBuilder.&constraintsAttributeDelegate)
+        addAttributeDelegate(LayoutFactory.&constraintsAttributeDelegate)
     }
 
     def registerBoxLayout() {
@@ -375,25 +379,12 @@ public class SwingBuilder  extends FactoryBuilderSupport {
         lookAndFeel([:], laf, null as Closure)
     }
 
-    public static buttonGroupAttributeDelegate(def builder, def node, def attributes) {
-        if (attributes.containsKey("buttonGroup")) {
-            def o = attributes.get("buttonGroup")
-            if ((o instanceof ButtonGroup) && (node instanceof AbstractButton)) {
-                node.model.group = o
-                attributes.remove("buttonGroup")
-            }
-        }
-    }
-
     public static objectIDAttributeDelegate(def builder, def node, def attributes) {
-        def theID = attributes.remove('id')
+        def idAttr = builder.getAt(DELEGATE_PROPERTY_OBJECT_ID) ?: DEFAULT_DELEGATE_PROPERTY_OBJECT_ID
+        def theID = attributes.remove(idAttr)
         if (theID) {
             builder.setVariable(theID, node)
         }
-    }
-
-    public static constraintsAttributeDelegate(def builder, def node, def attributes) {
-        builder.context.constraints = attributes.remove('constraints')
     }
 
     ///////////////////////////////////////////////////////////////////////////

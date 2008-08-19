@@ -36,6 +36,31 @@ import javax.swing.text.NumberFormatter
 
 class SwingBuilderTest extends GroovySwingTestCase {
 
+    void testWidgetId() {
+        if (headless) return
+
+        def swing = new SwingBuilder()
+        def localVar = null
+
+        swing.panel {
+            label('byAttr', id:'byAttr')
+            byExpr = label('byExpr')
+            localVar = label('localVar')
+        }
+        swing[SwingBuilder.DELEGATE_PROPERTY_OBJECT_ID] = 'key'
+        swing.panel {
+            label('byKey', key:'byKey')
+        }
+
+        assert localVar != null
+        assert swing.getVariables().containsKey('byAttr')
+        assert swing.getVariables().containsKey('byExpr')
+        assert !swing.getVariables().containsKey('localVar')
+        assert swing.getVariables().containsKey('byKey')
+
+
+    }
+
     void testNamedWidgetCreation() {
         if (headless) return
 
@@ -109,10 +134,22 @@ class SwingBuilderTest extends GroovySwingTestCase {
           borderLayout()
           label("x", constraints:NORTH)
         }
-        shouldFail {
+
+        // test that BorderLayout.NORTH is not implied
+        shouldFail(MissingPropertyException) {
             swing.frame {
               label("x", constraints:NORTH)
             }
+        }
+    }
+
+    void testLayoutConstraintsProperty() {
+        if (headless) return
+        def swing = new SwingBuilder()
+
+        swing.frame {
+          borderLayout(constraintsProperty:'direction')
+          label("x", direction:NORTH)
         }
     }
 
@@ -166,10 +203,42 @@ class SwingBuilderTest extends GroovySwingTestCase {
         }
     }
 
+    void testButtonGroup() {
+        if (headless) return
+        def swing = new SwingBuilder()
+
+        swing.panel {
+            buttonGroup(id:'group1')
+            buttonGroup(id:'group2')
+            checkBox(id:'cb1a', buttonGroup:group1)
+            checkBox(id:'cb1b', buttonGroup:group1)
+            checkBox(id:'cb2a', buttonGroup:group2)
+            checkBox(id:'cb2b', buttonGroup:group2)
+
+        }
+
+        def statusCBs = {[swing.cb1a.selected, swing.cb1b.selected, swing.cb2a.selected, swing.cb2b.selected]}
+
+        assert statusCBs() == [false, false, false, false]
+
+        swing.cb1a.selected = true
+        assert statusCBs() == [true, false, false, false]
+
+        swing.cb1b.selected = true
+        assert statusCBs() == [false, true, false, false]
+
+        swing.cb2a.selected = true
+        assert statusCBs() == [false, true, true, false]
+
+        swing.cb2b.selected = true
+        assert statusCBs() == [false, true, false, true]
+
+    }
+
     void testButtonGroupOnlyForButtons() {
         if (headless) return
-
         def swing = new SwingBuilder()
+
         def buttonGroup = swing.buttonGroup()
         shouldFail(MissingPropertyException) {
             swing.label(buttonGroup:buttonGroup)
@@ -412,6 +481,53 @@ class SwingBuilderTest extends GroovySwingTestCase {
         assert swing.st.indexOfTab('stb') == swing.st.indexOfComponent(swing.sb)
 
 
+    }
+
+    void testTabbedPaneRenamedProperties() {
+        if (headless) return
+
+        def swing = new SwingBuilder()
+        swing.tabbedPane(id:'tp',
+            titleProperty :'xTitle',
+            tabIconProperty:'xTabIcon',
+            tabDisabledIconProperty:'xTabDisabledIcon',
+            tabToolTipProperty:'xTabToolTip',
+            tabBackgroundProperty:'xTabBackground',
+            tabForegroundProperty:'xTabForeground',
+            tabEnabledProperty:'xTabEnabled',
+            tabMnemonicProperty:'xTabMnemonic',
+            tabDisplayedMnemonicIndexProperty:'xTabDisplayedMnemonicIndex'
+        ) {
+            panel(id:'p1', name:'Title 1')
+            panel(id:'p2')
+            panel(id:'p3', xTitle:'Title 3')
+            panel(id:'p4', xTitle:'Title 4', name:'Name 4')
+            panel(id:'p5', xTitle:'Title 5', xTabIcon: imageIcon(Console.ICON_PATH, id:'i5'))
+            panel(id:'p6', xTitle:'Title 6', xTabDisabledIcon: imageIcon(Console.ICON_PATH, id:'i6'))
+            panel(id:'p7', xTitle:'Title 7', xTabToolTip:'tip 7')
+            panel(id:'p8', xTitle:'Title 8', xTabBackground:Color.GREEN)
+            panel(id:'p9', xTitle:'Title 9', xTabForeground:Color.GREEN)
+            panel(id:'pA', xTitle:'Title A', xTabEnabled:false)
+            panel(id:'pB', xTitle:'Title B', xTabMnemonic: 'T')
+            panel(id:'pC', xTitle:'Title C', xTabDisplayedMnemonicIndex: 2)
+        }
+
+        assert swing.tp.tabCount == 12
+        assert swing.tp.indexOfComponent(swing.p1) == 0
+        assert swing.tp.indexOfComponent(swing.p2) == 1
+        assert swing.tp.indexOfComponent(swing.p3) == 2
+        assert swing.tp.indexOfComponent(swing.p4) == 3
+        assert swing.tp.indexOfTab('Title 1') == 0
+        assert swing.tp.indexOfTab('Title 3') == 2
+        assert swing.tp.indexOfTab('Title 4') == 3
+        assert swing.tp.getIconAt(4) == swing.i5
+        assert swing.tp.getDisabledIconAt(5) == swing.i6
+        assert swing.tp.getToolTipTextAt(6) == 'tip 7'
+        assert swing.tp.getBackgroundAt(7) == Color.GREEN
+        assert swing.tp.getForegroundAt(8) == Color.GREEN
+        assert swing.tp.isEnabledAt(9) == false
+        assert swing.tp.getMnemonicAt(10) == 0x54
+        assert swing.tp.getDisplayedMnemonicIndexAt(11) == 2
     }
 
     void testScrollPane() {

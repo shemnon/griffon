@@ -23,8 +23,8 @@
  */
 package griffon.builder
 
-import griffon.groovy.util.Factory
-import griffon.groovy.util.FactoryBuilderSupport
+import groovy.util.Factory
+import groovy.util.FactoryBuilderSupport
 import org.codehaus.groovy.runtime.InvokerHelper
 
 class UberBuilder extends FactoryBuilderSupport {

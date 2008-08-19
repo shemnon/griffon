@@ -1,7 +1,7 @@
 package griffon.util
 
 import griffon.builder.UberBuilder
-import griffon.groovy.util.FactoryBuilderSupport
+import groovy.util.FactoryBuilderSupport
 
 /**
  * Created by IntelliJ IDEA.
