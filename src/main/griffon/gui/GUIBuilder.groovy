@@ -24,8 +24,8 @@
 package griffon.gui
 
 import griffon.builder.UberBuilder
-import griffon.groovy.swing.SwingBuilder
-//import groovy.swing.SwingXBuilder
+import groovy.swing.SwingBuilder
+import groovy.swing.SwingXBuilder
 //import groovy.swing.j2d.GraphicsBuilder
 import org.codehaus.groovy.reflection.ReflectionUtils
 
@@ -33,10 +33,12 @@ class GUIBuilder extends UberBuilder {
 
     protected static final Set<String> builderPackages = new HashSet<String>();
     static {
+        // TODO also either dynamically add pacakges of builders or match builders themselves as excludes 
         builderPackages.add("org.codehaus.groovy.runtime.metaclass");
         builderPackages.add("griffon.builder");
         builderPackages.add("groovy.util");
-        //builderPackages.add("griffon.gui");
+        builderPackages.add("groovy.swing");
+        builderPackages.add("griffon.gui");
     }
 
     public GUIBuilder() {
@@ -49,22 +51,25 @@ class GUIBuilder extends UberBuilder {
 
     protected Object loadBuilderLookups() {
         // looping proble with graphisBuidler.getProperty
-        this.@builderLookup['default'] = ['swing', 'swingx', 'gfx', [j:'swing', jx:'swingx']] as Object[]
-        //builderLookup['default'] = ['swing', 'swingx', [j:'swing', jx:'swingx']] as Object[]
+        //this.@builderLookup['default'] = ['swing', 'swingx', 'gfx', [j:'swing', jx:'swingx']] as Object[]
+        builderLookup['default'] = ['swing', 'swingx', [j:'swing', jx:'swingx']] as Object[]
         this.@builderLookup.swing = SwingBuilder
         this.@builderLookup.SwingBuilder = SwingBuilder
-//        this.@builderLookup.swingx = SwingXBuilder
-//        this.@builderLookup.SwingXBuilder = SwingXBuilder
+        this.@builderLookup.swingx = SwingXBuilder
+        this.@builderLookup.SwingXBuilder = SwingXBuilder
         // looping proble with graphisBuidler.getProperty
 //        this.@builderLookup.gfx = GraphicsBuilder
 //        this.@builderLookup.GraphicsBuilder = GraphicsBuilder
 
         registerExplicitProperty(
             'resources',
-            {-> ResourceBundle.getBundle(ReflectionUtils.getCallingClass(1, builderPackages)
-                .name
-                .split('$')[0]
-                .replace('.', '/'))},
+            {->
+                Class callingClass = ReflectionUtils.getCallingClass(0, builderPackages)
+                ResourceBundle.getBundle(
+                    callingClass.name.split('\\$')[0].replace('.', '/'),
+                    Locale.getDefault(),
+                    callingClass.getClassLoader())
+            },
             null);
     }
 
