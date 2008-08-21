@@ -158,6 +158,7 @@ target( packageApp : "Implementation of package target") {
     //loadPlugins()
     //generateWebXml()
 
+    copyLibs()
     jarFiles()
     signFiles()
     generateJNLP()
@@ -191,13 +192,22 @@ target(jarFiles: "Jar up the package files") {
         fileset(dir:classesDirPath)   
         fileset(dir:i18nDir)
     }
+    //TODO pack200 these files as well...
+    //TODO also unpack, so code signing will work.
+}
+
+target(copyLibs: "Copy Library Files") {
+    jardir = Ant.antProject.replaceProperties(config.griffon.jars.destDir)
 
     Ant.copy(todir:jardir) { fileset(dir:"${griffonHome}/dist", includes:"griffon-rt-*.jar") }
     Ant.copy(todir:jardir) { fileset(dir:"${griffonHome}/lib/", includes:"groovy-all-*.jar") }
 
+    Ant.copy(todir:jardir) { fileset(dir:"${basedir}/lib/", includes:"*.jar") }
+    Ant.copy(todir:jardir) { fileset(dir:"${basedir}/lib/", includes:"*.dll") }
+    Ant.copy(todir:jardir) { fileset(dir:"${basedir}/lib/", includes:"*.so") }
+
     //TODO pack200 these files as well...
     //TODO also unpack, so code signing will work.
-    
 }
 
 target(signFiles: "Sign all of the files") {
