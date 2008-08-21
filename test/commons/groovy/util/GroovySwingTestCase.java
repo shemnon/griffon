@@ -1,4 +1,4 @@
-package griffon.groovy.util;
+package groovy.util;
 
 import groovy.util.GroovyTestCase;
 

@@ -1,6 +1,6 @@
-package griffon.groovy.swing
+package groovy.swing
 
-import griffon.groovy.util.GroovySwingTestCase
+import groovy.util.GroovySwingTestCase
 import groovy.swing.factory.SwingWorkerFactory
 
 class SwingWorkerTest extends GroovySwingTestCase {
