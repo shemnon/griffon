@@ -38,7 +38,10 @@ class SingleFrameApplication implements IGriffonApplication {
         GriffonApplicationHelper.prepare(this)
 
         // prepare the frame
-        mainFrame = new JFrame(config.application?.title ?: "")
+        String mainFrameClassName = config.application?.frameClass ?: 'javax.swing.JFrame'
+        Class mainFrameClass = getClass().getClassLoader().loadClass(mainFrameClassName)
+        mainFrame = mainFrameClass.newInstance()
+        mainFrame.title = config.application?.title ?: ""
         mainFrame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
         mainFrame.windowClosing = { shutdown() }
 
