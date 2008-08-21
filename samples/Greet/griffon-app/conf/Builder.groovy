@@ -1,5 +1,5 @@
 root {
-    'griffon.groovy.swing.SwingBuilder' {
+    'groovy.swing.SwingBuilder' {
         controller = ['Threading']
     }
     /*
@@ -7,5 +7,8 @@ root {
         controller = ['Actions', 'Resources']
     }
     */
+}
+jx {
+    'groovy.swing.SwingXBuilder' { }
 }
 

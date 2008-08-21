@@ -109,9 +109,10 @@ mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefin
             gridwidth:REMAINDER, fill:HORIZONTAL, insets:[1,3,1,3]
     )
     separator(fill: HORIZONTAL, gridwidth: REMAINDER)
-    statusLine = label(text: bind {model.statusLine},
-        gridwidth: REMAINDER, insets: [3, 6, 3, 6], anchor: WEST
-    )
+
+    jxstatusBar(fill: HORIZONTAL, gridwidth: REMAINDER, insets:[0,0,0,0]) {
+        statusLine = label(text: bind {model.statusLine})
+    }
 }
 
 loginDialog = dialog(

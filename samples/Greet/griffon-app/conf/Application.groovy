@@ -19,6 +19,7 @@ primaryView="mainPanel"
 
 // configuration for default frames in applicaiton mode
 application {
+    frameClass = 'org.jdesktop.swingx.JXFrame'
     title = "Greet - A Groovy Twitter Client"
     size = [320, 640]
     //location = [50, 50] // a null will cause platform automated locaiton
