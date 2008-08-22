@@ -29,6 +29,7 @@ griffonAppName = ""
 Ant.property(environment:"env")
 griffonHome = Ant.antProject.properties."env.GRIFFON_HOME"    
 
+includeTargets << new File ( "${griffonHome}/scripts/CreateMvc.groovy" )
 includeTargets << new File ( "${griffonHome}/scripts/Package.groovy" )
 
 
@@ -41,9 +42,14 @@ target( createApp: "The implementation target")  {
 
     createIDESupportFiles()
 
+    replaceTokens()
+
     classpath()
     //loadPlugins()
     //generateWebXml()
+
+    args = griffonAppName//.replaceAll( /\s/, '.' ).toLowerCase()
+    createMVC()
 
     // Set the default version number for the application
     Ant.propertyfile(file:"${basedir}/application.properties") {
@@ -64,21 +70,22 @@ target( createIDESupportFiles: "Creates the IDE suppot files (Eclipse, TextMate 
             tofile:"${basedir}/${griffonAppName}.launch", overwrite:true)
     Ant.copy(file:"${griffonHome}/src/griffon/templates/ide-support/textmate/project.tmproj",
             tofile:"${basedir}/${griffonAppName}.tmproj", overwrite:true)
+}
 
-
-    Ant.replace(dir:"${basedir}",includes:"*.*",
+target( replaceTokens: "Replaces creation tokens in the ") {
+    Ant.replace(dir:"${basedir}",includes:"**/*.*",
                 token:"@griffon.libs@", value:"${getGriffonLibs()}" )
-    Ant.replace(dir:"${basedir}", includes:"*.*",
+    Ant.replace(dir:"${basedir}", includes:"**/*.*",
                 token:"@griffon.jar@", value:"${getGriffonJar()}" )
-    Ant.replace(dir:"${basedir}", includes:"*.*",
+    Ant.replace(dir:"${basedir}", includes:"**/*.*",
                 token:"@griffon.version@", value:"${griffonVersion}" )
 
 
     def appKey = griffonAppName.replaceAll( /\s/, '.' ).toLowerCase()
 
-    Ant.replace(dir:"${basedir}", includes:"*.*",
+    Ant.replace(dir:"${basedir}", includes:"**/*.*",
                 token:"@griffon.project.name@", value:"${griffonAppName}" )
-    Ant.replace(dir:"${basedir}", includes:"*.*",
+    Ant.replace(dir:"${basedir}", includes:"**/*.*",
                 token:"@griffon.project.key@", value:"${appKey}" )
 }
 
@@ -93,6 +100,7 @@ target ( appName : "Evaluates the application name") {
         if(griffonAppName.indexOf('\n') > -1)
             griffonAppName = griffonAppName.replaceAll(/\n/, " ")
     }
+
     basedir = "${basedir}/${griffonAppName}"
     appClassName = GCU.getClassNameRepresentation(griffonAppName)
 }

@@ -1,5 +1,5 @@
 root {
-    'griffon.groovy.swing.SwingBuilder' {
+    'groovy.swing.SwingBuilder' {
         controller = ['threading']
         view = "*"
     }

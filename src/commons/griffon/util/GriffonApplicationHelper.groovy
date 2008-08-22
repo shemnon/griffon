@@ -83,15 +83,22 @@ class GriffonApplicationHelper {
     }
 
     public static void runScriptInsideEDT(String scriptName, IGriffonApplication app) {
+        def script = null
         try {
-            def script = GriffonApplicationHelper.classLoader.loadClass(scriptName).newInstance(app.bindings)
-            if (SwingUtilities.isEventDispatchThread()) {
-                script.run()
+            script = GriffonApplicationHelper.classLoader.loadClass(scriptName).newInstance(app.bindings)
+        } catch (ClassNotFoundException cnfe) {
+            if (cnfe.getMessage() == scriptName) {
+                // the script must not exist, do nothing
+                //LOGME - may be because of chained failures
+                return
             } else {
-                SwingUtilities.invokeAndWait script.&run
+                throw cnfe;
             }
-        } catch (Exception e) {
-            e.printStackTrace(System.out)
+        }
+        if (SwingUtilities.isEventDispatchThread()) {
+            script.run()
+        } else {
+            SwingUtilities.invokeAndWait script.&run
         }
     }
 

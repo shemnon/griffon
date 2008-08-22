@@ -1,33 +1,31 @@
 
 
+mvcGroups {
+    root {
+        model = '@griffon.project.name@Model'
+        view = '@griffon.project.name@View'
+        controller = '@griffon.project.name@Controller'
+    }
+}
 
-// List the controllers to be instantiated and the names to sotre in the builder
-//controllers = [
-//   basicController:"com.example.app.Controller1",
-//   editController:"com.example.app.Controller2",
-// ]
-
-
-// list of views to be auto-wired with certian controllers
-//viewMap = [
-//    basicController: [
-//        frame:  "com.example.app.Frame",
-//        menu:   "com.example.app.Menu"
-//    ],
-//    editController: [mainFrame: "com.example.app.EditFrame"],
-//]
 
 // The primary builder.
 // for an Applicaiton this will be placed in a JFrame
 // for an Applet, this will be placed in the JApplet
-//primaryView = basicController.frame
+primaryView="mainPanel"
 
 // the menu bar to attach to the applet or JFrame, if present.
 //primaryMenuBar =  basicController.menu
 
 // configuration for default frames in applicaiton mode
-//application {
-//    title = "Root JFrame title"
-//    size = [320,640]
-//    location = [50, 50] // a null will cause platform automated locaiton
-//}
+application {
+    //frameClass = 'javax.swing.JFrame'
+    title = "@griffon.project.name@"
+
+    // a null will cause .pack() to be called
+    // but will cause problems in an applet
+    //size = [200, 200]
+
+    // a null will cause platform automated location
+    //location = [50, 50]
+}

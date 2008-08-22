@@ -57,6 +57,10 @@ class SingleFrameApplication implements IGriffonApplication {
 
         GriffonApplicationHelper.startup(this)
 
+        if (!config.application?.size) {
+            mainFrame.pack()
+        }
+
         mainFrame.show()
 
         GriffonApplicationHelper.callReady(this)
