@@ -41,6 +41,17 @@ signingkey {
     }
 }
 
-griffon.jars.destDir = '${base.dir}/target'
-griffon.jars.jarName = "${appName}.jar"
-griffon.webstart.codebase = "file:${griffon.jars.destDir}"
+griffon {
+    jars {
+        destDir = '${base.dir}/target'
+        jarName = "${appName}.jar"
+    }
+    webstart {
+        codebase = "${new File(griffon.jars.destDir).toURI().toASCIIString()}"
+        jnlp = "application.jnlp"
+    }
+    applet {
+        jnlp = "applet.jnlp"
+        html = "applet.html"
+    }
+}

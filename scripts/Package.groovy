@@ -44,6 +44,7 @@ includeTargets << new File ( "${griffonHome}/scripts/Compile.groovy" )
 
 //scaffoldDir = "${basedir}/web-app/WEB-INF/templates/scaffolding"
 configFile = new File("${basedir}/griffon-app/conf/Config.groovy")
+applicationFile = new File("${basedir}/griffon-app/conf/Application.groovy")
 //webXmlFile = new File("${resourcesDirPath}/web.xml")
 log4jFile = new File("${resourcesDirPath}/log4j.properties")
 generateLog4jFile = false
@@ -73,6 +74,19 @@ target( createConfig: "Creates the configuration object") {
         }
 
    }
+    if(applicationFile.exists()) {
+         try {
+             applicationConfig = configSlurper.parse(classLoader.loadClass("Application"))
+             applicationConfig.setConfigFile(applicationFile.toURI().toURL())
+ //            ConfigurationHolder.setConfig(config)
+         }
+         catch(Exception e) {
+             e.printStackTrace()
+             event("StatusFinal", ["Failed to compile configuration file ${configFile}: ${e.message}"])
+             exit(1)
+         }
+
+    }
 //   def dataSourceFile = new File("${basedir}/griffon-app/conf/DataSource.groovy")
 //   if(dataSourceFile.exists()) {
 //        try {
@@ -219,27 +233,37 @@ target(signFiles: "Sign all of the files") {
 
 target(generateJNLP:"Generates the JNLP File") {
     Ant.copy (todir:jardir) {
-        fileset(dir:"${basedir}/griffon-app/conf/webstart", includes:"*.jnlp")
+        fileset(dir:"${basedir}/griffon-app/conf/webstart", includes:"*.jnlp,*.html")
     }
-    Ant.replace(dir:jardir, includes:"*.jnlp",
-                token:"@griffonAppName@", value:"${griffonAppName}" )
-    Ant.replace(dir:jardir, includes:"*.jnlp",
-                token:"@griffonAppVersion@", value:"${griffonAppName}" )
-    Ant.replace(dir:jardir, includes:"*.jnlp",
-                token:"@griffonAppCodebase@", value:"${config.griffon.webstart.codebase}")
-    jnlpJars = ''
 
+    jnlpJars = ''
+    appletJars = ''
     // griffon-rt has to come first, it's got the launch classes
     new File(jardir).eachFileMatch(~/griffon-rt-.*.jar/) { f ->
         jnlpJars += "        <jar href='$f.name'/>\n"
+        appletJars += "$f.name"
     }
     new File(jardir).eachFileMatch(~/.*\.jar/) { f ->
         if (!(f.name =~ /griffon-rt-.*/)) {
             jnlpJars += "        <jar href='$f.name'/>\n"
+            appletJars += ",$f.name"
         }
     }
-    Ant.replace(dir:jardir, includes:"*.jnlp",
-                token:"@jnlpJars@", value:jnlpJars )
+
+    Ant.replace(dir:jardir, includes:"*.jnlp,*.html") {
+        replacefilter(token:"@griffonAppName@", value:"${griffonAppName}" )
+        replacefilter(token:"@griffonAppVersion@", value:"${griffonAppName}" )
+        replacefilter(token:"@griffonAppCodebase@", value:"${config.griffon.webstart.codebase}")
+        replacefilter(token:"@jnlpJars@", value:jnlpJars )
+        replacefilter(token:"@appletJars@", value:appletJars )
+        if (applicationConfig) {
+            replacefilter(token:"@appletWidth@", value:"${applicationConfig.application.size[0]}")
+            replacefilter(token:"@appletHeight@", value:"${applicationConfig.application.size[1]}")
+        } else {
+            replacefilter(token:"@appletWidth@", value:"320")
+            replacefilter(token:"@appletHeight@", value:"240")
+        }
+    }
 }
 
 
