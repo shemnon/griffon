@@ -34,7 +34,7 @@ log4j {
 // key signing information
 signingkey {
     params {
-        keystore = '${base.dir}/griffon-app/conf/keys/devKeystore'
+        keystore = "${basedir}/griffon-app/conf/keys/devKeystore"
         alias = 'development'
         storepass = 'BadStorePassword'
         keypass   = 'BadKeyPassword'
@@ -43,7 +43,7 @@ signingkey {
 
 griffon {
     jars {
-        destDir = '${base.dir}/target'
+        destDir = "${basedir}/target"
         jarName = "${appName}.jar"
     }
     webstart {

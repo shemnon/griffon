@@ -44,9 +44,20 @@ environments {
             }
         }
 
-        griffon.jars.destDir = '${base.dir}/target'
-        griffon.jars.jarName = "${appName}.jar"
-        griffon.webstart.codebase = "file:${griffon.jars.destDir}"
+        griffon {
+            jars {
+                destDir = "${basedir}/target"
+                jarName = "${appName}.jar"
+            }
+            webstart {
+                codebase = "${new File(griffon.jars.destDir).toURI().toASCIIString()}"
+                jnlp = "application.jnlp"
+            }
+            applet {
+                jnlp = "applet.jnlp"
+                html = "applet.html"
+            }
+        }
     }
     production {
         signingkey {
@@ -58,8 +69,20 @@ environments {
             }
         }
 
-        griffon.jars.destDir = '${base.dir}/../../bin-dist/greet'
-        griffon.jars.jarName = "${appName}.jar"
-        griffon.webstart.codebase = "http://svn.codehaus.org/groovy/trunk/groovy/modules/griffon/bin-dist/greet/"
+        griffon {
+            jars {
+                destDir = '${basedir}/../../bin-dist/greet'
+                jarName = "${appName}.jar"
+            }
+            webstart {
+                codebase = "http://svn.codehaus.org/groovy/trunk/groovy/modules/griffon/bin-dist/greet/"
+                jnlp = "greet.jnlp"
+            }
+            applet {
+                jnlp = "applet.jnlp"
+                html = "applet.html"
+            }
+        }
+
     }
 }

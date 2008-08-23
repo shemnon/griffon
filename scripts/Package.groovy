@@ -250,19 +250,16 @@ target(generateJNLP:"Generates the JNLP File") {
         }
     }
 
+    appletSize = applicationConfig?.application?.size ?: [240,320]
+
     Ant.replace(dir:jardir, includes:"*.jnlp,*.html") {
         replacefilter(token:"@griffonAppName@", value:"${griffonAppName}" )
         replacefilter(token:"@griffonAppVersion@", value:"${griffonAppName}" )
         replacefilter(token:"@griffonAppCodebase@", value:"${config.griffon.webstart.codebase}")
         replacefilter(token:"@jnlpJars@", value:jnlpJars )
         replacefilter(token:"@appletJars@", value:appletJars )
-        if (applicationConfig) {
-            replacefilter(token:"@appletWidth@", value:"${applicationConfig.application.size[0]}")
-            replacefilter(token:"@appletHeight@", value:"${applicationConfig.application.size[1]}")
-        } else {
-            replacefilter(token:"@appletWidth@", value:"320")
-            replacefilter(token:"@appletHeight@", value:"240")
-        }
+        replacefilter(token:"@appletWidth@", value:appletSize[0])
+        replacefilter(token:"@appletHeight@", value:appletSize[1])
     }
 }
 
