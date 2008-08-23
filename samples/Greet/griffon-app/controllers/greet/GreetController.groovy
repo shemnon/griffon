@@ -27,7 +27,7 @@ class GreetController {
 
     TwitterService twitterService
     GreetModel model
-    GreetPanel view
+    GreetView view
 
     void showLoginDialog() {
         view.loginDialog.show()

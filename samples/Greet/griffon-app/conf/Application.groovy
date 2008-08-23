@@ -3,7 +3,7 @@
 mvcGroups {
     root {
         model = 'greet.GreetModel'
-        view = 'greet.GreetPanel'
+        view = 'greet.GreetView'
         controller = 'greet.GreetController'
     }
 }
