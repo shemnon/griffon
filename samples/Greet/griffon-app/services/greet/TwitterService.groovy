@@ -41,8 +41,18 @@ class TwitterService {
         }
     }
 
-    def getAPIStream(String url) {
-        new StringReader(new URL(url).openStream().text)
+    def slurpAPIStream(String url) {
+        def text = ""
+        try {
+            text = new URL(url).openStream().text
+            synchronized (slurper) {
+                return slurper.parse(new StringReader(text))
+            }
+            System.err.println text
+        } catch (Exception e) {
+            System.err.println text
+            throw e
+        }
     }
 
     boolean login(def name, def password) {
@@ -51,8 +61,8 @@ class TwitterService {
                 [getPasswordAuthentication : {
                     return new PasswordAuthentication(name, password) }
                 ] as Authenticator)
+            slurpAPIStream("http://twitter.com/account/verify_credentials.xml")
             authenticatedUser = getUser(name)
-            return true
         }
     }
 
@@ -68,12 +78,12 @@ class TwitterService {
         def friends = [user]
         withStatus("Loading Friends") {
             def page = 1
-            def list = slurper.parse(getAPIStream("http://twitter.com/statuses/friends/${user.screen_name}.xml"))
+            def list = slurpAPIStream("http://twitter.com/statuses/friends/${user.screen_name}.xml")
             while (list.length) {
                 list.user.collect(friends) {it}
                 page++
                 try {
-                  list = slurper.parse("http://twitter.com/statuses/friends/${user.screen_name}.xml&page=$page")
+                  list = slurpAPIStream("http://twitter.com/statuses/friends/${user.screen_name}.xml&page=$page")
                 } catch (Exception e) { break }
             }
         }
@@ -95,8 +105,8 @@ class TwitterService {
     def getFriendsTimeline(user) {
         def timeline = []
         withStatus("Loading Timeline") {
-            timeline =  slurper.parse(
-                    getAPIStream("http://twitter.com/statuses/friends_timeline/${user.screen_name}.xml")
+            timeline =  slurpAPIStream(
+                    "http://twitter.com/statuses/friends_timeline/${user.screen_name}.xml"
                 ).status.collect{it}
         }
         withStatus("Loading Timeline Images") {
@@ -117,8 +127,8 @@ class TwitterService {
     def getTweets(friend) {
         def tweets = []
         withStatus("Loading Tweets") {
-            tweets = slurper.parse(
-                    getAPIStream("http://twitter.com/statuses/user_timeline/${friend.screen_name}.xml")
+            tweets = slurpAPIStream(
+                    "http://twitter.com/statuses/user_timeline/${friend.screen_name}.xml"
                 ).status.collect{it}
         }
         withStatus("Loading Tweet Images") {
@@ -131,11 +141,11 @@ class TwitterService {
     def getUser(String screen_name) {
         withStatus("Loading User $screen_name") {
             if (screen_name.contains('@')) {
-                return slurper.parse(
-                        "http://twitter.com/users/show.xml?email=${screen_name}"
+                return slurpAPIStream(
+                       "http://twitter.com/users/show.xml?email=${screen_name}"
                     )
             } else {
-                return slurper.parse(
+                return slurpAPIStream(
                         "http://twitter.com/users/show/${screen_name}.xml"
                     )
             }

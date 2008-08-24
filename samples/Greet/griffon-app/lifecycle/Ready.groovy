@@ -19,5 +19,3 @@ app.controllers.root.twitterService = new TwitterService()
 app.models.root.allowSelection = false
 app.models.root.allowTweet = false
 app.views.root.bind(source:app.controllers.root.twitterService, sourceProperty:'status', target:app.models.root, targetProperty:'statusLine')
-
-app.controllers.root.showLoginDialog()

@@ -19,6 +19,7 @@ package greet
 import java.awt.Cursor
 import javax.swing.JOptionPane
 import javax.swing.event.HyperlinkEvent
+import java.awt.CardLayout
 
 /**
  *@author Danno Ferrin
@@ -28,10 +29,6 @@ class GreetController {
     TwitterService twitterService
     GreetModel model
     GreetView view
-
-    void showLoginDialog() {
-        view.loginDialog.show()
-    }
 
     void login(evt) {
         model.allowLogin = false
@@ -43,10 +40,10 @@ class GreetController {
                     selectUser(twitterService.authenticatedUser)
                     edt {
                         model.lastUpdate = System.currentTimeMillis()
-                        view.loginDialog.dispose()
+                        ((CardLayout)view.cardSwitcher).show(view.mainPanel, 'running')
                     }
                 } else {
-                    JOptionPane.showMessageDialog(view.loginDialog, "Login failed")
+                    JOptionPane.showMessageDialog(view.mainPanel, "Login failed")
                 }
             } catch (Exception e) {
                 e.printStackTrace()

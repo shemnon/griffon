@@ -72,68 +72,79 @@ userCellRenderer = {list, user, index, isSelected, isFocused ->
 
 mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)}) {
 
-    gridBagLayout()
-    users = comboBox(renderer: userCellRenderer, action: userSelected,
-        selectedItem:bind {model.focusedUser},
-        gridwidth: REMAINDER, insets: [6, 6, 3, 6], fill: HORIZONTAL
-    )
-    label('Search:', insets: [3, 6, 3, 3])
-    searchField = textField(columns: 20, action: filterTweets,
-        insets: [3, 3, 3, 3], weightx: 1.0, fill: BOTH)
-    button(action: filterTweets,
-        gridwidth: REMAINDER, insets: [3, 3, 3, 6], fill:HORIZONTAL)
-    tabbedPane(gridwidth: REMAINDER, weighty: 1.0, fill: BOTH) {
-        scrollPane(title: 'Timeline') {
-            timelinePanel = panel(new ScrollablePanel(), border:emptyBorder(3))
-        }
-        scrollPane(title: 'Tweets') {
-            tweetPanel = panel(new ScrollablePanel(), border:emptyBorder(3))
-        }
-        scrollPane(title: 'Statuses') {
-            statusPanel = panel(new ScrollablePanel(), border:emptyBorder(3))
-        }
-    }
-    separator(fill: HORIZONTAL, gridwidth: REMAINDER)
-    tweetBox = textField(action:tweetAction,
-        fill:BOTH, weightx:1.0, insets:[3,3,1,3], gridwidth:2)
-    tweetButton = button(tweetAction,
-        enabled:bind {tweetAction.enabled && tweetBox.text.length() in  1..140},
-        gridwidth:REMAINDER, insets:[3,3,1,3])
-    progressBar(value:bind {Math.min(140, tweetBox.text.length())},
-            string: bind { int count = tweetBox.text.length();
-                ((count <= 140)
-                    ? "${140 - count} characters left"
-                    : "${count - 140} characters too many")
-            },
-            minimum:0, maximum:140, stringPainted: true,
-            gridwidth:REMAINDER, fill:HORIZONTAL, insets:[1,3,1,3]
-    )
-    separator(fill: HORIZONTAL, gridwidth: REMAINDER)
+    cardSwitcher = cardLayout()
 
-    jxstatusBar(fill: HORIZONTAL, gridwidth: REMAINDER, insets:[0,0,0,0]) {
-        statusLine = label(text: bind {model.statusLine})
-    }
-}
-
-loginDialog = dialog(
-    title: "Login to Greet", pack: true, resizable: false,
-    defaultCloseOperation: WindowConstants.DISPOSE_ON_CLOSE,
-    locationByPlatform:true)
-{
     panel(border: emptyBorder(3),
-        cursor: bind {model.allowLogin ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)}) {
+        cursor: bind {model.allowLogin ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)},
+        constraints:'login'
+    ) {
         gridBagLayout()
+
+        label("Welcome to Greet!",
+            gridwidth:REMAINDER, insets:[3, 3, 15, 3]
+        )
+
         label("Username:",
             anchor: EAST, insets: [3, 3, 3, 3])
-        twitterNameField = textField(action:loginAction, columns: 20,
-            gridwidth: REMAINDER, insets: [3, 3, 3, 3])
+        twitterNameField = textField(action:loginAction,
+            gridwidth: REMAINDER, fill:HORIZONTAL, weightx: 1.0, insets: [3, 3, 3, 3])
         label("Password:",
             anchor: EAST, insets: [3, 3, 3, 3])
-        twitterPasswordField = passwordField(action:loginAction, columns: 20,
-            gridwidth: REMAINDER, insets: [3, 3, 3, 3])
+        twitterPasswordField = passwordField(action:loginAction,
+            gridwidth: REMAINDER, fill:HORIZONTAL, weightx: 1.0, insets: [3, 3, 3, 3])
         panel()
-        button(loginAction, defaultButton: true,
-            anchor: EAST, insets: [3, 3, 3, 3])
+        button(loginAction, //defaultButton: true,
+            gridwidth: REMAINDER, anchor: EAST, insets: [3, 3, 15, 3])
+
+        label(text: bind {model.statusLine},
+            //minimumSize:[5, 5], preferredSize:[5, 5],
+            gridwidth: REMAINDER, fill:HORIZONTAL, weightx: 1.0, insets: [3, 3, 3, 3])
+
+        panel(gridwidth: REMAINDER,  weighty:1.0, size:[0,0]) // spacer
+    }
+
+    panel(constraints:'running') {
+        gridBagLayout()
+        users = comboBox(renderer: userCellRenderer, action: userSelected,
+            selectedItem:bind {model.focusedUser},
+            gridwidth: REMAINDER, insets: [6, 6, 3, 6], fill: HORIZONTAL
+        )
+        label('Search:', insets: [3, 6, 3, 3])
+        searchField = textField(columns: 20, action: filterTweets,
+            insets: [3, 3, 3, 3], weightx: 1.0, fill: BOTH)
+        button(action: filterTweets,
+            gridwidth: REMAINDER, insets: [3, 3, 3, 6], fill:HORIZONTAL)
+        tabbedPane(gridwidth: REMAINDER, weighty: 1.0, fill: BOTH) {
+            scrollPane(title: 'Timeline') {
+                timelinePanel = panel(new ScrollablePanel(), border:emptyBorder(3))
+            }
+            scrollPane(title: 'Tweets') {
+                tweetPanel = panel(new ScrollablePanel(), border:emptyBorder(3))
+            }
+            scrollPane(title: 'Statuses') {
+                statusPanel = panel(new ScrollablePanel(), border:emptyBorder(3))
+            }
+        }
+        separator(fill: HORIZONTAL, gridwidth: REMAINDER)
+        tweetBox = textField(action:tweetAction,
+            fill:BOTH, weightx:1.0, insets:[3,3,1,3], gridwidth:2)
+        tweetButton = button(tweetAction,
+            enabled:bind {tweetAction.enabled && tweetBox.text.length() in  1..140},
+            gridwidth:REMAINDER, insets:[3,3,1,3])
+        progressBar(value:bind {Math.min(140, tweetBox.text.length())},
+                string: bind { int count = tweetBox.text.length();
+                    ((count <= 140)
+                        ? "${140 - count} characters left"
+                        : "${count - 140} characters too many")
+                },
+                minimum:0, maximum:140, stringPainted: true,
+                gridwidth:REMAINDER, fill:HORIZONTAL, insets:[1,3,1,3]
+        )
+        separator(fill: HORIZONTAL, gridwidth: REMAINDER)
+
+        jxstatusBar(fill: HORIZONTAL, gridwidth: REMAINDER, insets:[0,0,0,0]) {
+            statusLine = label(text: bind {model.statusLine})
+        }
     }
 }
 
