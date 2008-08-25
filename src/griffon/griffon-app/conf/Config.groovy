@@ -32,12 +32,39 @@ log4j {
 }
 
 // key signing information
-signingkey {
-    params {
-        keystore = "${basedir}/griffon-app/conf/keys/devKeystore"
-        alias = 'development'
-        storepass = 'BadStorePassword'
-        keypass   = 'BadKeyPassword'
+environments {
+    development {
+        signingkey {
+            params {
+                keystore = "${basedir}/griffon-app/conf/keys/devKeystore"
+                alias = 'development'
+                storepass = 'BadStorePassword'
+                keypass   = 'BadKeyPassword'
+                lazy      = true // only sign when unsigned
+            }
+        }
+
+    }
+    production {
+        signingkey {
+            params {
+                keystore = "CHANGE ME"
+                alias = 'CHAMGE ME'
+                // NOTE: for production keys it is more secure to rely on key prompting
+                // no value means we will prompt //storepass = 'BadStorePassword'
+                // no value means we will prompt //keypass   = 'BadKeyPassword'
+                lazy = false // sign, regardless of existing signatures
+            }
+        }
+
+        griffon {
+            jars {
+                destDir = "${basedir}/target"
+            }
+            webstart {
+                codebase = "CHANGE ME"
+            }
+        }
     }
 }
 
@@ -55,3 +82,4 @@ griffon {
         html = "applet.html"
     }
 }
+

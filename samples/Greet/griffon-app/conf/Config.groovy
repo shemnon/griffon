@@ -41,6 +41,7 @@ environments {
                 alias = 'development'
                 storepass = 'BadStorePassword'
                 keypass   = 'BadKeyPassword'
+	            lazy      = true
             }
         }
 
@@ -51,7 +52,7 @@ environments {
             }
             webstart {
                 codebase = "${new File(griffon.jars.destDir).toURI().toASCIIString()}"
-                jnlp = "application.jnlp"
+                jnlp = "greet.jnlp"
             }
             applet {
                 jnlp = "applet.jnlp"

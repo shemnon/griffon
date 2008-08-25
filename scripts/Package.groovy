@@ -37,7 +37,7 @@ import groovy.xml.MarkupBuilder
 
 
 Ant.property(environment:"env")
-griffonHome = Ant.antProject.properties."env.GRIFFON_HOME"    
+griffonHome = Ant.antProject.properties."env.GRIFFON_HOME"
 
 includeTargets << new File ( "${griffonHome}/scripts/Compile.groovy" )
 //includeTargets << new File ( "${griffonHome}/scripts/_PackagePlugins.groovy" )
@@ -116,6 +116,13 @@ target( packageApp : "Implementation of package target") {
     }
     profile("creating config") {
         createConfig()
+    }
+
+    // flag if <application>.jar is up to date
+    jardir = Ant.antProject.replaceProperties(config.griffon.jars.destDir)
+    Ant.uptodate(property:'appJarUpToDate', targetfile:"${jardir}/${config.griffon.jars.jarName}") {
+        srcfiles(dir:"${basedir}/griffon-app/", includes:"**/*")
+        srcfiles(dir:"$classesDirPath", includes:"**/*")
     }
 
     i18nDir = "${resourcesDirPath}/griffon-app/i18n"
@@ -199,11 +206,12 @@ target(checkKey: "Check to see if the keystore exists")  {
 }
 
 target(jarFiles: "Jar up the package files") {
-    jardir = Ant.antProject.replaceProperties(config.griffon.jars.destDir)
+    if (Ant.antProject.properties.appJarUpToDate) return
+
     Ant.mkdir(dir:jardir)
 
     Ant.jar(destfile:"$jardir/${config.griffon.jars.jarName}") {
-        fileset(dir:classesDirPath)   
+        fileset(dir:classesDirPath)
         fileset(dir:i18nDir)
     }
     //TODO pack200 these files as well...
