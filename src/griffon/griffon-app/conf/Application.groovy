@@ -2,9 +2,9 @@
 
 mvcGroups {
     root {
-        model = '@griffon.project.name@Model'
-        view = '@griffon.project.name@View'
-        controller = '@griffon.project.name@Controller'
+        model = '@griffon.app.class.name@Model'
+        view = '@griffon.app.class.name@View'
+        controller = '@griffon.app.class.name@Controller'
     }
 }
 

@@ -86,6 +86,8 @@ target( replaceTokens: "Replaces creation tokens in the ") {
     Ant.replace(dir:"${basedir}", includes:"**/*.*",
                 token:"@griffon.project.name@", value:"${griffonAppName}" )
     Ant.replace(dir:"${basedir}", includes:"**/*.*",
+                token:"@griffon.app.class.name@", value:"${appClassName}" )
+    Ant.replace(dir:"${basedir}", includes:"**/*.*",
                 token:"@griffon.project.key@", value:"${appKey}" )
 }
 
