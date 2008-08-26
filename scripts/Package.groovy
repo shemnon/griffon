@@ -1,7 +1,5 @@
-import groovy.xml.MarkupBuilder
-
 /*
-* Copyright 2004-2005 the original author or authors.
+* Copyright 2004-2008 the original author or authors.
 *
 * Licensed under the Apache License, Version 2.0 (the "License");
 * you may not use this file except in compliance with the License.
@@ -20,6 +18,7 @@ import groovy.xml.MarkupBuilder
  * Gant script that packages a Griffon application (note: does not create WAR)
  *
  * @author Graeme Rocher
+ * @author Danno Ferrin
  *
  * @since 0.4
  */
@@ -201,7 +200,15 @@ target(checkKey: "Check to see if the keystore exists")  {
 
     if (!(new File(Ant.antProject.replaceProperties(config.signingkey.params.keystore)).exists())) {
         println "Auto-generating a local self-signed key"
-        Ant.genkey(config.signingkey.params + [dname:'CN=Auto Gen Self-Signed Key -- Not for Production, OU=Development, O=Griffon'])
+        Map genKeyParams = [:]
+        genKeyParams.dname =  'CN=Auto Gen Self-Signed Key -- Not for Production, OU=Development, O=Griffon'
+        for (key in ['alias', 'storepass', 'keystore', 'storetype', 'keypass', 'sigalg', 'keyalg', 'verbose', 'dname', 'validity', 'keysize']) {
+            if (config.signingkey.params."$key") {
+                genKeyParams[key] = config.signingkey.params[key]
+            }
+        }
+	println genKeyParams
+        Ant.genkey(genKeyParams)
     }
 }
 
@@ -234,7 +241,15 @@ target(copyLibs: "Copy Library Files") {
 
 target(signFiles: "Sign all of the files") {
     checkKey()
-    Ant.signjar(config.signingkey.params) {
+
+    Map signJarParams = [:]
+    for (key in ['alias', 'storepass', 'keystore', 'storetype', 'keypass', 'sigfile', 'verbose', 'internalsf', 'sectionsonly', 'lazy', 'maxmemory', 'preservelastmodified', 'tsaurl', 'tsacert']) {
+        if (config.signingkey.params."$key") {
+            signJarParams[key] = config.signingkey.params[key]
+        }
+    }
+
+    Ant.signjar(signJarParams) {
         fileset(dir:jardir, includes:"*.jar")
     }
 }
