@@ -256,7 +256,7 @@ target(signFiles: "Sign all of the files") {
 
 target(generateJNLP:"Generates the JNLP File") {
     Ant.copy (todir:jardir) {
-        fileset(dir:"${basedir}/griffon-app/conf/webstart", includes:"*.jnlp,*.html")
+        fileset(dir:"${basedir}/griffon-app/conf/webstart")
     }
 
     jnlpJars = ''

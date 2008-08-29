@@ -4,8 +4,7 @@ import groovy.beans.Bindable
 
 class GreetModel {
 
-    @Bindable boolean allowLogin = true
-    @Bindable boolean allowSelection = true
+    @Bindable boolean allowSelection = false
     @Bindable boolean allowTweet = true
     @Bindable def focusedUser = ""
     @Bindable def friends  = []

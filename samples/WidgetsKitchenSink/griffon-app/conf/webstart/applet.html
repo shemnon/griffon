@@ -5,21 +5,20 @@
   <title></title>
 </head>
 <body>
-
 <script src="http://java.com/js/deployJava.js"></script>
 <script>
     var attributes = {id: '@griffonAppName@',
                       codebase:'@griffonAppCodebase@',
                       code:'griffon.applet.GriffonApplet.class',
                       archive:'@appletJars@',
-                      width:'@appletWidth@', height:'@appletHeight@',
+                      width:'@appletWidth@', height:'@appletHeight@'} ;
+    var parameters = {fontSize:16,
                       jnlp_href:'@griffonAppCodebase@/applet.jnlp',
                       draggable:'true',
                       image:'griffon.jpeg',
                       boxmessage:'Loading @griffonAppName@',
                       boxbgcolor:'#FFFFFF', boxfgcolor:'#000000',
                       codebase_lookup: 'false'} ;
-    var parameters = {fontSize:16} ;
     var version = '1.5.0' ;
     deployJava.runApplet(attributes, parameters, version);
 </script>
@@ -31,7 +30,7 @@
     <PARAM NAME='jnlp_href' VALUE='@griffonAppCodebase@/applet.jnlp'>
     <PARAM NAME='dragggable' VALUE='true'>
     <PARAM NAME='image' VALUE='griffon.jpeg'>
-    <PARAM NAME='boxmessage' VALUE='Loading @griffonAppName@'>
+    <PARAM NAME='boxmessage' VALUE='Loading@griffonAppName@'>
     <PARAM NAME='boxbgcolor' VALUE='#FFFFFF'>
     <PARAM NAME='boxfgcolor' VALUE='#000000'>
     <PARAM NAME='codebase_lookup' VALUE='false'>

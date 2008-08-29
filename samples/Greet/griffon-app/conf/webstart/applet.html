@@ -3,23 +3,52 @@
 <html>
 <head>
   <title></title>
-</head>
-<body>
 
-<script src="http://java.com/js/deployJava.js"></script>
 <script>
+// from http://weblogs.java.net/blog/joshy/archive/2008/08/a_better_applet_1.html
+function generateInlineAppletTag(appletID, screenshotID) {
     var attributes = {
                       codebase:'@griffonAppCodebase@',
                       code:'griffon.applet.GriffonApplet.class',
                       archive:'@appletJars@',
-                      width:'@appletWidth@', height:'@appletHeight@',
+                      width:'@appletWidth@', height:'@appletHeight@'} ;
+    var parameters = {fontSize:16,
                       jnlp_href:'@griffonAppCodebase@/applet.jnlp',
                       draggable:'true',
+                      image:'griffon.jpeg',
+                      boxmessage:'Loading @griffonAppName@',
+                      boxbgcolor:'#FFFFFF', boxfgcolor:'#000000',
                       codebase_lookup: 'false'} ;
-    var parameters = {fontSize:16} ;
-    var version = '1.5.0' ;
-    deployJava.runApplet(attributes, parameters, version);
+    
+    
+    var appletTag = document.createElement("applet");
+    
+    for (var attribute in attributes) {
+        appletTag.setAttribute(attribute,attributes[attribute]);
+    }
+    
+    if (parameters != 'undefined' && parameters != null) {
+        for (var parameter in parameters) {
+            var param = document.createElement("PARAM");
+            param.setAttribute("name",parameter);
+            param.setAttribute("value",parameters[parameter]);
+            appletTag.appendChild(param);
+        }
+    }
+    
+    
+    var bodyRef = document.getElementById(appletID);
+    var screenshot = document.getElementById(screenshotID);
+    bodyRef.removeChild(screenshot);
+    bodyRef.appendChild(appletTag);
+}
 </script>
+</head>
+<body>
+<div id="appletDiv">
+<a id="screenshot1" href="javascript:generateInlineAppletTag('appletDiv','screenshot1');"><img src="greetfake.jpg" border="0"/></a>
+</div>
+
 <!--
 <APPLET CODEBASE='@griffonAppCodebase@'
 	CODE='griffon.applet.GriffonApplet.class'

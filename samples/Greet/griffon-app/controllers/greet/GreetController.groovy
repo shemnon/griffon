@@ -31,17 +31,18 @@ class GreetController {
     GreetView view
 
     void login(evt) {
-        model.allowLogin = false
+        model.allowSelection = false
         doOutside {
             try {
                 if (twitterService.login(view.twitterNameField.text, view.twitterPasswordField.password)) {
-                    model.friends = twitterService.getFriends(twitterService.authenticatedUser)
-                    model.statuses = model.friends.collect {it.status}
-                    selectUser(twitterService.authenticatedUser)
                     edt {
                         model.lastUpdate = System.currentTimeMillis()
                         ((CardLayout)view.cardSwitcher).show(view.mainPanel, 'running')
+                        view.mainPanel.repaint(10)
                     }
+                    model.friends = twitterService.getFriends(twitterService.authenticatedUser)
+                    model.statuses = model.friends.collect {it.status}
+                    selectUser(twitterService.authenticatedUser)
                 } else {
                     JOptionPane.showMessageDialog(view.mainPanel, "Login failed")
                 }
@@ -49,7 +50,6 @@ class GreetController {
                 e.printStackTrace()
             } finally {
                 edt {
-                    model.allowLogin = true
                     model.allowSelection = true
                     model.allowTweet = true
                 }

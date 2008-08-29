@@ -27,7 +27,7 @@ import javax.swing.WindowConstants
 actions() {
     loginAction = action(
         name: 'Login',
-        enabled: bind {model.allowLogin},
+        enabled: bind {model.allowSelection},
         closure: controller.&login
     )
 
@@ -75,7 +75,6 @@ mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefin
     cardSwitcher = cardLayout()
 
     panel(border: emptyBorder(3),
-        cursor: bind {model.allowLogin ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)},
         constraints:'login'
     ) {
         gridBagLayout()
