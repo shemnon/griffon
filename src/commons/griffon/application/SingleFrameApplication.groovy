@@ -49,7 +49,7 @@ class SingleFrameApplication implements IGriffonApplication {
             mainFrame.size = config.application.size as Dimension
         }
         if (config.application?.location) {
-            mainFrame.location = config.applicaiton.location as Point
+            mainFrame.location = config.application.location as Point
         } else {
             mainFrame.locationByPlatform = true
         }
