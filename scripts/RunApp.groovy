@@ -31,7 +31,7 @@ target(runApp: "Does the actual command line execution") {
 
     // setup the vm
     if (!binding.variables.javaVM) {
-        javaVM = [System.properties['java.home'], 'bin', 'javaw'].join(File.separator)
+        javaVM = [System.properties['java.home'], 'bin', 'java'].join(File.separator)
     }
 
     // start the processess
