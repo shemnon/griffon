@@ -1,7 +1,7 @@
 
-import java.awt.BorderLayout
 import java.awt.GridBagConstraints
 import javax.swing.JTabbedPane
+import javax.swing.SwingConstants
 
 gridBagLayout()
 
@@ -20,8 +20,26 @@ tabbedPane(tabPlacement:JTabbedPane.LEFT, weightx:1.0, weighty:1.0, fill:GridBag
 
     vbox(title:'JXBusyLabel') {
         // default painter is hosed right now :(  Not a groovy problem
-	jxbusyLabel(id:'busy', enabled:true, busy:true, size:[100, 100], preferredSize:[100, 100], minimumSize:[100, 100], maximumSize:[100, 100])
+	    jxbusyLabel(id:'busy', enabled:true, busy:true, size:[100, 100], preferredSize:[100, 100], minimumSize:[100, 100], maximumSize:[100, 100])
         checkBox("I'm Busy", selected:bind(target:busy, targetProperty:'busy'))	
+    }
+
+    vbox(title:'JXLabel') {
+        hbox {
+          jxlabel('Griffon', icon:imageIcon('/griffon.jpeg'),
+                  horizontalTextPosition: SwingConstants.CENTER, verticalTextPosition: SwingConstants.BOTTOM)
+          jxlabel('Griffon', icon:imageIcon('/griffon.jpeg'),
+                  horizontalTextPosition: SwingConstants.CENTER, verticalTextPosition: SwingConstants.BOTTOM,
+                  textRotation:Math.PI/2)
+        }
+        hbox {
+          jxlabel('Griffon', icon:imageIcon('/griffon.jpeg'),
+                  horizontalTextPosition: SwingConstants.CENTER, verticalTextPosition: SwingConstants.BOTTOM,
+                  textRotation:Math.PI)
+          jxlabel('Griffon', icon:imageIcon('/griffon.jpeg'),
+                  horizontalTextPosition: SwingConstants.CENTER, verticalTextPosition: SwingConstants.BOTTOM,
+                  textRotation:Math.PI/2*3)
+        }
     }
 }
 
