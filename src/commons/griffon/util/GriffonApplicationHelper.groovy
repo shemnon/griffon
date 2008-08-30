@@ -126,17 +126,14 @@ class GriffonApplicationHelper {
         return klass
     }
 
-    public static createMVCGroup(IGriffonApplication app, def mvcName) {
-        Class modelKlass = createInstance(mvcName, "model", app)
-        Class viewKlass = createInstance(mvcName, "view", app)
-        Class controllerKlass = createInstance(mvcName, "controller", app)
+    public static createMVCGroup(IGriffonApplication app, def mvcType, def mvcName = mvcType) {
+        Class modelKlass = createInstance(mvcType, "model", app)
+        Class viewKlass = createInstance(mvcType, "view", app)
+        Class controllerKlass = createInstance(mvcType, "controller", app)
 
-        //TODO do we get this from app or pass it in as a param?
-        //SwingBuilder builder = new SwingBuilder() // use composite here when ready
         UberBuilder builder = CompositeBuilderHelper.createBuilder(
             app.builderConfig,
             [model:modelKlass, view:viewKlass, controller:controllerKlass])
-
 
         def model = modelKlass.newInstance()
         def view = viewKlass.newInstance()
@@ -145,6 +142,7 @@ class GriffonApplicationHelper {
         app.models[mvcName] = model
         app.views[mvcName] = view
         app.controllers[mvcName] = controller
+        app.builders[mvcName] = builder
 
         // set the single frame as the defaut parent
         //TODO get this from usage context, whenw e figure out how it is done

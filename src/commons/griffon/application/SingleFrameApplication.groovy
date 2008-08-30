@@ -25,9 +25,11 @@ import java.awt.Container
 
 class SingleFrameApplication implements IGriffonApplication {
 
-    Map models = [:]
-    Map views = [:]
+    Map models      = [:]
+    Map views       = [:]
     Map controllers = [:]
+    Map builders    = [:]
+
     Binding bindings = new Binding()
     ConfigObject config
     ConfigObject builderConfig
