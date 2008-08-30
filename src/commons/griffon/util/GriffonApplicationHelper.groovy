@@ -77,9 +77,22 @@ class GriffonApplicationHelper {
         try {
             reciever."$property" = value
         } catch (MissingPropertyException mpe) {
-            /*ignore*/
+            if (mpe.property != property) {
+                throw mpe
+            }
+            /* else ignore*/
         }
+    }
 
+    static void safeCall(reciever, method) {
+        try {
+            reciever."$method"()
+        } catch (MissingMethodException mme) {
+            if (mme.method != method) {
+                throw mme
+            }
+            /* else ignore*/
+        }
     }
 
     public static void runScriptInsideEDT(String scriptName, IGriffonApplication app) {
@@ -102,7 +115,7 @@ class GriffonApplicationHelper {
         }
     }
 
-    private static Object createInstance(String mvcName, String className, IGriffonApplication app) {
+    private static Class createInstance(String mvcName, String className, IGriffonApplication app) {
         ClassLoader classLoader = app.getClass().classLoader
 
         Class klass = classLoader.loadClass(app.config.mvcGroups[mvcName][className]);
@@ -110,28 +123,28 @@ class GriffonApplicationHelper {
         // inject app via EMC
         // this also insures EMC metaclasses later
         klass.metaClass.app = app
-        def instance = klass.newInstance()
-
-        // just in case it's a field... set app
-        safeSet(instance, "app", app)
-        return instance
+        return klass
     }
 
     public static createMVCGroup(IGriffonApplication app, def mvcName) {
-        def model = createInstance(mvcName, "model", app)
-        def view = createInstance(mvcName, "view", app)
-        def controller = createInstance(mvcName, "controller", app)
-        app.models[mvcName] = model
-        app.views[mvcName] = view
-        app.controllers[mvcName] = controller
+        Class modelKlass = createInstance(mvcName, "model", app)
+        Class viewKlass = createInstance(mvcName, "view", app)
+        Class controllerKlass = createInstance(mvcName, "controller", app)
 
         //TODO do we get this from app or pass it in as a param?
         //SwingBuilder builder = new SwingBuilder() // use composite here when ready
         UberBuilder builder = CompositeBuilderHelper.createBuilder(
             app.builderConfig,
-            [model:model, view:view, controller:controller])
+            [model:modelKlass, view:viewKlass, controller:controllerKlass])
 
 
+        def model = modelKlass.newInstance()
+        def view = viewKlass.newInstance()
+        def controller = controllerKlass.newInstance()
+
+        app.models[mvcName] = model
+        app.views[mvcName] = view
+        app.controllers[mvcName] = controller
 
         // set the single frame as the defaut parent
         //TODO get this from usage context, whenw e figure out how it is done
@@ -144,6 +157,9 @@ class GriffonApplicationHelper {
         safeSet(controller, "model",      model)
         safeSet(controller, 'view',       view)
         safeSet(controller, "builder",    builder)
+
+        safeCall(model,          "grinit")
+        safeCall(controller,     "grinit")
 
         builder.controller = controller
         builder.model = model
