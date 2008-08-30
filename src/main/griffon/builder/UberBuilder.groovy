@@ -250,8 +250,8 @@ class UberBuilderRegistration {
                     localName = name.substring(prefixString.length())
                 }
                 localName = builder.getName(localName)
-                if (builder.getExplicitMethods().containsKey(localName)) {
-                    return builder.getExplicitMethods()[localName]
+                if (builder.getLocalExplicitMethods().containsKey(localName)) {
+                    return builder.getLocalExplicitMethods()[localName]
                 }
             } finally {
                 builder.proxyBuilder = oldProxy
