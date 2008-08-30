@@ -31,9 +31,9 @@ class CompositeBuilderHelper {
                             if (groupName == "*") {
                                 //FIXME handle add-all
                             } else {
-                                def factories = localBuilder.getFactories()
-                                def methods = localBuilder.getExplicitMethods()
-                                def properties = localBuilder.getExplicitProperties()
+                                def factories = localBuilder.getLocalFactories()
+                                def methods = localBuilder.getLocalExplicitMethods()
+                                def properties = localBuilder.getLocalExplicitProperties()
                                 def groupItems = localBuilder.getRegistrationGroupItems(groupName)
                                 if (!groupItems) {
                                     continue
