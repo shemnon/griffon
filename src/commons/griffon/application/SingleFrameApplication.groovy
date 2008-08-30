@@ -46,7 +46,7 @@ class SingleFrameApplication implements IGriffonApplication {
         Class mainFrameClass = getClass().getClassLoader().loadClass(mainFrameClassName)
         mainFrame = mainFrameClass.newInstance()
         mainFrame.title = config.application?.title ?: ""
-        mainFrame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
+        //mainFrame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
         mainFrame.windowClosing = { shutdown() }
 
         if (config.application?.size) {
@@ -97,6 +97,7 @@ class SingleFrameApplication implements IGriffonApplication {
 
     public void shutdown() {
         GriffonApplicationHelper.runScriptInsideEDT("Shutdown", this)
+        System.exit(0)
     }
 
     public void startup() {
