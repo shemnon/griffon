@@ -34,9 +34,11 @@ class SingleFrameApplication implements IGriffonApplication {
 
     JFrame mainFrame
 
-    public SingleFrameApplication() {
-        GriffonApplicationHelper.prepare(this)
+    public void bootstrap() {
+        GriffonApplicationHelper.prepare(this);
+    }
 
+    public void show() {
         // prepare the frame
         String mainFrameClassName = config.application?.frameClass ?: 'javax.swing.JFrame'
         Class mainFrameClass = getClass().getClassLoader().loadClass(mainFrameClassName)
@@ -55,6 +57,7 @@ class SingleFrameApplication implements IGriffonApplication {
         }
         bindings.rootWindow = mainFrame
 
+        // call startup to start the applicaiton up
         GriffonApplicationHelper.startup(this)
 
         if (!config.application?.size) {
@@ -99,6 +102,8 @@ class SingleFrameApplication implements IGriffonApplication {
     }
 
     public static void main(String[] args) {
-        new SingleFrameApplication();
+        SingleFrameApplication sfa = new SingleFrameApplication();
+        sfa.bootstrap();
+        sfa.show();
     }
 }
