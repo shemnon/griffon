@@ -20,6 +20,7 @@ import java.awt.Cursor
 import javax.swing.JOptionPane
 import javax.swing.event.HyperlinkEvent
 import java.awt.CardLayout
+import javax.swing.Action
 
 /**
  *@author Danno Ferrin
@@ -30,11 +31,46 @@ class GreetController {
     GreetModel model
     GreetView view
 
+    Action loginAction
+    Action filterTweets
+    Action userSelected
+    Action tweetAction
+
+    void grinit() {
+        loginAction = action(
+            name: 'Login',
+            enabled: bind {model.allowSelection},
+            closure: this.&login
+        )
+
+        filterTweets = action(
+            name: 'Filter',
+            enabled: bind {model.allowSelection},
+            closure: this.&filterTweets
+        )
+
+        userSelected = action(
+            name: 'Select User',
+            enabled: bind {model.allowSelection},
+            closure: this.&userSelected
+        )
+
+        tweetAction = action(
+            name: 'Update',
+            enabled: bind {model.allowTweet},
+            closure: this.&tweet
+        )
+    }
+
     void login(evt) {
         model.allowSelection = false
+        def username = view.twitterNameField.text
+        def password = view.twitterPasswordField.password
+        def urlBase = view.twitterServiceComboBox.selectedItem
         doOutside {
             try {
-                if (twitterService.login(view.twitterNameField.text, view.twitterPasswordField.password)) {
+                twitterService.urlBase = urlBase
+                if (twitterService.login(username, password)) {
                     edt {
                         model.lastUpdate = System.currentTimeMillis()
                         ((CardLayout)view.cardSwitcher).show(view.mainPanel, 'running')

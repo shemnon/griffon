@@ -24,38 +24,6 @@ import javax.swing.ListCellRenderer
 import javax.swing.Timer
 import javax.swing.WindowConstants
 
-actions() {
-    loginAction = action(
-        name: 'Login',
-        enabled: bind {model.allowSelection},
-        closure: controller.&login
-    )
-
-    filterTweets = action(
-        name: 'Filter',
-        enabled: bind {model.allowSelection},
-        closure: controller.&filterTweets
-    )
-
-    updateTimeline = action(
-        name: 'Update',
-        enabled: bind {model.allowSelection},
-        closure: controller.&updateTimeline
-    )
-
-    userSelected = action(
-        name: 'Select User',
-        enabled: bind {model.allowSelection},
-        closure: controller.&userSelected
-    )
-
-    tweetAction = action(
-        name: 'Update',
-        enabled: bind {model.allowTweet},
-        closure: controller.&tweet
-    )
-}
-
 tweetLineFont = new java.awt.Font("Ariel", 0, 12)
 tweetTimeFont = new java.awt.Font("Ariel", 0, 9)
 def userCell = label(border: emptyBorder(3))
@@ -85,14 +53,23 @@ mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefin
 
         label("Username:",
             anchor: EAST, insets: [3, 3, 3, 3])
-        twitterNameField = textField(action:loginAction,
+        twitterNameField = textField(action:controller.loginAction,
             gridwidth: REMAINDER, fill:HORIZONTAL, weightx: 1.0, insets: [3, 3, 3, 3])
+
         label("Password:",
             anchor: EAST, insets: [3, 3, 3, 3])
-        twitterPasswordField = passwordField(action:loginAction,
+        twitterPasswordField = passwordField(action:controller.loginAction,
             gridwidth: REMAINDER, fill:HORIZONTAL, weightx: 1.0, insets: [3, 3, 3, 3])
+
+        label("Service:",
+            anchor: EAST, insets: [3, 3, 3, 3])
+        twitterServiceComboBox = comboBox(items:["http://twitter.com", "http://identi.ca/api"], editable:true,
+            enabled:bind{twitterNameField.enabled},
+            gridwidth: REMAINDER, fill:HORIZONTAL, weightx: 1.0, insets: [3, 3, 3, 3])
+        twitterServiceComboBox.editor.editorComponent.action = controller.loginAction
+
         panel()
-        button(loginAction, //defaultButton: true,
+        button(controller.loginAction, //defaultButton: true,
             gridwidth: REMAINDER, anchor: EAST, insets: [3, 3, 15, 3])
 
         label(text: bind {model.statusLine},
@@ -104,14 +81,14 @@ mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefin
 
     panel(constraints:'running') {
         gridBagLayout()
-        users = comboBox(renderer: userCellRenderer, action: userSelected,
+        users = comboBox(renderer: userCellRenderer, action: controller.userSelected,
             selectedItem:bind {model.focusedUser},
             gridwidth: REMAINDER, insets: [6, 6, 3, 6], fill: HORIZONTAL
         )
         label('Search:', insets: [3, 6, 3, 3])
-        searchField = textField(columns: 20, action: filterTweets,
+        searchField = textField(columns: 20, action: controller.filterTweets,
             insets: [3, 3, 3, 3], weightx: 1.0, fill: BOTH)
-        button(action: filterTweets,
+        button(controller.filterTweets,
             gridwidth: REMAINDER, insets: [3, 3, 3, 6], fill:HORIZONTAL)
         tabbedPane(gridwidth: REMAINDER, weighty: 1.0, fill: BOTH) {
             scrollPane(title: 'Timeline') {
@@ -125,10 +102,10 @@ mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefin
             }
         }
         separator(fill: HORIZONTAL, gridwidth: REMAINDER)
-        tweetBox = textField(action:tweetAction,
+        tweetBox = textField(action: controller.tweetAction,
             fill:BOTH, weightx:1.0, insets:[3,3,1,3], gridwidth:2)
-        tweetButton = button(tweetAction,
-            enabled:bind {tweetAction.enabled && tweetBox.text.length() in  1..140},
+        tweetButton = button(controller.tweetAction,
+            enabled:bind {controller.tweetAction.enabled && tweetBox.text.length() in  1..140},
             gridwidth:REMAINDER, insets:[3,3,1,3])
         progressBar(value:bind {Math.min(140, tweetBox.text.length())},
                 string: bind { int count = tweetBox.text.length();
@@ -202,7 +179,7 @@ model.addPropertyChangeListener("lastUpdate", {evt ->
     }
 } as PropertyChangeListener)
 
-def refreshTimer = new Timer(180000, filterTweets)
+def refreshTimer = new Timer(180000, controller.filterTweets)
 model.addPropertyChangeListener("focusedUser", {refreshTimer.start()} as PropertyChangeListener)
 
 return mainPanel

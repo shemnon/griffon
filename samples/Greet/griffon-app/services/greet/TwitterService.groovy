@@ -24,10 +24,15 @@ import java.text.SimpleDateFormat
  */
 class TwitterService {
 
+    String urlBase;
     @Bindable String status = "\u00a0"
     def authenticatedUser
     XmlSlurper slurper = new XmlSlurper()
     def imageMap = [:]
+
+    TwitterService(urlBase = "http://twitter.com") {
+        this.urlBase = urlBase
+    }
 
     def withStatus(status, c) {
         setStatus(status)
@@ -48,7 +53,6 @@ class TwitterService {
             synchronized (slurper) {
                 return slurper.parse(new StringReader(text))
             }
-            System.err.println text
         } catch (Exception e) {
             System.err.println text
             throw e
@@ -61,7 +65,7 @@ class TwitterService {
                 [getPasswordAuthentication : {
                     return new PasswordAuthentication(name, password) }
                 ] as Authenticator)
-            slurpAPIStream("http://twitter.com/account/verify_credentials.xml")
+            slurpAPIStream("$urlBase/account/verify_credentials.xml")
             authenticatedUser = getUser(name)
         }
     }
@@ -78,12 +82,12 @@ class TwitterService {
         def friends = [user]
         withStatus("Loading Friends") {
             def page = 1
-            def list = slurpAPIStream("http://twitter.com/statuses/friends/${user.screen_name}.xml")
-            while (list.length) {
+            def list = slurpAPIStream("$urlBase/statuses/friends/${user.screen_name}.xml")
+            while (list.user.size()) {
                 list.user.collect(friends) {it}
                 page++
                 try {
-                  list = slurpAPIStream("http://twitter.com/statuses/friends/${user.screen_name}.xml&page=$page")
+                    list = slurpAPIStream("$urlBase/statuses/friends/${user.screen_name}.xml&page=$page")
                 } catch (Exception e) { break }
             }
         }
@@ -106,7 +110,8 @@ class TwitterService {
         def timeline = []
         withStatus("Loading Timeline") {
             timeline =  slurpAPIStream(
-                    "http://twitter.com/statuses/friends_timeline/${user.screen_name}.xml"
+                    //"$urlBase/statuses/friends_timeline/${user.screen_name}.xml"
+                    "$urlBase/statuses/friends_timeline.xml"
                 ).status.collect{it}
         }
         withStatus("Loading Timeline Images") {
@@ -128,7 +133,7 @@ class TwitterService {
         def tweets = []
         withStatus("Loading Tweets") {
             tweets = slurpAPIStream(
-                    "http://twitter.com/statuses/user_timeline/${friend.screen_name}.xml"
+                    "$urlBase/statuses/user_timeline/${friend.screen_name}.xml"
                 ).status.collect{it}
         }
         withStatus("Loading Tweet Images") {
@@ -142,11 +147,11 @@ class TwitterService {
         withStatus("Loading User $screen_name") {
             if (screen_name.contains('@')) {
                 return slurpAPIStream(
-                       "http://twitter.com/users/show.xml?email=${screen_name}"
+                       "$urlBase/users/show.xml?email=${screen_name}"
                     )
             } else {
                 return slurpAPIStream(
-                        "http://twitter.com/users/show/${screen_name}.xml"
+                        "$urlBase/users/show/${screen_name}.xml"
                     )
             }
         }
@@ -154,7 +159,7 @@ class TwitterService {
 
     def tweet(message) {
         withStatus("Tweeting") {
-            def urlConnection = new URL("http://twitter.com/statuses/update.xml").openConnection()
+            def urlConnection = new URL("$urlBase/statuses/update.xml").openConnection()
             urlConnection.doOutput = true
             urlConnection.outputStream << "source=greet&status=${URLEncoder.encode(message, 'UTF-8')}"
             return slurper.parse(urlConnection.inputStream)

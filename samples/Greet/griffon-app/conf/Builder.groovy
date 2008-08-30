@@ -1,6 +1,6 @@
 root {
     'groovy.swing.SwingBuilder' {
-        controller = ['Threading']
+        controller = ['Threading','SupportNodes', 'Binding']
     }
     /*
     'griffon.app.ApplicaitonBuilder' {
