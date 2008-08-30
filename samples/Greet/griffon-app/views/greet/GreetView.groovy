@@ -179,7 +179,7 @@ model.addPropertyChangeListener("lastUpdate", {evt ->
     }
 } as PropertyChangeListener)
 
-def refreshTimer = new Timer(180000, controller.filterTweets)
+refreshTimer = new Timer(180000, controller.filterTweets)
 model.addPropertyChangeListener("focusedUser", {refreshTimer.start()} as PropertyChangeListener)
 
 return mainPanel
