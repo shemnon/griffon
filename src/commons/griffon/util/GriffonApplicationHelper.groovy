@@ -165,4 +165,12 @@ class GriffonApplicationHelper {
 
         return [model, view, controller]
     }
+
+    /**
+     * This will return
+     */
+    def localizeToOS(IGriffonApplication app) {
+
+    }
+
 }

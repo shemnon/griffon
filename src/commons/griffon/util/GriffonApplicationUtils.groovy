@@ -3,29 +3,29 @@ package griffon.util
 class GriffonApplicationUtils {
    private GriffonApplicationUtils(){ }
 
-   private static final boolean isWindows
-   private static final boolean isWindows95
-   private static final boolean isWindows98
-   private static final boolean isWindowsNT
-   private static final boolean isWindows2000
-   private static final boolean isWindows2003
-   private static final boolean isWindowsXP
-   private static final boolean isWindowsVista
+   static final boolean isWindows
+   static final boolean isWindows95
+   static final boolean isWindows98
+   static final boolean isWindowsNT
+   static final boolean isWindows2000
+   static final boolean isWindows2003
+   static final boolean isWindowsXP
+   static final boolean isWindowsVista
 
-   private static final boolean isUnix
-   private static final boolean isLinux
-   private static final boolean isSolaris
+   static final boolean isUnix
+   static final boolean isLinux
+   static final boolean isSolaris
 
-   private static final boolean isMacOSX
+   static final boolean isMacOSX
 
-   private static final String osArch
-   private static final String osName
-   private static final String osVersion
-   private static final String javaVersion
+   static final String osArch
+   static final String osName
+   static final String osVersion
+   static final String javaVersion
 
-   private static final boolean isJdk14
-   private static final boolean isJdk15
-   private static final boolean isJdk16
+   static final boolean isJdk14
+   static final boolean isJdk15
+   static final boolean isJdk16
 
    static {
       osArch = System.getProperty("os.arch")
