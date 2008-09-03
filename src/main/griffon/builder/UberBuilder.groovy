@@ -180,21 +180,6 @@ class UberBuilder extends FactoryBuilderSupport {
         }
         super.setProperty(property, newValue)
     }
-
-
-        ///////////////////////////////////////////////////////////////////////////
-        // these appear to be Groovy 1.6beta2 bugs?  It breaks without it!
-        ///////////////////////////////////////////////////////////////////////////
-        public Object invokeMethod(String methodName) {
-            return super.invokeMethod(methodName)
-        }
-
-    ///////////////////////////////////////////////////////////////////////////
-    // these appear to be Groovy 1.6beta2 bugs?  It breaks without it!
-    ///////////////////////////////////////////////////////////////////////////
-        public Object invokeMethod(String methodName, Object args) {
-            return super.invokeMethod(methodName, args)
-        }
 }
 
 class UberBuilderRegistration {
