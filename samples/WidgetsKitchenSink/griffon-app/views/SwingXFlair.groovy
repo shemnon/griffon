@@ -2,6 +2,9 @@
 import java.awt.GridBagConstraints
 import javax.swing.JTabbedPane
 import javax.swing.SwingConstants
+import java.util.GregorianCalendar
+import org.jdesktop.swingx.calendar.DaySelectionModel
+import org.jdesktop.swingx.calendar.DateSelectionModel.SelectionMode
 
 gridBagLayout()
 
@@ -41,5 +44,33 @@ tabbedPane(tabPlacement:JTabbedPane.LEFT, weightx:1.0, weighty:1.0, fill:GridBag
                   textRotation:Math.PI/2*3)
         }
     }
+
+    vbox(title:'JXDatePicker'){
+	hbox {
+	    jxlabel('Default DatePicker: ')
+	    datePicker()
+        }
+        hbox {
+	    jxlabel('Preselected Date: ')
+	    datePicker(date:new GregorianCalendar(2008,10,10).getTime())
+        }
+    }
+    vbox(title:'JXGradientChooser') {
+        gradientChooser()
+    }
+
+    vbox(title:'JXMonthView') {
+        hbox {
+	    jxlabel('Default MonthView: ')
+	    monthView()
+        }
+        hbox {
+	    jxlabel('MonthView Interval: ')
+	    def model = new DaySelectionModel(selectionMode:SelectionMode.SINGLE_INTERVAL_SELECTION)
+	    model.addSelectionInterval(new GregorianCalendar(2008,10,10).getTime(), new GregorianCalendar(2008,10,16).getTime())
+	    monthView(firstDisplayedDay:new GregorianCalendar(2008,10,10).getTime(), model:model)
+        }
+    }
+    
 }
 
