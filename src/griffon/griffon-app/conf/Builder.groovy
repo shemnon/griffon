@@ -1,11 +1,11 @@
 root {
     'groovy.swing.SwingBuilder' {
-        controller = ['threading']
+        controller = ['Threading']
         view = "*"
     }
     /*
     'griffon.app.ApplicaitonBuilder' {
-        controller = ['actions', 'resources']
+        controller = ['Actions', 'Resources']
         view = "*"
     }
     */
