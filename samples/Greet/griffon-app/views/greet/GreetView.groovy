@@ -23,6 +23,7 @@ import javax.swing.JScrollPane
 import javax.swing.ListCellRenderer
 import javax.swing.Timer
 import javax.swing.WindowConstants
+import org.jdesktop.swingx.JXFrame
 
 tweetLineFont = new java.awt.Font("Ariel", 0, 12)
 tweetTimeFont = new java.awt.Font("Ariel", 0, 9)
@@ -37,6 +38,8 @@ userCellRenderer = {list, user, index, isSelected, isFocused ->
     }
     userCell
 } as ListCellRenderer
+
+boolean isJXFrame = containingWindows[0] instanceof JXFrame
 
 mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)}) {
 
@@ -72,9 +75,11 @@ mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefin
         button(controller.loginAction, //defaultButton: true,
             gridwidth: REMAINDER, anchor: EAST, insets: [3, 3, 15, 3])
 
-        label(text: bind {model.statusLine},
-            //minimumSize:[5, 5], preferredSize:[5, 5],
-            gridwidth: REMAINDER, fill:HORIZONTAL, weightx: 1.0, insets: [3, 3, 3, 3])
+        if (!isJXFrame) {
+            label(text: bind {model.statusLine},
+                //minimumSize:[5, 5], preferredSize:[5, 5],
+                gridwidth: REMAINDER, fill:HORIZONTAL, weightx: 1.0, insets: [3, 3, 3, 3])
+        }
 
         panel(gridwidth: REMAINDER,  weighty:1.0, size:[0,0]) // spacer
     }
@@ -93,6 +98,9 @@ mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefin
         tabbedPane(gridwidth: REMAINDER, weighty: 1.0, fill: BOTH) {
             scrollPane(title: 'Timeline') {
                 timelinePanel = panel(new ScrollablePanel(), border:emptyBorder(3))
+            }
+            scrollPane(title: 'Replies') {
+                repliesPanel = panel(new ScrollablePanel(), border:emptyBorder(3))
             }
             scrollPane(title: 'Tweets') {
                 tweetPanel = panel(new ScrollablePanel(), border:emptyBorder(3))
@@ -118,7 +126,17 @@ mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefin
         )
         separator(fill: HORIZONTAL, gridwidth: REMAINDER)
 
-        jxstatusBar(fill: HORIZONTAL, gridwidth: REMAINDER, insets:[0,0,0,0]) {
+        if (!isJXFrame) {
+            jxstatusBar(fill: HORIZONTAL, gridwidth: REMAINDER, insets:[0,0,0,0]) {
+                statusLine = label(text: bind {model.statusLine})
+            }
+        }
+    }
+}
+
+if (isJXFrame) {
+    jxframe(containingWindows[0]) {
+        jxstatusBar {
             statusLine = label(text: bind {model.statusLine})
         }
     }
@@ -130,7 +148,7 @@ model.addPropertyChangeListener("friends", {evt ->
 
 // add data change listeners
 model.addPropertyChangeListener("lastUpdate", {evt ->
-    [timeline:timelinePanel, tweets:tweetPanel, statuses:statusPanel].each {p, w ->
+    [timeline:timelinePanel, replies:repliesPanel, tweets:tweetPanel, statuses:statusPanel].each {p, w ->
         edt {
             def oldName = null
             def topInset = 0

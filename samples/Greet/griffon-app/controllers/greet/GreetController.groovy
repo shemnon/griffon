@@ -119,6 +119,7 @@ class GreetController {
             try {
                 [statuses: { model.friends.collect {it.status}.findAll {it.text =~ view.searchField.text} },
                  timeline: { twitterService.getFriendsTimeline(model.focusedUser).findAll {it.text =~ view.searchField.text} },
+                 replies : { twitterService.getReplies().findAll {it.text =~ view.searchField.text} },
                  tweets : { twitterService.getTweets(model.focusedUser).findAll {it.text =~ view.searchField.text} },
                 ].each {k, v ->
                     def newVal = v()
@@ -153,6 +154,7 @@ class GreetController {
             def newFriend = model.friends.find {it.screen_name == screen_name} ?: twitterService.getUser(screen_name)
             model.focusedUser = newFriend
             model.tweets = twitterService.getTweets(model.focusedUser).findAll {it.text =~ view.searchField.text}
+            model.replies = twitterService.getReplies().findAll {it.text =~ view.searchField.text}
             model.timeline = twitterService.getFriendsTimeline(model.focusedUser).findAll {it.text =~ view.searchField.text}
         } finally {
             edt {

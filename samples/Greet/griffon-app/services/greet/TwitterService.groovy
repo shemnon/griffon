@@ -121,6 +121,20 @@ class TwitterService {
         }
     }
 
+    def getReplies() {
+        def replies = []
+        withStatus("Loading Replies") {
+            replies = slurpAPIStream(
+                    "$urlBase/statuses/replies.xml"
+                ).status.collect{it}
+        }
+        withStatus("Loading Replies Images") {
+            return replies.each {
+                loadImage(it.user.profile_image_url as String)
+            }
+        }
+    }
+
     def getTweets() {
         return getTweets(user)
     }

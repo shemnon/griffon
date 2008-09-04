@@ -9,6 +9,7 @@ class GreetModel {
     @Bindable def focusedUser = ""
     @Bindable def friends  = []
     @Bindable def tweets   = []
+    @Bindable def replies  = []
     @Bindable def timeline = []
     @Bindable def statuses = []
     @Bindable long lastUpdate = 0
