@@ -5,6 +5,7 @@ import javax.swing.SwingConstants
 import java.util.GregorianCalendar
 import org.jdesktop.swingx.calendar.DaySelectionModel
 import org.jdesktop.swingx.calendar.DateSelectionModel.SelectionMode
+import java.awt.Color
 
 gridBagLayout()
 
@@ -70,6 +71,34 @@ tabbedPane(tabPlacement:JTabbedPane.LEFT, weightx:1.0, weighty:1.0, fill:GridBag
 	    model.addSelectionInterval(new GregorianCalendar(2008,10,10).getTime(), new GregorianCalendar(2008,10,16).getTime())
 	    monthView(firstDisplayedDay:new GregorianCalendar(2008,10,10).getTime(), model:model)
         }
+    }
+    vbox(title:'JXGraph') {
+        hbox {
+	    jxlabel('Plain Graph: ')
+	    graph()
+        }
+        hbox {
+	    jxlabel('Sine curve:  ')
+	    graph(plots:[[Color.GREEN,{value -> Math.sin(value)}]])
+        }
+    }
+    vbox(title:'MultiSplitPane') {
+    	multiSplitPane() {
+		split() {
+			leaf(name:"left")
+			divider()
+			split(rowLayout:false) {
+				leaf(name:"top")
+				divider()
+				leaf(name:"bottom")
+			}
+		}
+		button(text:"Left Button", constraints:"left")
+		button(text:"Right Button", constraints:"right")
+		button(text:"Top Button", constraints:"top")
+		button(text:"Bottom Button", constraints:"bottom")
+	}
+
     }
     
 }
