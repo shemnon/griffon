@@ -255,7 +255,7 @@ target(signFiles: "Sign all of the files") {
 }
 
 target(generateJNLP:"Generates the JNLP File") {
-    Ant.copy (todir:jardir) {
+    Ant.copy (todir:jardir, overwrite:true) {
         fileset(dir:"${basedir}/griffon-app/conf/webstart")
     }
 
@@ -273,16 +273,12 @@ target(generateJNLP:"Generates the JNLP File") {
         }
     }
 
-    appletSize = applicationConfig?.application?.size ?: [240,320]
-
     Ant.replace(dir:jardir, includes:"*.jnlp,*.html") {
         replacefilter(token:"@griffonAppName@", value:"${griffonAppName}" )
         replacefilter(token:"@griffonAppVersion@", value:"${griffonAppName}" )
         replacefilter(token:"@griffonAppCodebase@", value:"${config.griffon.webstart.codebase}")
         replacefilter(token:"@jnlpJars@", value:jnlpJars )
         replacefilter(token:"@appletJars@", value:appletJars )
-        replacefilter(token:"@appletWidth@", value:appletSize[0])
-        replacefilter(token:"@appletHeight@", value:appletSize[1])
     }
 }
 

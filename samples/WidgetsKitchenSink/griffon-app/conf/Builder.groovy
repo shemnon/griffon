@@ -6,6 +6,9 @@ root {
     'org.kordamp.groovy.swing.jide.JideBuilder' {
         view = "*"
     }
+    'griffon.app.ApplicationBuilder' {
+        view = "*"
+    }
 }
 
 

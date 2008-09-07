@@ -3,18 +3,14 @@ root {
         controller = ['Threading']
         view = "*"
     }
-    /*
-    'griffon.app.ApplicaitonBuilder' {
-        controller = ['Actions', 'Resources']
+    'griffon.app.ApplicationBuilder' {
         view = "*"
     }
-    */
 }
-
 /*
-fx {
-  'griffon.fx.SceneGraphBuilder' {
-      view = '*'
-   }
+jx {
+    'groovy.swing.SwingXBuilder' {
+        view = "*"
+    }
 }
 */

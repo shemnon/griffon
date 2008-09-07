@@ -2,11 +2,9 @@ root {
     'groovy.swing.SwingBuilder' {
         controller = ['Threading','SupportNodes', 'Binding']
     }
-    /*
-    'griffon.app.ApplicaitonBuilder' {
-        controller = ['Actions', 'Resources']
+    'griffon.app.ApplicationBuilder' {
+        view = "*"
     }
-    */
 }
 jx {
     'groovy.swing.SwingXBuilder' { }

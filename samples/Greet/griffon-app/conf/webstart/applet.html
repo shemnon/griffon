@@ -11,7 +11,7 @@ function generateInlineAppletTag(appletID, screenshotID) {
                       codebase:'@griffonAppCodebase@',
                       code:'griffon.applet.GriffonApplet.class',
                       archive:'@appletJars@',
-                      width:'@appletWidth@', height:'@appletHeight@'} ;
+                      width:'320', height:'640'} ;
     var parameters = {fontSize:16,
                       jnlp_href:'@griffonAppCodebase@/applet.jnlp',
                       draggable:'true',
@@ -53,7 +53,7 @@ function generateInlineAppletTag(appletID, screenshotID) {
 <APPLET CODEBASE='@griffonAppCodebase@'
 	CODE='griffon.applet.GriffonApplet.class'
         ARCHIVE='@appletJars@'
-        WIDTH='@appletWidth@' HEIGHT='@appletHeight@'>
+        WIDTH='320' HEIGHT='640'>
     <PARAM NAME='jnlp_href' VALUE='@griffonAppCodebase@/applet.jnlp'>
     <PARAM NAME='codebase_lookup' VALUE='false'>
 </APPLET>

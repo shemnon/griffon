@@ -18,6 +18,7 @@ package griffon.util
 import griffon.builder.UberBuilder
 import java.awt.Toolkit
 import javax.swing.SwingUtilities
+import javax.swing.JFrame
 
 /**
  * Created by IntelliJ IDEA.
@@ -131,8 +132,7 @@ class GriffonApplicationHelper {
         Class viewKlass = createInstance(mvcType, "view", app)
         Class controllerKlass = createInstance(mvcType, "controller", app)
 
-        UberBuilder builder = CompositeBuilderHelper.createBuilder(
-            app.builderConfig,
+        UberBuilder builder = CompositeBuilderHelper.createBuilder(app,
             [model:modelKlass, view:viewKlass, controller:controllerKlass])
 
         def model = modelKlass.newInstance()
@@ -143,10 +143,6 @@ class GriffonApplicationHelper {
         app.views[mvcName] = view
         app.controllers[mvcName] = controller
         app.builders[mvcName] = builder
-
-        // set the single frame as the defaut parent
-        //TODO get this from usage context, whenw e figure out how it is done
-        builder.containingWindows += app.bindings.rootWindow
 
         safeSet(model,      "controller", controller)
         safeSet(model,      "view",       view)
@@ -166,11 +162,38 @@ class GriffonApplicationHelper {
         return [model, view, controller]
     }
 
-    /**
-     * This will return
-     */
-    def localizeToOS(IGriffonApplication app) {
+    public static def createJFrameApplication(IGriffonApplication app) {
+        Object frame = null
+        // try config specified first
+        if (app.config.application?.frameClass) {
+            try {
+                frame = getClass().getClassLoader().loadClass(app.config.application?.frameClass)
+            } catch (Throwable t) {
+                // ignore
+            }
+        }
+        if (frame == null) {
+            // JXFrame, it's nice.  Try it!
+            try {
+                ClassLoader cl = getClass().getClassLoader();
+                if (cl) {
+                    frame = cl.loadClass('org.jdesktop.swingx.JXFrame').newInstance()
+                } else {
+                    frame = Class.forName('org.jdesktop.swingx.JXFrame').newInstance()
+                }
+            } catch (Throwable t) {
+                // ignore
+            }
+            // this will work for sure
+            if (frame == null) {
+                frame = new JFrame()
+            }
 
+            // do some standard tweaking
+            frame.defaultCloseOperation = JFrame.DISPOSE_ON_CLOSE
+        }
+        return frame
     }
+
 
 }

@@ -16,12 +16,8 @@
 package griffon.application
 
 import griffon.util.GriffonApplicationHelper
-import java.awt.Dimension
-import java.awt.Point
-import javax.swing.JFrame
 import griffon.util.IGriffonApplication
-import java.awt.Container
-
+import java.awt.event.WindowEvent
 
 class SingleFrameApplication implements IGriffonApplication {
 
@@ -29,54 +25,24 @@ class SingleFrameApplication implements IGriffonApplication {
     Map views       = [:]
     Map controllers = [:]
     Map builders    = [:]
+    List appFrames  = []
 
     Binding bindings = new Binding()
     ConfigObject config
     ConfigObject builderConfig
-
-    JFrame mainFrame
 
     public void bootstrap() {
         GriffonApplicationHelper.prepare(this);
     }
 
     public void show() {
-        // prepare the frame
-        String mainFrameClassName = config.application?.frameClass ?: 'javax.swing.JFrame'
-        Class mainFrameClass = getClass().getClassLoader().loadClass(mainFrameClassName)
-        mainFrame = mainFrameClass.newInstance()
-        mainFrame.title = config.application?.title ?: ""
-        //mainFrame.defaultCloseOperation = JFrame.EXIT_ON_CLOSE
-        mainFrame.windowClosing = { shutdown() }
-
-        if (config.application?.size) {
-            mainFrame.size = config.application.size as Dimension
-        }
-        if (config.application?.location) {
-            mainFrame.location = config.application.location as Point
-        } else {
-            mainFrame.locationByPlatform = true
-        }
-        bindings.rootWindow = mainFrame
-
-        // call startup to start the applicaiton up
         GriffonApplicationHelper.startup(this)
 
-        if (!config.application?.size) {
-            mainFrame.pack()
+        if (appFrames.size() > 0) {
+            appFrames[0].show()
         }
 
-        mainFrame.show()
-
         GriffonApplicationHelper.callReady(this)
-    }
-
-    public void attachMenuBar(Container menuBar) {
-        mainFrame.JMenuBar = menuBar
-    }
-
-    public void attachRootPanel(Container rootPane) {
-        mainFrame.contentPane = rootPane
     }
 
     public Class getConfigClass() {
@@ -85,6 +51,17 @@ class SingleFrameApplication implements IGriffonApplication {
 
     public Class getBuilderClass() {
         return getClass().classLoader.loadClass("Builder")
+    }
+
+    public Object createApplicationContainer() {
+        def appContainer = GriffonApplicationHelper.createJFrameApplication(this)
+        try {
+            appContainer.windowClosing = this.&handleWindowClosing
+            appFrames += appContainer
+        } catch (Throwable t) {
+            // if it doesn't have a window closing event, ignore it
+        }
+        return appContainer
     }
 
     public void initialize() {
@@ -102,6 +79,13 @@ class SingleFrameApplication implements IGriffonApplication {
 
     public void startup() {
         GriffonApplicationHelper.runScriptInsideEDT("Startup", this)
+    }
+
+    public void handleWindowClosing(WindowEvent evt = null) {
+        appFrames.removeAll(appFrames.findAll {!it.visible})
+        if (appFrames.size() <= 1) {
+            shutdown()
+        }
     }
 
     public static void main(String[] args) {

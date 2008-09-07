@@ -22,8 +22,6 @@ import javax.swing.DefaultComboBoxModel
 import javax.swing.JScrollPane
 import javax.swing.ListCellRenderer
 import javax.swing.Timer
-import javax.swing.WindowConstants
-import org.jdesktop.swingx.JXFrame
 
 tweetLineFont = new java.awt.Font("Ariel", 0, 12)
 tweetTimeFont = new java.awt.Font("Ariel", 0, 9)
@@ -39,9 +37,9 @@ userCellRenderer = {list, user, index, isSelected, isFocused ->
     userCell
 } as ListCellRenderer
 
-boolean isJXFrame = containingWindows[0] instanceof JXFrame
+application(title:"Greet - A Groovy Twitter Client", size:[320,640], locationByPlatform:true) {
 
-mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)}) {
+  mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR)}) {
 
     cardSwitcher = cardLayout()
 
@@ -74,12 +72,6 @@ mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefin
         panel()
         button(controller.loginAction, //defaultButton: true,
             gridwidth: REMAINDER, anchor: EAST, insets: [3, 3, 15, 3])
-
-        if (!isJXFrame) {
-            label(text: bind {model.statusLine},
-                //minimumSize:[5, 5], preferredSize:[5, 5],
-                gridwidth: REMAINDER, fill:HORIZONTAL, weightx: 1.0, insets: [3, 3, 3, 3])
-        }
 
         panel(gridwidth: REMAINDER,  weighty:1.0, size:[0,0]) // spacer
     }
@@ -126,20 +118,12 @@ mainPanel = panel(cursor: bind {model.allowSelection ? null : Cursor.getPredefin
         )
         separator(fill: HORIZONTAL, gridwidth: REMAINDER)
 
-        if (!isJXFrame) {
-            jxstatusBar(fill: HORIZONTAL, gridwidth: REMAINDER, insets:[0,0,0,0]) {
-                statusLine = label(text: bind {model.statusLine})
-            }
-        }
     }
-}
+  }
 
-if (isJXFrame) {
-    jxframe(containingWindows[0]) {
-        jxstatusBar {
-            statusLine = label(text: bind {model.statusLine})
-        }
-    }
+  jxstatusBar {
+    statusLine = label(text: bind {model.statusLine})
+  }
 }
 
 model.addPropertyChangeListener("friends", {evt ->
@@ -199,5 +183,3 @@ model.addPropertyChangeListener("lastUpdate", {evt ->
 
 refreshTimer = new Timer(180000, controller.filterTweets)
 model.addPropertyChangeListener("focusedUser", {refreshTimer.start()} as PropertyChangeListener)
-
-return mainPanel

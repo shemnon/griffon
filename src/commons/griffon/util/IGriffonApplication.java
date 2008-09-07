@@ -29,23 +29,23 @@ import java.util.Map;
  */
 public interface IGriffonApplication {
 
+    public Class getConfigClass();
     public ConfigObject getConfig();
-    public ConfigObject getBuilderConfig();
     public void setConfig(ConfigObject config);
+
+    public Class getBuilderClass();
+    public ConfigObject getBuilderConfig();
+    public void setBuilderConfig(ConfigObject builderConfig);
 
     public Binding getBindings();
     public void setBindings(Binding bindings);
-
-    public Class getConfigClass();
-    public Class getBuilderClass();
 
     public Map<String, ?> getModels();
     public Map<String, ?> getViews();
     public Map<String, ?> getControllers();
     public Map<String, ?> getBuilders();
 
-    public void attachRootPanel(Container rootPane);
-    public void attachMenuBar(Container menuBar);
+    public Object createApplicationContainer();
 
     public void initialize();
     public void startup();

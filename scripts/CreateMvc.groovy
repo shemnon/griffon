@@ -51,4 +51,5 @@ target (createMVC : "Creates a new MVC Triad") {
     artifactPath = "griffon-app/controllers"
     createArtifact()
 
+    //TODO tweak Application.groovy
 }

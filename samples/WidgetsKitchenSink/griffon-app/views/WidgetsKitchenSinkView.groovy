@@ -1,6 +1,7 @@
 
 
-mainPanel = panel {
+application(title:"Widgets Kitchen Sink", pack:true, locationByPlatform:true) {
+  panel {
     borderLayout()
     label("How many Widgets are enough?", constraints:NORTH)
 
@@ -13,4 +14,5 @@ mainPanel = panel {
             build(SwingXFlair)
         }
     }
+  }
 }

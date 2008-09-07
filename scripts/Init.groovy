@@ -495,13 +495,11 @@ target(createArtifact: "Creates a specific Griffon artifact") {
         }
     }
     Ant.copy(file: templateFile, tofile: artifactFile, overwrite: true)
-    Ant.replace(file: artifactFile,
-            token: "@artifact.name@", value: "${className}${typeName}")
-    if (pkg) {
-        Ant.replace(file: artifactFile, token: "@artifact.package@", value: "package ${pkg}\n\n")
-    }
-    else {
-        Ant.replace(file: artifactFile, token: "@artifact.package@", value: "")
+
+    Ant.replace(file: artifactFile) {
+        replaceFilter(token: "@artifact.name@", value: "${className}${typeName}")
+        replaceFilter(token: "@artifact.package@", value: (pkg?"package ${pkg}\n\n":""))
+        replacefilter(token: "@griffon.project.name@", value:"${griffonAppName}" )
     }
 
     event("CreatedFile", [artifactFile])

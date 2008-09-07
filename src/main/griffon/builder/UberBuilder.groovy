@@ -308,7 +308,7 @@ class UberInterceptorMetaClass extends DelegatingMetaClass {
                 if (mme2.method != methodName) {
                     throw mme
                 }
-                mme2.printStackTrace(System.out);
+                //LOGME mme2.printStackTrace(System.out);
                 // chain secondary exception
                 Throwable root = mme;
                 while (root.getCause() != null) {
@@ -408,7 +408,7 @@ class UberInterceptorMetaClass extends DelegatingMetaClass {
         try {
             return factory.getProperty(s)
         } catch (MissingPropertyException mpe) {
-            mpe.printStackTrace(System.out);
+            //LOGME mpe.printStackTrace(System.out);
             return super.getProperty(o, s)
         }
     }

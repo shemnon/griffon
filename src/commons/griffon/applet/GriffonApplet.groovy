@@ -18,8 +18,6 @@ package griffon.applet
 import javax.swing.JApplet
 import griffon.util.GriffonApplicationHelper
 import griffon.util.IGriffonApplication
-import java.awt.Container
-import javax.swing.SwingUtilities
 
 /**
  * Created by IntelliJ IDEA.
@@ -38,8 +36,9 @@ class GriffonApplet extends JApplet implements IGriffonApplication {
     ConfigObject config
     ConfigObject builderConfig
 
+    private boolean appletContainerDispensed = false
+
     public void init() {
-        bindings.rootWindow = SwingUtilities.getRoot(this)
         GriffonApplicationHelper.prepare(this)
         GriffonApplicationHelper.startup(this)
     }
@@ -58,21 +57,21 @@ class GriffonApplet extends JApplet implements IGriffonApplication {
         shutdown()
     }
 
-
-    public void attachMenuBar(Container menuBar) {
-        JMenuBar = menuBar
-    }
-
-    public void attachRootPanel(Container rootPane) {
-        contentPane = rootPane
-    }
-
     public Class getConfigClass() {
         return getClass().classLoader.loadClass("Application")
     }
 
     public Class getBuilderClass() {
         return getClass().classLoader.loadClass("Builder")
+    }
+
+    public Object createApplicationContainer() {
+        if (appletContainerDispensed) {
+            return GriffonApplicationHelper.createJFrameApplication(this)
+        } else {
+            appletContainerDispensed = true
+            return this;
+        }
     }
 
     public void initialize() {
