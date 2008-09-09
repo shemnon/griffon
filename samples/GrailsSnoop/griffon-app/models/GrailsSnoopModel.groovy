@@ -6,7 +6,7 @@ class GrailsSnoopModel {
    String guideIndex = baseUrl + "guide/index.html"
 
    @Bindable String currentPageId
-   @Bindable URL currentPage = new URL(guideIndex)
+   @Bindable URL currentPage = new URL("file:/")
    @Bindable String message
    @Bindable String searchText
 

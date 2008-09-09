@@ -32,8 +32,16 @@ application( title: "GrailsSnoop", size: [800,600], locationByPlatform: true,
          }
       }
       menu(text: 'View', mnemonic: 'V') {
+         menuItem(collapseAllAction)
+         menuItem(expandAllAction)
+         separator()
          menuItem(largerFontAction)
          menuItem(smallerFontAction)
+      }
+      menu(text: 'History', mnemonic: 'Y' ) {
+         menuItem(goPreviousAction)
+         menuItem(goNextAction)
+         menuItem(goHomeAction)
       }
       if( !isMacOSX ) {
          menu(text: 'Help', mnemonic: 'H') {
@@ -45,7 +53,8 @@ application( title: "GrailsSnoop", size: [800,600], locationByPlatform: true,
    splitPane(id: 'mainPanel', dividerLocation: 210i, orientation: HORIZONTAL_SPLIT ) {
       panel( border: createShadowBorder() ) {
          borderLayout()
-         textField( new JXSearchField(), id: "searchField", columns: 20, constraints: NORTH,
+         textField( new JXSearchField(), id: "searchField",
+                  columns: 20, constraints: NORTH,
                   actionPerformed: controller.topicSearch )
          scrollPane( id: "sp", componentOrientation: RIGHT_TO_LEFT,
                      constraints: CENTER ) {
@@ -54,16 +63,26 @@ application( title: "GrailsSnoop", size: [800,600], locationByPlatform: true,
                   openIcon: imageIcon(image: ViewUtils.icons.folderOpen),
                   leafIcon: imageIcon(image: ViewUtils.icons.entry) )
          }
+         toolBar( constraints: SOUTH, rollover: true,
+                  floatable: false, border: createEmptyBorder(0,0,0,0) ) {
+            button( action: collapseAllAction )
+            button( action: expandAllAction )
+         }
       }
       panel {
          borderLayout()
          panel( border: createShadowBorder(), constraints: NORTH ) {
             borderLayout()
+            toolBar( constraints: WEST, rollover: true,
+                     floatable: false, border: createEmptyBorder(0,0,0,0) ) {
+               button( action: goHomeAction, text: null )
+            }
             textField( id: "location", columns: 30, editable: false, constraints: CENTER,
                      text: bind { model.currentPage } )
-            toolBar( constraints: EAST, rollover: true, floatable: false, border: createEmptyBorder(0,0,0,0) ) {
-               button( action: goPreviousAction )
-               button( action: goNextAction )
+            toolBar( constraints: EAST, rollover: true,
+                     floatable: false, border: createEmptyBorder(0,0,0,0) ) {
+               button( action: goPreviousAction, text: null )
+               button( action: goNextAction, text: null )
             }
          }
          jxtitledPanel( title: "Description", border: createShadowBorder(), constraints: CENTER ) {

@@ -42,41 +42,11 @@ class GrailsSnoopController {
 
    def topicSearch = { evt ->
       if( !model.searchText || model.searchText.size() < 2 ) return
-      // the following code is based in Santhosh Kumar's search algorithm
-      // http://www.jroller.com/santhosh/entry/incremental_search_jtree
-
-      def tree = view.topics
-      boolean startingFromSelection = true
-      int max = tree.rowCount
-      int startingRow = (tree.leadSelectionRow + 1 + max) % max
-      if( startingRow < 0 || startingRow >= tree.rowCount ) {
-         startingFromSelection = false
-         startingRow = 0
-      }
-
-      // TODO save selection state
-      // expand the whole tree otherwise search will fail
-      ViewUtils.expandTree( tree )
-      def path = ViewUtils.getNextMatch( tree, model.searchText, startingRow )
-      // TODO restore selection state
-      if( path ) {
-         changeSelection( tree, path )
-      }else if( startingFromSelection ) {
-         path = ViewUtils.getNextMatch( tree, model.searchText, 0 )
-         if( path ) changeSelection( tree, path )
-      }
-   }
-
-   // probably move it to ViewUtils as well
-   private void changeSelection( tree, path ) {
-      // TODO collapse all non-matching categories
-      doLater {
-         tree.selectionPath = path
-         tree.scrollPathToVisible( path )
-      }
+      ViewUtils.searchTree( view.topics, model.searchText )
    }
 
    def browseTo = { url ->
+      if( model.currentPage?.toString() == url.toString() ) return
       if( !model.history || model.historyIndex == model.history.size() - 1) {
          model.history << url.toString()
       }else{
@@ -111,16 +81,28 @@ class GrailsSnoopController {
       }
    }
 
+   def goHome = { evt ->
+      browseTo( model.guideIndex )
+   }
+
    def goPrevious = { evt ->
       model.historyIndex--
       def url = model.history[model.historyIndex]
-      doLater { model.currentPage = url instanceof URL ? url : new URL(url) }
+      doLater { model.currentPage = new URL(url) }
    }
 
    def goNext = { evt ->
       model.historyIndex++
       def url = model.history[model.historyIndex]
-      doLater { model.currentPage = url instanceof URL ? url : new URL(url) }
+      doLater { model.currentPage = new URL(url) }
+   }
+
+   def expandAll = { evt ->
+      ViewUtils.expandTree( view.topics )
+   }
+
+   def collapseAll = { evt ->
+      ViewUtils.collapseTree( view.topics )
    }
 
    private void showDialog( dialogName ) {

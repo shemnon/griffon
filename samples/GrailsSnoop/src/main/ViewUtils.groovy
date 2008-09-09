@@ -21,6 +21,7 @@ import javax.swing.JTree
 import javax.swing.tree.TreePath
 import javax.imageio.ImageIO
 import org.jdesktop.swingx.border.*
+import static javax.swing.SwingUtilities.*
 
 class ViewUtils {
    static createShadowBorder() {
@@ -36,11 +37,49 @@ class ViewUtils {
    }
 
    static expandTree( tree ) {
-      def max = tree.rowCount
-      ((max-1)..1).each { tree.expandRow(it) }
+      invokeLater {
+         def max = tree.rowCount
+         ((max-1)..1).each { tree.expandRow(it) }
+      }
    }
 
-   static TreePath getNextMatch( JTree tree, String searchString, int startingRow ) {
+   static collapseTree( tree ) {
+      invokeLater {
+         def max = tree.rowCount
+         ((max-1)..1).each {
+            def path = tree.getPathForRow(it)
+            if( path.pathCount == 2 && tree.isExpanded(path) ) tree.collapsePath( path )
+         }
+      }
+   }
+
+   // the following code is based in Santhosh Kumar's search algorithm
+   // http://www.jroller.com/santhosh/entry/incremental_search_jtree
+
+   static searchTree( JTree tree, String searchString ) {
+      boolean startingFromSelection = true
+      int max = tree.rowCount
+      int startingRow = (tree.leadSelectionRow + 1 + max) % max
+      if( startingRow < 0 || startingRow >= tree.rowCount ) {
+         startingFromSelection = false
+         startingRow = 0
+      }
+
+      // TODO save selection state
+      // expand the whole tree otherwise search will fail
+      if( !tree.selectionPath ) tree.selectionRow = 0
+      expandTree( tree )
+      def path = getNextMatch( tree, searchString, startingRow )
+      // TODO restore selection state
+      if( path ) {
+         changeSelection( tree, path )
+      }else if( startingFromSelection ) {
+         path = getNextMatch( tree, searchString, 0 )
+         if( path ) changeSelection( tree, path )
+      }
+   }
+
+   private static TreePath getNextMatch( JTree tree, String searchString, int startingRow ) {
       boolean firstIteration = true
       int max = tree.rowCount
       int row = -1
@@ -62,6 +101,13 @@ class ViewUtils {
       return null
    }
 
+   private static changeSelection( tree, path ) {
+      invokeLater {
+         tree.selectionPath = path
+         tree.scrollPathToVisible( path )
+      }
+   }
+
    static icons = [:]
 
    static {
@@ -70,5 +116,6 @@ class ViewUtils {
       icons.entry = loadImage("images/grails16.png")
       icons.next = loadImage("org/tango-project/tango-icon-theme/16x16/actions/go-next.png")
       icons.previous = loadImage("org/tango-project/tango-icon-theme/16x16/actions/go-previous.png")
+      icons.home = loadImage("org/tango-project/tango-icon-theme/16x16/actions/go-home.png")
    }
 }
