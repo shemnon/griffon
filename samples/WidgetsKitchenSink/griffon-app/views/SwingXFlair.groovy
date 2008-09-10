@@ -6,6 +6,11 @@ import java.util.GregorianCalendar
 import org.jdesktop.swingx.calendar.DaySelectionModel
 import org.jdesktop.swingx.calendar.DateSelectionModel.SelectionMode
 import java.awt.Color
+import org.jdesktop.swingx.painter.*
+import org.jdesktop.swingx.painter.effects.*
+import java.awt.*
+import java.awt.geom.*
+
 
 gridBagLayout()
 
@@ -81,6 +86,54 @@ tabbedPane(tabPlacement:JTabbedPane.LEFT, weightx:1.0, weighty:1.0, fill:GridBag
 	    jxlabel('Sine curve:  ')
 	    graph(plots:[[Color.GREEN,{value -> Math.sin(value)}]])
         }
+    }
+    vbox(title:'Painters') {
+        hbox {
+	       jxlabel('Pinstripe:    ')
+	       def painter = pinstripePainter(angle:45, paint:Color.BLUE, spacing:10.4d, stripeWidth:3.6d)
+	       jxpanel(backgroundPainter:painter)
+	   }
+	   hbox {
+	       jxlabel('Matte:        ')
+	       def painter = mattePainter(fillPaint:Color.RED)
+	       jxpanel(backgroundPainter:painter)
+	   }
+	   hbox {
+	       jxlabel('Checkerboard: ')
+	       def painter = checkerboardPainter(squareSize:40.0d, lightPaint:Color.WHITE, darkPaint:Color.BLACK)
+	       jxpanel(backgroundPainter:painter)
+	   }
+	   hbox {
+	       jxlabel('Capsule:      ')
+	       def painter = capsulePainter(portion:CapsulePainter.Portion.Bottom)
+	       jxpanel(backgroundPainter:painter)
+	   }
+	   hbox {
+	       jxlabel('Shape:        ')
+	       def painter = shapePainter(shape:new Rectangle2D.Double(0, 0, 50, 50),horizontalAlignment:AbstractLayoutPainter.HorizontalAlignment.RIGHT)
+	       jxpanel(backgroundPainter:painter)
+	   }
+	   hbox {
+	       jxlabel('Text:         ')
+	       def painter = textPainter(font:new Font("Tahoma", Font.BOLD, 32), text:"Test Text")
+	       jxpanel(backgroundPainter:painter)
+	   }
+	   hbox {
+	       jxlabel('Compound:     ')
+	       def ap = compoundPainter() {
+			   mattePainter(fillPaint:Color.GRAY)
+			   glossPainter(position: GlossPainter.GlossPosition.TOP)
+			}
+	       jxpanel(backgroundPainter:ap)
+	   }
+	   hbox {
+	       jxlabel('Alpha:        ')
+	       def ap = alphaPainter(alpha:0.25f) {
+			   mattePainter(fillPaint:Color.GRAY)
+			   glossPainter(position: GlossPainter.GlossPosition.TOP)
+			}
+	       jxpanel(backgroundPainter:ap)
+	   }
     }
     vbox(title:'MultiSplitPane') {
     	multiSplitPane() {
