@@ -38,7 +38,7 @@ application( title: "GrailsSnoop", size: [800,600], locationByPlatform: true,
          menuItem(largerFontAction)
          menuItem(smallerFontAction)
       }
-      menu(text: 'History', mnemonic: 'Y' ) {
+      menu(text: 'Go', mnemonic: 'G' ) {
          menuItem(goPreviousAction)
          menuItem(goNextAction)
          menuItem(goHomeAction)
