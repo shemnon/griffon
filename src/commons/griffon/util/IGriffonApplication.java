@@ -23,7 +23,7 @@ import java.util.Map;
 
 /**
  * Created by IntelliJ IDEA.
- * User: Danno.Ferrin
+ *@author Danno.Ferrin
  * Date: May 21, 2008
  * Time: 3:21:38 PM
  */

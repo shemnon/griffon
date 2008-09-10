@@ -1,5 +1,5 @@
 /*
- * Copyright 2007 the original author or authors.
+ * Copyright 2007-2008 the original author or authors.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,9 @@
 
 /*
  * Created by IntelliJ IDEA.
- * User: Danno
+ *@author Danno.Ferrin
  * Date: Nov 7, 2007
  * Time: 2:50:58 PM
- * To change this template use File | Settings | File Templates.
  */
 package griffon.builder
 

@@ -22,7 +22,7 @@ import javax.swing.JFrame
 
 /**
  * Created by IntelliJ IDEA.
- * User: Danno.Ferrin
+ *@author Danno.Ferrin
  * Date: May 17, 2008
  * Time: 3:28:46 PM
  */

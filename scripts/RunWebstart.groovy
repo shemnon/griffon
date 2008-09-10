@@ -1,9 +1,8 @@
 /**
  * Created by IntelliJ IDEA.
- * User: Danno.Ferrin
+ *@author Danno.Ferrin
  * Date: Aug 5, 2008
  * Time: 10:35:06 PM
- * To change this template use File | Settings | File Templates.
  */
 
 

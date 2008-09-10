@@ -19,6 +19,9 @@ import griffon.util.GriffonApplicationHelper
 import griffon.util.IGriffonApplication
 import java.awt.event.WindowEvent
 
+/**
+ *@author Danno.Ferrin
+ */
 class SingleFrameApplication implements IGriffonApplication {
 
     Map models      = [:]

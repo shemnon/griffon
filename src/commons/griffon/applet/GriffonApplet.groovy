@@ -21,7 +21,7 @@ import griffon.util.IGriffonApplication
 
 /**
  * Created by IntelliJ IDEA.
- * User: Danno.Ferrin
+ *@author Danno.Ferrin
  * Date: May 17, 2008
  * Time: 12:47:33 PM
  */

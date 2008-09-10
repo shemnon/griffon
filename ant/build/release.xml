@@ -8,42 +8,48 @@
     <target name="copy-dir">
         <mkdir dir="${dir.location}"/>
         <copy todir="${dir.destination}" failonerror="true" overwrite="true" verbose="false">
-            <fileset dir="${dir.location}">
-                <exclude name="**/CVS/**"/>
-            </fileset>
+            <fileset dir="${dir.location}" excludes="**/CVS/**,${dir.excludes}"/>
         </copy>
     </target>
 
     <target name="copy-common-release-content">
         <antcall target="copy-dir">
+            <param name="dir.excludes" value=""/>
             <param name="dir.location" value="lib"/>
             <param name="dir.destination" value="${release.dir}/lib"/>
         </antcall>
         <antcall target="copy-dir">
+            <param name="dir.excludes" value=""/>
             <param name="dir.location" value="bin"/>
             <param name="dir.destination" value="${release.dir}/bin"/>
         </antcall>
         <antcall target="copy-dir">
+            <param name="dir.excludes" value=""/>
             <param name="dir.location" value="ant"/>
             <param name="dir.destination" value="${release.dir}/ant"/>
         </antcall>
         <antcall target="copy-dir">
+            <param name="dir.excludes" value=""/>
             <param name="dir.location" value="media"/>
             <param name="dir.destination" value="${release.dir}/media"/>
         </antcall>
         <antcall target="copy-dir">
+            <param name="dir.excludes" value=""/>
             <param name="dir.location" value="scripts"/>
             <param name="dir.destination" value="${release.dir}/scripts"/>
         </antcall>
         <antcall target="copy-dir">
+            <param name="dir.excludes" value=""/>
             <param name="dir.location" value="conf"/>
             <param name="dir.destination" value="${release.dir}/conf"/>
         </antcall>
         <antcall target="copy-dir">
+            <param name="dir.excludes" value="*/griffon-app/conf/keys/**,*/target/**"/>
             <param name="dir.location" value="samples"/>
             <param name="dir.destination" value="${release.dir}/samples"/>
         </antcall>
         <antcall target="copy-dir">
+            <param name="dir.excludes" value=""/>
             <param name="dir.location" value="doc"/>
             <param name="dir.destination" value="${release.dir}/doc"/>
         </antcall>
