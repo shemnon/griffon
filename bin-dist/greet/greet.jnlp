@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE jnlp SYSTEM "http://java.sun.com/dtd/JNLP-1.5.dtd">
 <jnlp
-    href="greet.jnlp"
+    version="Greet"
     codebase="http://svn.codehaus.org/groovy/trunk/groovy/modules/griffon/bin-dist/greet/"
     spec="1.5+"
 >
     <information>
         <title>Greet</title>
-        <vendor>Groovy @ Codehaus</vendor>
-        <homepage href="http://docs.codehaus.org/display/GROOVY/Greet/"/>
+        <vendor>Greet</vendor>
+        <!--<homepage href="http://app.example.com/"/>-->
         <!--fallback description-->
-        <description>Greet - A Groovy Twitter Client</description>
-        <description kind="one-line">Greet - A Groovy Twitter Client</description>
+        <description>Greet</description>
+        <description kind="one-line">Greet</description>
         <description kind="short">Greet</description>
-        <description kind="tooltip">Greet - A Groovy Twitter Client</description>
+        <description kind="tooltip">Greet</description>
         <!-- fallback icon -->
         <!--<icon href="http://example.com/icon.gif" kind="default" width="" height=""/>-->
         <!-- icon used for splash screen -->
@@ -36,10 +36,11 @@
         <j2se version="1.5+"/>
         <!-- auto-added jars follow, griffon-rt, app, and groovy -->
         <jar href='griffon-rt-0.0-SNAPSHOT.jar'/>
+        <jar href='griffon-rt-0.0.jar'/>
         <jar href='greet.jar'/>
         <jar href='groovy-all-1.6-beta-2-SNAPSHOT.jar'/>
         <jar href='MultipleGradientPaint.jar'/>
-        <jar href='swingx-0.9.2.jar'/>
+        <jar href='swingx-0.9.3.jar'/>
         <jar href='swingxbuilder-0.1.6-SNAPSHOT.jar'/>
 
         <!-- Add all extra jars below here, or the app may break -->
