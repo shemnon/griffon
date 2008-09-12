@@ -14,7 +14,7 @@ tabbedPane(tabPlacement:JTabbedPane.LEFT, constraints:gbc(weightx:1.0, weighty:1
     }
 
     panel(title:'CheckBoxList') {
-	scrollPane {
+    scrollPane {
             checkBoxList(listData: ["One", "Two", "Three", "Four", "Five", "Six", "Seven", "Eight", "Nine", "Ten"] as Object[])
         }
     }

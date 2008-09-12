@@ -40,19 +40,16 @@ target ( clean: "Implementation of clean") {
 }
 
 target ( cleanCompiledSources : "Cleans compiled Java and Groovy sources") {
-    try {
-        classLoader = new URLClassLoader([classesDir.toURL()] as URL[], rootLoader)
-        createConfig()
-        Ant.delete(dir:Ant.antProject.replaceProperties(config.griffon.jars.destDir))
-    } catch (Throwable t) {
-        // strange things can happen if we clean an already clean setup
-        // so ignore those errors
-    }
-
     Ant.delete(dir:"${basedir}/test/reports", failonerror:false)
     Ant.delete(dir:classesDirPath)
     Ant.delete(dir:resourcesDirPath)
     Ant.delete(dir:testDirPath)
+
+    if(configFile.exists()) {
+        config = configSlurper.parse(configFile.toURL())
+        config.setConfigFile(configFile.toURL())
+    }
+    Ant.delete(dir:Ant.antProject.replaceProperties(config.griffon.jars.destDir), includes:'**/*.*')
 }
 
 target (cleanGriffonApp : "Cleans the Griffon application sources") {

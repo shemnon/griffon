@@ -37,9 +37,9 @@ target ('default': "Creates a new MVC triad") {
 target (createMVC : "Creates a new MVC Triad") {
 
     typeName = "Model"
-	artifactName = "Model"
-	artifactPath = "griffon-app/models"
-	createArtifact()
+    artifactName = "Model"
+    artifactPath = "griffon-app/models"
+    createArtifact()
 
     typeName = "View"
     artifactName = "View"

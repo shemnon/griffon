@@ -33,11 +33,11 @@ griffonHome = Ant.antProject.properties."env.GRIFFON_HOME"
 includeTargets << new File ( "${griffonHome}/scripts/Bootstrap.groovy" )
 
 target ('default': "Load the Griffon interactive shell") {
-	depends( packageApp )
+    depends( packageApp )
         jardir = Ant.antProject.replaceProperties(config.griffon.jars.destDir)
         Ant.copy(todir:jardir) { fileset(dir:"${griffonHome}/lib/", includes:"jline-*.jar") }
         classpath()
-	shell()
+    shell()
 }            
 
 target(shell:"The shell implementation target") {
