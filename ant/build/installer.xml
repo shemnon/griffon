@@ -213,7 +213,7 @@
             file="${griffon.dist}/${griffon.dist.source}.zip" />
       <rpm specFile="griffon.spec"
            topDir="${griffon.installer.rpm.dir}"
-           cleanBuildDir="false"
+           cleanBuildDir="true"
            failOnError="true"/>
       <copy tofile="${griffon.dist}/griffon-${griffon.version.rpm}-1.noarch.rpm"
             file="${griffon.installer.rpm.dir}/RPMS/noarch/griffon-${griffon.version.rpm}-1.noarch.rpm" />
