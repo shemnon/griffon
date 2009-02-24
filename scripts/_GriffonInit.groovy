@@ -139,6 +139,7 @@ target(updateAppProperties: "Updates default application.properties") {
 }
 
 target( launderIDESupportFiles: "Updates the IDE support files (Eclipse, TextMate etc.), changing file names and replacing tokens in files where appropriate.") {
+    event("updateIDESupportFilesStart", [])
     ant.move(file: "${basedir}/.launch", tofile: "${basedir}/${griffonAppName}.launch", overwrite: true)
     ant.move(file: "${basedir}/project.tmproj", tofile: "${basedir}/${griffonAppName}.tmproj", overwrite: true)
 
@@ -150,6 +151,7 @@ target( launderIDESupportFiles: "Updates the IDE support files (Eclipse, TextMat
         replacefilter(token: "@griffon.project.name@", value: griffonAppName)
         replacefilter(token: "@griffon.project.key@", value: appKey)
     }
+    event("updateIDESupportFilesEnd", [])
 }
 
 target(init: "main init target") {
