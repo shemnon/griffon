@@ -217,6 +217,7 @@
            failOnError="true"/>
       <copy tofile="${griffon.dist}/griffon-${griffon.version.rpm}-1.noarch.rpm"
             file="${griffon.installer.rpm.dir}/RPMS/noarch/griffon-${griffon.version.rpm}-1.noarch.rpm" />
+      <delete dir="/var/tmp/griffon-${griffon.version.rpm}-*" failonerror="false"/>
   </target>
 
   <target name="prepare-installer-dmg" depends="test-osx" >
