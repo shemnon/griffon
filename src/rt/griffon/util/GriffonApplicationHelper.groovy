@@ -47,7 +47,7 @@ class GriffonApplicationHelper {
         // for now we punt and make a SwingBuilder
 
         app.config.application.startupGroups.each {group ->
-            createMVCGroup(app, group) 
+            createMVCGroup(app, group)
         }
 
         app.startup();
@@ -109,7 +109,9 @@ class GriffonApplicationHelper {
         // inject defaults into emc
         // this also insures EMC metaclasses later
         klass.metaClass.app = app
-        klass.metaClass.createMVCGroup = GriffonApplicationHelper.&createMVCGroup.curry(app)
+        klass.metaClass.createMVCGroup = {String mvcType, String mvcname = mvcType, Map bindArgs = [:] ->
+            GriffonApplicationHelper.createMVCGroup(app, mvcType, mvcname, bindArgs)
+        }
         klass.metaClass.destroyMVCGroup = GriffonApplicationHelper.&destroyMVCGroup.curry(app)
         klass.metaClass.newInstance = GriffonApplicationHelper.&newInstance.curry(app)
         return klass
@@ -122,6 +124,11 @@ class GriffonApplicationHelper {
     }
 
     public static createMVCGroup(IGriffonApplication app, String mvcType, String mvcName = mvcType, Map bindArgs = [:]) {
+        // validate MVC type
+        if (!(app.config.mvcGroups[mvcName])) {
+            throw new RuntimeException("Unknown MVC type \"$mvcType\".  Known types are ${app.config.mvcGroups.keySet()}")
+        }
+
         Class modelKlass = loadMVCClass(mvcType, "model", app)
         Class viewKlass = loadMVCClass(mvcType, "view", app)
         Class controllerKlass = loadMVCClass(mvcType, "controller", app)
@@ -162,7 +169,7 @@ class GriffonApplicationHelper {
         }
 
         builder.edt({builder.build(view) })
-        app.event("CreateMVCGroup",[mvcName, model, view, controller])
+        app.event("CreateMVCGroup",[mvcName, model, view, controller, mvcType])
         return [model, view, controller]
     }
 
