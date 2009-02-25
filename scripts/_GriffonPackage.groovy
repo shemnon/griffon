@@ -373,7 +373,6 @@ target(generateJNLP:"Generates the JNLP File") {
 
     jnlpJars = []
 	jnlpUrls = []
-	jnlpAppletUrls = []
 	jnlpExtensions = []
     appletJars = []
 	remoteJars = []
@@ -390,12 +389,8 @@ target(generateJNLP:"Generates the JNLP File") {
 		appletJars << it
 	}
 	if (config.griffon.extensions?.jnlpUrls.size() > 0) {
-		jnlpAppletUrls << "<param name='jnlpNumExtensions' value='${config.griffon.extensions?.jnlpUrls.size()}'>"
-		count = 1
 		config.griffon.extensions?.jnlpUrls.each {
-			jnlpAppletUrls << "<param name='jnlpExtension"+count + "' value='$it'>"
-			jnlpExtensions << "<extension href='$it' />"
-			count++
+		    jnlpExtensions << "<extension href='$it' />"
 		}
 	}
     new File(jardir).eachFileMatch(~/.*\.jar/) { f ->
@@ -423,10 +418,8 @@ target(generateJNLP:"Generates the JNLP File") {
         replacefilter(token:"@griffonAppVersion@", value:"${griffonAppVersion}" )
         replacefilter(token:"@griffonAppCodebase@", value:"${config.griffon.webstart.codebase}")
         replacefilter(token:"@jnlpJars@", value:jnlpJars.join('\n') )
-		replacefilter(token:"@griffonJnlps@", value:jnlpUrls.join(' ') )
-		replacefilter(token:"@griffonJnlpAppletExtensions@", value:jnlpAppletUrls.join('\n') )
-		replacefilter(token:"@jnlpExtensions@", value:jnlpExtensions.join('\n'))
-        replacefilter(token:"@appletJars@", value:appletJars.join(' ') )
+        replacefilter(token:"@jnlpExtensions@", value:jnlpExtensions.join('\n'))
+        replacefilter(token:"@appletJars@", value:appletJars.join(',') )
         replacefilter(token:"@memoryOptions@", value:memOptions.join(' ') )
     }
 }
