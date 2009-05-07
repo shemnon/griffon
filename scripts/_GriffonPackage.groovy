@@ -390,7 +390,7 @@ target(generateJNLP:"Generates the JNLP File") {
 	}
 	if (config.griffon.extensions?.jnlpUrls.size() > 0) {
 		config.griffon.extensions?.jnlpUrls.each {
-		    jnlpExtensions << "<extension href='$it' />"
+			jnlpExtensions << "<extension href='$it' />"
 		}
 	}
     new File(jardir).eachFileMatch(~/.*\.jar/) { f ->
@@ -413,14 +413,18 @@ target(generateJNLP:"Generates the JNLP File") {
         memOptions << "java-vm-args='-XX:maxPermSize=$config.griffon.memory.maxPermSize'"
     }
 
-    ant.replace(dir:jardir, includes:"*.jnlp,*.html") {
-        replacefilter(token:"@griffonAppName@", value:"${griffonAppName}" )
-        replacefilter(token:"@griffonAppVersion@", value:"${griffonAppVersion}" )
-        replacefilter(token:"@griffonAppCodebase@", value:"${config.griffon.webstart.codebase}")
-        replacefilter(token:"@jnlpJars@", value:jnlpJars.join('\n') )
-        replacefilter(token:"@jnlpExtensions@", value:jnlpExtensions.join('\n'))
-        replacefilter(token:"@appletJars@", value:appletJars.join(',') )
-        replacefilter(token:"@memoryOptions@", value:memOptions.join(' ') )
+    fileset(dir:jardir, includes:"*.jnlp,*.html").each {
+        String fileName = it.toString()
+        ant.replace(file: fileName) {
+            replacefilter(token:"@griffonAppName@", value:"${griffonAppName}" )
+            replacefilter(token:"@griffonAppVersion@", value:"${griffonAppVersion}" )
+            replacefilter(token:"@griffonAppCodebase@", value:"${config.griffon.webstart.codebase}")
+            replacefilter(token:"@jnlpFileName@", value: new File(fileName).name )
+            replacefilter(token:"@jnlpJars@", value:jnlpJars.join('\n') )
+            replacefilter(token:"@jnlpExtensions@", value:jnlpExtensions.join('\n'))
+            replacefilter(token:"@appletJars@", value:appletJars.join(',') )
+            replacefilter(token:"@memoryOptions@", value:memOptions.join(' ') )
+        }
     }
 }
 

@@ -54,7 +54,7 @@ class GriffonApplicationHelper {
         // for now we punt and make a SwingBuilder
 
         app.config.application.startupGroups.each {group ->
-            createMVCGroup(app, group)
+            createMVCGroup(app, group) 
         }
 
         app.startup();

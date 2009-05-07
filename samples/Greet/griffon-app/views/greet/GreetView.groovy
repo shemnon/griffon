@@ -6,8 +6,14 @@ import javax.swing.InputMap
 import javax.swing.ActionMap
 import javax.swing.KeyStroke
 
-greetFrame = application(title:"Greet - A Groovy Twitter Client", size:[320,640], locationByPlatform:true) {
-
+greetFrame = application(title:"Greet - A Groovy Twitter Client",
+  size:[320,640],
+  locationByPlatform:true,
+  iconImage: imageIcon('/griffon-icon-48x48.png').image,
+  iconImages: [imageIcon('/griffon-icon-48x48.png').image,
+               imageIcon('/griffon-icon-32x32.png').image,
+               imageIcon('/griffon-icon-16x16.png').image]
+) {
   mainPanel = panel {
 
     gridBagLayout()
@@ -30,7 +36,7 @@ greetFrame = application(title:"Greet - A Groovy Twitter Client", size:[320,640]
     tweetBoxPane = scrollPane(fill: BOTH, weightx:1.0, insets:[1,3,1,3], gridwidth:REMAINDER,
             verticalScrollBarPolicy: JScrollPane.VERTICAL_SCROLLBAR_NEVER
     ) {
-        tweetBox = textArea(//action: controller.tweetAction,
+        tweetBox = textArea(
             enabled: bind {!model.tweeting}, rows: 0,
             lineWrap:true, wrapStyleWord:true)
     }

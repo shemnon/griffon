@@ -49,17 +49,14 @@ public class DelayedImageIcon implements Icon {
             }
             if (!refreshSet.contains(c) && imageID > 0) {
                 refreshSet.add(c);
-                new Thread(new Runnable() {
-                    public void run() {
-                        try {
-                            tracker.waitForID(localImageID);
-                            imageID = -1;
-                            refreshSet.remove(c);
-                            c.repaint(100);
-                        } catch (InterruptedException ignore) {
-                        }
-                    }
-                }).start();
+                new Thread(new Runnable() { public void run() {
+                    try {
+                        tracker.waitForID(localImageID);
+                        imageID = -1;
+                        refreshSet.remove(c);
+                        c.repaint(100);
+                    } catch (InterruptedException ignore) { }
+                }}).start();
             }
         } else {
             status = image == null ? MediaTracker.ERRORED : MediaTracker.COMPLETE;
@@ -70,17 +67,17 @@ public class DelayedImageIcon implements Icon {
             g.setColor(Color.DARK_GRAY);
             g.drawRect(x, y, w, h);
             g.setColor(Color.LIGHT_GRAY);
-            g.drawRect(x + 1, y + 1, w - 2, h - 2);
+            g.drawRect(x+1, y+1, w-2, h-2);
             g.setColor(oldC);
         } else if (image == null) {
             Color oldC = g.getColor();
             g.setColor(Color.RED);
             g.drawRect(x, y, w, h);
             g.setColor(Color.PINK);
-            g.drawRect(x + 1, y + 1, w - 2, h - 2);
+            g.drawRect(x+1, y+1, w-2, h-2);
             g.setColor(oldC);
         } else {
-            g.drawImage(image, x, y, component);
+            g.drawImage(image, x, y, w, h, component);
         }
 
     }

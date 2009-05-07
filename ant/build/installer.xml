@@ -282,7 +282,7 @@
 
             <tarfileset dir="${griffon.installer.deb.dir}/build/griffon-${griffon.version}" prefix="usr/share/griffon" filemode="755"/>
         </deb>
-	<copy todir="${griffon.dist}">
+        <copy todir="${griffon.dist}">
             <fileset dir="${griffon.installer.deb.dir}/dist">
                 <include name="*.deb"/>
             </fileset>

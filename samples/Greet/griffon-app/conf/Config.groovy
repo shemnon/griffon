@@ -71,7 +71,7 @@ environments {
 
 griffon {
     memory {
-        //max = '64m'
+        max = '92m'
         //min = '2m'
         //maxPermSize = '64m'
     }
