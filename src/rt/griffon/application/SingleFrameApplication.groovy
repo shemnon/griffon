@@ -49,7 +49,7 @@ class SingleFrameApplication implements IGriffonApplication {
 
     public void show() {
         if (appFrames.size() > 0) {
-            appFrames[0].show()
+            EventQueue.invokeAndWait { appFrames[0].show() }
         }
 
         GriffonApplicationHelper.callReady(this)
