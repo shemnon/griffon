@@ -20,6 +20,7 @@ import griffon.util.IGriffonApplication
 import griffon.util.EventRouter
 import java.awt.event.WindowEvent
 import griffon.util.GriffonExceptionHandler
+import java.awt.EventQueue
 
 /**
  *@author Danno.Ferrin
