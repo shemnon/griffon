@@ -25,6 +25,7 @@ class ApplicationBuilder extends FactoryBuilderSupport {
 
     public ApplicationBuilder(boolean init = true) {
         super(init)
+        SwingMetaMethods.enhanceAll()
     }
 
     public void registerVisuals() {
