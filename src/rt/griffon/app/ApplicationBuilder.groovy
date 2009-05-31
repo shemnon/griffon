@@ -15,8 +15,6 @@
  */
 package griffon.app
 
-import groovy.swing.factory.CollectionFactory
-
 /**
  * Created by IntelliJ IDEA.
  *@author Danno.Ferrin
@@ -31,18 +29,5 @@ class ApplicationBuilder extends FactoryBuilderSupport {
 
     public void registerVisuals() {
         registerFactory 'application', new ApplicationFactory()
-        addAttributeDelegate(ApplicationBuilder.&clientPropertyAttributeDelegate)
-        registerFactory("noparent", new CollectionFactory())
-    }
-
-    public static clientPropertyAttributeDelegate(def builder, def node, def attributes) {
-        def clientPropertyMap = attributes.remove("clientProperty")
-        clientPropertyMap.each { key, value ->
-           node.putClientProperty key, value
-        }
-        attributes.findAll { it.key =~ /clientProperty(\w)/ }.each { key, value ->
-           attributes.remove(key)
-           node.putClientProperty(key - "clientProperty", value)
-        }
     }
 }
