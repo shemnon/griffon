@@ -24,8 +24,8 @@
  */
 includeTargets << griffonScript("_GriffonPackage")
 
-target (_package: "Packages a Griffon application. Note: To create WAR use 'griffon war'") {
-     depends(checkVersion, packageApp)
+target (_package: "Packages a Griffon application.") {
+     depends(checkVersion, parseArguments, packageApp)
 }
 
 setDefaultTarget(_package)

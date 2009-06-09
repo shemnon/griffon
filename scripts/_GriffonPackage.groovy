@@ -221,16 +221,36 @@ target(jarFiles: "Jar up the package files") {
     ant.mkdir(dir:jardir)
 
     String destFileName = "$jardir/${config.griffon.jars.jarName}"
-    if (!upToDate) {
-        ant.jar(destfile:destFileName) {
+    if (argsMap['jar']) {
+        //todo in Griffon 0.2 do pluggable packaging
+        println ('Packaging in a single Jar')
+        def bigJar = ('true' == (argsMap.jar as String)) ? destFileName : new File(argsMap.jar).canonicalPath
+        delete(file:destFileName)
+        delete(file:bigJar)
+        ant.jar(destfile:bigJar) {
+            manifest {
+                attribute(name:'Main-Class', value:'griffon.application.SingleFrameApplication')
+            }
             fileset(dir:classesDirPath) {
                 exclude(name:'Config*.class')
             }
             fileset(dir:i18nDir)
             fileset(dir:resourcesDir)
+            zipGroupFileset(dir:jardir, includes:'*.jar', excludes:'${config.griffon.jars.jarName}')
         }
+        griffonCopyDist(bigJar, new File(bigJar).parent, true)
+    } else {
+        if (!upToDate) {
+            ant.jar(destfile:destFileName) {
+                fileset(dir:classesDirPath) {
+                    exclude(name:'Config*.class')
+                }
+                fileset(dir:i18nDir)
+                fileset(dir:resourcesDir)
+            }
+        }
+        griffonCopyDist(destFileName, jardir, !upToDate)
     }
-    griffonCopyDist(destFileName, jardir, !upToDate)
 }
 
 target(copyLibs: "Copy Library Files") {
@@ -247,7 +267,7 @@ target(copyLibs: "Copy Library Files") {
     fileset(dir:"${basedir}/lib/", includes:"*.jar").each {
         griffonCopyDist(it.toString(), jardir)
     }
-    
+
 //FIXME    ant.copy(todir:jardir) { fileset(dir:"${basedir}/lib/", includes:"*.dll") }
 //FIXME    ant.copy(todir:jardir) { fileset(dir:"${basedir}/lib/", includes:"*.so") }
 
@@ -321,13 +341,14 @@ griffonCopyDist =  { jarname, targetDir, boolean force = false ->
     //TODO strip old signatures?
 
     def packOptions = [
-        '-S-1', // bug fix, signing large (1MB+) files will validate
+//        '-S-1', // bug fix, signing large (1MB+) files will validate
         '-mlatest', // smaller files, set modification time on the files to latest
         '-Htrue', // smaller files, always use DEFLATE hint
         '-O', // smaller files, reorder files if it makes things smaller
     ]
     // repack so we can sign pack200
-    if (doJarPacking) {
+  if (doJarSigning) {
+        println "repacking $targetFile.path"
         ant.exec(executable:'pack200') {
             for (option in packOptions) {
                 arg(value:option)
@@ -335,9 +356,8 @@ griffonCopyDist =  { jarname, targetDir, boolean force = false ->
             arg(value:'--repack')
             arg(value:targetFile)
         }
-    }
 
-    if (doJarSigning) {
+        println "signing jar $targetFile.path"
         // sign jar
         Map signJarParams = [:]
         for (key in ['alias', 'storepass', 'keystore', 'storetype', 'keypass', 'sigfile', 'verbose', 'internalsf', 'sectionsonly', 'lazy', 'maxmemory', 'preservelastmodified', 'tsaurl', 'tsacert']) {
@@ -346,11 +366,19 @@ griffonCopyDist =  { jarname, targetDir, boolean force = false ->
             }
         }
 
-	    signJarParams.jar = targetFile.path
+	    // do a little file moving dance to speed up signing
+        File tmpFile = File.createTempFile('griffon', '.jar', targetDir as File)
+        tmpFile.delete()
+        File targetTmp = new File(targetFile as String)
+        targetTmp.renameTo(tmpFile)
+	    signJarParams.jar = tmpFile.path
+	    signJarParams.signedjar = targetFile.path
         ant.signjar(signJarParams)
+        tmpFile.delete()
     }
 
     if (doJarPacking) {
+        println "packing $targetFile.path"
         // do the for-real packing
         ant.exec(executable:'pack200') {
             for (option in packOptions) {
@@ -404,8 +432,8 @@ target(generateJNLP:"Generates the JNLP File") {
             appletJars << "$f.name"
         }
     }
-	
-	
+
+
     memOptions = []
     if (config.griffon.memory?.min) {
         memOptions << "initial-heap-size='$config.griffon.memory.min'"
