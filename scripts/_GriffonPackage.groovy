@@ -239,7 +239,7 @@ target(jarFiles: "Jar up the package files") {
             fileset(dir:resourcesDir)
 
             libjars.each {
-                fileset(file:it, excludes:'meta-inf/*.mf,meta-inf/*.sf,meta-inf/*.rsa,meta-inf/*.dsa')
+                zipfileset(src:it.toString(), excludes:'META-INF/*.MF,META-INF/*.SF,META-INF/*.RSA,META-INF/*.DSA')
             }
         }
         griffonCopyDist(bigJar, new File(bigJar).parent, true)
