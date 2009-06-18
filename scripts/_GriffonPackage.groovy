@@ -227,6 +227,7 @@ target(jarFiles: "Jar up the package files") {
         def bigJar = ('true' == (argsMap.jar as String)) ? destFileName : new File(argsMap.jar).canonicalPath
         delete(file:destFileName)
         delete(file:bigJar)
+        def libjars = fileset(dir:jardir, includes:'*.jar', excludes:'${config.griffon.jars.jarName}')
         ant.jar(destfile:bigJar) {
             manifest {
                 attribute(name:'Main-Class', value:'griffon.application.SingleFrameApplication')
@@ -236,7 +237,10 @@ target(jarFiles: "Jar up the package files") {
             }
             fileset(dir:i18nDir)
             fileset(dir:resourcesDir)
-            zipGroupFileset(dir:jardir, includes:'*.jar', excludes:'${config.griffon.jars.jarName}')
+
+            libjars.each {
+                fileset(file:it, excludes:'meta-inf/*.mf,meta-inf/*.sf,meta-inf/*.rsa,meta-inf/*.dsa')
+            }
         }
         griffonCopyDist(bigJar, new File(bigJar).parent, true)
     } else {
