@@ -171,6 +171,7 @@ target(upgrade: "Upgrades a Griffon application from a previous version of Griff
     // copy new icons to griffon-app/resources
     copy(todir: "${basedir}") {
         fileset(dir: tmpDir.path, includes: "**/*.png")
+        fileset(dir: tmpDir.path, includes: "**/*.icns")
     }
     delete(dir: tmpDir.path)
 
