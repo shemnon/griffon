@@ -25,7 +25,7 @@ import java.text.SimpleDateFormat
  */
 class TwitterService {
 
-    static final DateFormat twitterFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy")
+    static final DateFormat twitterFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss Z yyyy", Locale.ENGLISH)
 
     Map tweetCache = new CacheMap(500)
     Map dmCache = new CacheMap(50)
@@ -87,7 +87,18 @@ class TwitterService {
             setStatus("")
             return o
         } catch (Throwable t) {
-            setStatus("Error $status : ${t.message =~ '400'?'Rate Limit Reached':t}")
+            def message
+            switch (t.message) {
+                case ~'.* 400 .*':
+                    message = "Error $status : Rate Limit Reached"; break
+                case ~'.* 401 .*':
+                case ~'.*Server redirected too many.*':
+                    message = "Error $status : Incorrect Password"; break
+                default:
+                    message = "Error $status : $t.message"; break
+            }
+
+            setStatus(message)
             throw t
         }
     }
