@@ -2,8 +2,6 @@ package greet
 
 import javax.swing.JScrollPane
 import javax.swing.JTabbedPane
-import javax.swing.InputMap
-import javax.swing.ActionMap
 import javax.swing.KeyStroke
 
 greetFrame = application(title:"Greet - A Groovy Twitter Client",
@@ -64,4 +62,4 @@ greetFrame = application(title:"Greet - A Groovy Twitter Client",
 bean(tweetBoxPane, minimumSize: bind(source:tweetBox.document, sourceEvent:'undoableEditHappened', sourceValue:{doLater {mainPanel.revalidate()}; tweetBoxPane.preferredSize}))
 
 //could still be more clever
-keyStrokeAction(component:tweetBox, keyStroke:"ENTER", action: controller.tweetAction)
+keyStrokeAction(component:tweetBox, keyStroke:KeyStroke.getKeyStroke("ENTER"), action: controller.tweetAction)

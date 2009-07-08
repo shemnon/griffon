@@ -51,7 +51,7 @@ class TwitterService {
         } else {
             mapTweet.user = storeUser(tweet.user)
         }
-        mapTweet.created_at = twitterFormat.parse(mapTweet.created_at).getTime()
+        mapTweet.created_at = twitterFormat.parse(mapTweet.created_at).time
         return mapTweet
     }
 
@@ -62,7 +62,7 @@ class TwitterService {
         }
         mapDM.sender = storeUser(dm.sender)
         mapDM.recipient = storeUser(dm.recipient)
-        mapDM.created_at = twitterFormat.parse(mapDM.created_at).getTime() 
+        mapDM.created_at = twitterFormat.parse(mapDM.created_at).time
         dmCache[mapDM.id] = mapDM
         return mapDM
     }
@@ -118,10 +118,11 @@ class TwitterService {
 
     boolean login(String name, def password) {
         withStatus("Logging in") {
-            Authenticator.setDefault(
-                [getPasswordAuthentication : {
-                    return new PasswordAuthentication(name, password) }
-                ] as Authenticator)
+            Authenticator.default = [
+				getPasswordAuthentication: {
+                	return new PasswordAuthentication(name, password)
+            	}
+			] as Authenticator
             slurpAPIStream("$urlBase/account/verify_credentials.xml")
             authenticatedUser = getUser(name)
         }
@@ -366,8 +367,8 @@ class TwitterService {
     }
 
     static String timeAgo(Date d) {
-        if (d.getTime() == 0) return 'never'
-        int secs = (System.currentTimeMillis() - d.getTime()) / 1000
+        if (d.time == 0) return 'never'
+        int secs = (System.currentTimeMillis() - d.time) / 1000
         def dir = (secs < 0) ? "from now" : "ago"
         if (secs < 0) secs = -secs
         def parts
