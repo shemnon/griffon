@@ -25,7 +25,7 @@ import org.codehaus.griffon.util.GriffonNameUtils
  */
 
 includeTargets << griffonScript("_GriffonInit")
-includeTargets << griffonScript("CreateMvc" )
+includeTargets << griffonScript("CreateElement" )
 includeTargets << griffonScript("Package")
 
 
@@ -48,7 +48,7 @@ target(createApp: "Creates a Griffon application for the given name")  {
     // Create a message bundle to get the user started.
     ant.touch(file: "${basedir}/griffon-app/i18n/messages.properties")
 
-    createMVC()
+    createElement()
 
 	// Set the default version number for the application
     ant.propertyfile(file:metadataFile.absolutePath) {

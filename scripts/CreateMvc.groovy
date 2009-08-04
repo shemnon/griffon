@@ -22,54 +22,9 @@
  *
  */
 
-import org.codehaus.griffon.commons.GriffonClassUtils as GCU
-
-includeTargets << griffonScript("Init")
-includeTargets << griffonScript("CreateIntegrationTest")
+includeTargets << griffonScript("CreateElement")
 
 target (createMVC : "Creates a new MVC Triad") {
-    depends(checkVersion, parseArguments)
-    promptForName(type: "MVC Group")
-    def (pkg, name) = extractArtifactName(argsMap["params"][0])
-    def fqn = "${pkg?pkg:''}${pkg?'.':''}${GCU.getClassNameRepresentation(name)}"
-
-    createArtifact(
-        name: fqn,
-        suffix: "Model",
-        type: "Model",
-        path: "griffon-app/models")
-
-    createArtifact(
-        name: fqn,
-        suffix: "View",
-        type: "View",
-        path: "griffon-app/views")
-
-    createArtifact(
-        name: fqn,
-        suffix: "Controller",
-        type: "Controller",
-        path: "griffon-app/controllers")
-
-    createIntegrationTest(name: name, suffix: "")
-
-    def applicationConfigFile = new File("${basedir}/griffon-app/conf/Application.groovy")
-    def configText = applicationConfigFile.text
-    if (!(configText =~ /\s*elements\s*\{/)) {
-        configText += """
-elements {
-}
-"""
-    }
-    applicationConfigFile.withWriter { it.write configText.replaceAll(/\s*elements\s*\{/, """
-elements {
-    // MVC Group for "$args"
-    '$name' {
-        model = '${fqn}Model'
-        view = '${fqn}View'
-        controller = '${fqn}Controller'
-    }
-""") }
+    depends(checkElement)
 }
 
-setDefaultTarget(createMVC)

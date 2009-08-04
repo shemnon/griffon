@@ -1,8 +1,9 @@
 package org.codehaus.griffon.cli
 
 import org.codehaus.griffon.commons.GriffonClassUtils as GCU
+import org.codehaus.griffon.commons.GriffonClassUtils
 
-class CreateMvcTests extends AbstractCliTests {
+class CreateElementTests extends AbstractCliTests {
     def appDir
 
     void testCreateController() {
@@ -17,7 +18,7 @@ class CreateMvcTests extends AbstractCliTests {
         appDir = createTestApp()
 
 		System.setProperty("griffon.cli.args", "Book")
-		gantRun("CreateMvc")
+		gantRun("CreateElement")
 
         def bookModelFile = "${appDir}/griffon-app/models/BookModel.groovy"
         assertTrue "${bookModelFile} does not exist", new File(bookModelFile).exists()
@@ -30,7 +31,7 @@ class CreateMvcTests extends AbstractCliTests {
     void tryMvc(String name) {
         // Run the create controller script with a single argument.
         System.setProperty("griffon.cli.args", name)
-        gantRun("CreateMvc")
+        gantRun("CreateElement")
 
         // Extract any package from the class name.
         def pkg = null
@@ -39,7 +40,7 @@ class CreateMvcTests extends AbstractCliTests {
             pkg = name[0..<pos]
             name = name[(pos + 1)..-1]
         }
-        def className = GCU.getClassNameRepresentation(name)
+        def className = GriffonClassUtils.getClassNameRepresentation(name)
 
         def fqn = "${pkg?pkg:''}${pkg?'.':''}$className"
 
