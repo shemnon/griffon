@@ -4,7 +4,7 @@ application {
 
     autoShutdown = false
 }
-mvcGroups {
+elements {
     'SmallForecast' {
         model = 'SmallForecastModel'
         view = 'SmallForecastView'

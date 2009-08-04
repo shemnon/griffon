@@ -5,7 +5,7 @@ import groovy.beans.Bindable
     boolean isCelsius
     boolean isFahrenheit
 
-    void mvcGroupInit(Map args) {
+    void elementInit(Map args) {
         location = app.models.WeatherWidget.location
         isCelsius = app.models.WeatherWidget.celsius
         isFahrenheit = !isCelsius

@@ -4,7 +4,7 @@ class NothingPanelController {
     def model
     def view
 
-    void mvcGroupInit(Map args) {
+    void elementInit(Map args) {
         // this method is called after model and view are injected
     }
 

@@ -31,7 +31,7 @@ class GriffonApplet extends JApplet implements IGriffonApplication {
     Map<String, ?> addons = [:]
     Map<String, String> addonPrefixes = [:]
 
-    Map<String, Map<String, String>> mvcGroups = [:]
+    Map<String, Map<String, String>> elements = [:]
     Map models      = [:]
     Map views       = [:]
     Map controllers = [:]
@@ -134,7 +134,7 @@ class GriffonApplet extends JApplet implements IGriffonApplication {
        eventRouter.removeEventListener(eventName,listener)
     }
 
-    public void addMvcGroup(String mvcType, Map<String, String> mvcPortions) {
-       mvcGroups[mvcType] = mvcPortions
+    public void addElement(String mvcType, Map<String, String> mvcPortions) {
+       elements[mvcType] = mvcPortions
     }
 }

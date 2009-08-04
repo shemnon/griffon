@@ -8,7 +8,7 @@ application {
     // If you want some non-standard application class, apply it here
     //frameClass = 'javax.swing.JFrame'
 }
-mvcGroups {
+elements {
     // MVC Group for "root"
     root {
         model = 'SwingPadModel'

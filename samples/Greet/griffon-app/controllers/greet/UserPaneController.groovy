@@ -11,9 +11,9 @@ class UserPaneController {
 
     TwitterService twitterService
 
-    void mvcGroupInit(Map args) {
+    void elementInit(Map args) {
         twitterService = app.controllers.Greet.twitterService
-        def timelinePane = buildMVCGroup('TimelinePane', "TimelinePane_user_$args.user.screen_name");
+        def timelinePane = buildElement('TimelinePane', "TimelinePane_user_$args.user.screen_name");
         timelinePaneController = timelinePane.controller
 
         timelinePane.controller.twitterService = twitterService
@@ -39,8 +39,8 @@ class UserPaneController {
 
     def close(evt) {
         view.userPane.parent.remove(view.userPane)
-        destroyMVCGroup("UserPane_$model.user.screen_name")
-        destroyMVCGroup("TimelinePane_user_$model.user.screen_name")
+        destroyElement("UserPane_$model.user.screen_name")
+        destroyElement("TimelinePane_user_$model.user.screen_name")
     }
 
     def follow(evt) {

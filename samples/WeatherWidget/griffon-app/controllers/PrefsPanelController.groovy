@@ -15,6 +15,6 @@ class PrefsPanelController {
 
     def doCancel = { evt = null ->
         view.prefsPanel.dispose()
-        destroyMVCGroup('PrefsPanel')
+        destroyElement('PrefsPanel')
     }
 }

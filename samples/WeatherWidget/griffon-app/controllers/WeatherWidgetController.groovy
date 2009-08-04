@@ -3,11 +3,11 @@ class WeatherWidgetController {
     WeatherWidgetModel model
     WeatherWidgetView view
 
-    void mvcGroupInit(Map args) {
-        createMVCGroup('SmallForecast', 'small1')
-        createMVCGroup('SmallForecast', 'small2')
-        createMVCGroup('SmallForecast', 'small3')
-        createMVCGroup('SmallForecast', 'small4')
+    void elementInit(Map args) {
+        createElement('SmallForecast', 'small1')
+        createElement('SmallForecast', 'small2')
+        createElement('SmallForecast', 'small3')
+        createElement('SmallForecast', 'small4')
 
     }
 
@@ -55,7 +55,7 @@ class WeatherWidgetController {
 
     def showPreferences = {
         if (app.views.PrefsPanel == null) {
-            createMVCGroup('PrefsPanel')
+            createElement('PrefsPanel')
         }
     }
 }

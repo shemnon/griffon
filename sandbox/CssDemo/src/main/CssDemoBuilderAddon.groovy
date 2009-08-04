@@ -11,7 +11,7 @@ class CssDemoBuilderAddon {
         }
     ]
 
-    def mvcGroups = [
+    def elements = [
         // MVC Group for "NothingPanel"
         NothingPanel: [
             model: 'group.NothingPanelModel',

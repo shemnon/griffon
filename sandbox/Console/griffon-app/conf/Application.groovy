@@ -8,7 +8,7 @@ application {
     // If you want some non-standard application class, apply it here
     //frameClass = 'javax.swing.JFrame'
 }
-mvcGroups {
+elements {
     // MVC Group for "org.codehaus.griffon.console.TextEditorPreferences"
     TextEditorPreferences {
         model = 'org.codehaus.griffon.console.TextEditorPreferencesModel'

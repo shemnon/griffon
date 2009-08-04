@@ -1,5 +1,5 @@
 class ScriptController {
-    void mvcGroupInit(Map args) {
+    void elementInit(Map args) {
         app.controllers.root.populateFactorySet()
     }
 }

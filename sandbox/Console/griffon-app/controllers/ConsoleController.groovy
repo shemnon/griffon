@@ -30,7 +30,7 @@ class ConsoleController {
     def newWindow(ActionEvent evy = null) {
         int num = 1
         while (app.views["Consoel$num"]) num++;
-        def (m, v, c) = GriffonApplicationHelper.createMVCGroup(app, 'Console', "Console$num")
+        def (m, v, c) = GriffonApplicationHelper.createElement(app, 'Console', "Console$num")
 
         c.consoleName = "Console$num"
 	
@@ -43,7 +43,7 @@ class ConsoleController {
 
     def prefernces(ActionEvent evt = null) {
         if (preferencesMVC == null) {
-             preferencesMVC = GriffonApplicationHelper.createMVCGroup(
+             preferencesMVC = GriffonApplicationHelper.createElement(
                 app, 'TextEditorPreferences', "${consoleName}Prefs",
                 [consoleFrame:view.consoleFrame, editorPane: view.editorPane])
         }

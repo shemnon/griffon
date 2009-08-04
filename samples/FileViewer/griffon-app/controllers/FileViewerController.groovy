@@ -7,7 +7,7 @@ class FileViewerController {
     def openFile = { evt = null ->
     	File f = new File(model.fileName)
     	// create the new MVC Group
-    	buildMVCGroup('FilePanel', f.path,
+    	buildElement('FilePanel', f.path,
     	    loadedFile: f, lastModified:f.lastModified(), fileText: f.text,
                 filesPane:view.filesPane, tabName:f.name)
     }

@@ -13,7 +13,7 @@ class UserPaneModel {
     @Bindable boolean showReplies
     @Bindable boolean showDirectMessages
 
-    void mvcGroupInit(Map args) {
+    void elementInit(Map args) {
         TwitterService twitterService = app.controllers.Greet.twitterService
 
         user = args.user

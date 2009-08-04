@@ -1,4 +1,4 @@
-mvcGroups {
+elements {
     root {
         model = 'CssDemoModel'
         view = 'CssDemoView'

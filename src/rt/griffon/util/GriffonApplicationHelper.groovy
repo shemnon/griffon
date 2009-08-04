@@ -51,8 +51,8 @@ class GriffonApplicationHelper {
         AddonHelper.handleAddonsAtStartup(app)
 
         // copy mvc groups in config to app, casting to strings in a new map
-        app.config.mvcGroups.each {k, v->
-          app.addMvcGroup(k, v.inject([:]) {m, e->m[e.key as String] = e.value as String; m})
+        app.config.elements.each {k, v->
+          app.addElement(k, v.inject([:]) {m, e->m[e.key as String] = e.value as String; m})
         }
     }
 
@@ -62,7 +62,7 @@ class GriffonApplicationHelper {
         // for now we punt and make a SwingBuilder
 
         app.config.application.startupGroups.each {group ->
-            createMVCGroup(app, group) 
+            createElement(app, group)
         }
 
         app.startup();
@@ -123,30 +123,30 @@ class GriffonApplicationHelper {
         return instance
     }
 
-    public static createMVCGroup(IGriffonApplication app, String mvcType) {
-        createMVCGroup(app, mvcType, mvcType, [:])
+    public static createElement(IGriffonApplication app, String mvcType) {
+        createElement(app, mvcType, mvcType, [:])
     }
 
-    public static createMVCGroup(IGriffonApplication app, String mvcType, String mvcName) {
-        createMVCGroup(app, mvcType, mvcName, [:])
+    public static createElement(IGriffonApplication app, String mvcType, String mvcName) {
+        createElement(app, mvcType, mvcName, [:])
     }
 
-    public static createMVCGroup(IGriffonApplication app, String mvcType, Map bindArgs) {
-        createMVCGroup(app, mvcType, mvcType, bindArgs)
+    public static createElement(IGriffonApplication app, String mvcType, Map bindArgs) {
+        createElement(app, mvcType, mvcType, bindArgs)
     }
 
-    public static createMVCGroup(IGriffonApplication app, String mvcType, String mvcName, Map bindArgs) {
-        Map results = buildMVCGroup(app, bindArgs, mvcType, mvcName)
+    public static createElement(IGriffonApplication app, String mvcType, String mvcName, Map bindArgs) {
+        Map results = buildElement(app, bindArgs, mvcType, mvcName)
         return [results.model, results.view, results.controller]
     }
 
-    public static Map buildMVCGroup(IGriffonApplication app, String mvcType, String mvcName = mvcType) {
-        buildMVCGroup(app, [:], mvcType, mvcName)
+    public static Map buildElement(IGriffonApplication app, String mvcType, String mvcName = mvcType) {
+        buildElement(app, [:], mvcType, mvcName)
     }
 
-    public static Map buildMVCGroup(IGriffonApplication app, Map bindArgs, String mvcType, String mvcName = mvcType) {
-        if (!app.mvcGroups.containsKey(mvcType)) {
-            throw new RuntimeException("Unknown MVC type \"$mvcType\".  Known types are ${app.mvcGroups.keySet()}")
+    public static Map buildElement(IGriffonApplication app, Map bindArgs, String mvcType, String mvcName = mvcType) {
+        if (!app.elements.containsKey(mvcType)) {
+            throw new RuntimeException("Unknown MVC type \"$mvcType\".  Known types are ${app.elements.keySet()}")
         }
 
         def argsCopy = [app:app, mvcType:mvcType, mvcName:mvcName]
@@ -156,19 +156,19 @@ class GriffonApplicationHelper {
         // figure out what the classes are and prep the metaclass
         def klassMap = [:]
         ClassLoader classLoader = app.getClass().classLoader
-        app.mvcGroups[mvcType].each {k, v ->
+        app.elements[mvcType].each {k, v ->
             Class klass = classLoader.loadClass(v);
 
             // inject defaults into emc
             // this also insures EMC metaclasses later
             klass.metaClass.app = app
-            klass.metaClass.createMVCGroup = {Object... args ->
-                GriffonApplicationHelper.createMVCGroup(app, *args)
+            klass.metaClass.createElement = {Object... args ->
+                GriffonApplicationHelper.createElement(app, *args)
             }
-            klass.metaClass.buildMVCGroup = {Object... args ->
-                GriffonApplicationHelper.buildMVCGroup(app, *args)
+            klass.metaClass.buildElement = {Object... args ->
+                GriffonApplicationHelper.buildElement(app, *args)
             }
-            klass.metaClass.destroyMVCGroup = GriffonApplicationHelper.&destroyMVCGroup.curry(app)
+            klass.metaClass.destroyElement = GriffonApplicationHelper.&destroyElement.curry(app)
             klass.metaClass.newInstance = GriffonApplicationHelper.&newInstance.curry(app)
             klassMap[k] = klass
         }
@@ -234,39 +234,39 @@ class GriffonApplicationHelper {
                 }
             } else if (k != 'builder') {
                 try {
-                    v.mvcGroupInit(argsCopy)
+                    v.elementInit(argsCopy)
                 } catch (MissingMethodException mme) {
-                    if (mme.method != 'mvcGroupInit') {
+                    if (mme.method != 'elementInit') {
                         throw mme
                     }
-                    // MME on mvcGroupInit means they didn't define
+                    // MME on elementInit means they didn't define
                     // an init method.  This is not an error.
                 }
             }
         }
 
-        app.event("CreateMVCGroup",[mvcName, instanceMap.model, instanceMap.view, instanceMap.controller, mvcType, instanceMap])
+        app.event("CreateElement",[mvcName, instanceMap.model, instanceMap.view, instanceMap.controller, mvcType, instanceMap])
         return instanceMap
     }
 
-    public static destroyMVCGroup(IGriffonApplication app, String mvcName) {
+    public static destroyElement(IGriffonApplication app, String mvcName) {
         app.removeApplicationEventListener(app.controllers[mvcName])
         [app.models, app.views, app.controllers].each {
             def part = it.remove(mvcName)
             if ((part != null)  & !(part instanceof Script)) {
                 try {
-                    part.mvcGroupDestroy()
+                    part.elementDestroy()
                 } catch (MissingMethodException mme) {
-                    if (mme.method != 'mvcGroupDestroy') {
+                    if (mme.method != 'elementDestroy') {
                         throw mme
                     }
-                    // MME on mvcGroupDestroy means they didn't define
+                    // MME on elementDestroy means they didn't define
                     // an init method.  This is not an error.
                 }
             }
         }
         app.builders.remove(mvcName)?.dispose()
-        app.event("DestroyMVCGroup",[mvcName])
+        app.event("DestroyElement",[mvcName])
     }
 
     public static def createJFrameApplication(IGriffonApplication app) {

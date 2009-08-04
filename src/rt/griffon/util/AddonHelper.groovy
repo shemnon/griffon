@@ -61,8 +61,8 @@ public class AddonHelper {
             if (mme.method != 'addonInit') throw mme
         }
 
-        def mvcGroups = addonMetaClass.getMetaProperty("mvcGroups")
-        if (mvcGroups) addMVCGroups(app, addon.mvcGroups)
+        def elements = addonMetaClass.getMetaProperty("elements")
+        if (elements) addElements(app, addon.elements)
 
         def events = addonMetaClass.respondsTo('events')
         if (events) addEvents(app, addon.events)
@@ -179,8 +179,8 @@ public class AddonHelper {
         }
     }
 
-    static addMVCGroups(IGriffonApplication app, Map<String, Map<String, String>> groups) {
-        groups.each {k, v -> app.addMvcGroup(k, v) }
+    static addElements(IGriffonApplication app, Map<String, Map<String, String>> groups) {
+        groups.each {k, v -> app.addElement(k, v) }
     }
 
 

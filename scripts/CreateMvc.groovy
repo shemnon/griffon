@@ -55,14 +55,14 @@ target (createMVC : "Creates a new MVC Triad") {
 
     def applicationConfigFile = new File("${basedir}/griffon-app/conf/Application.groovy")
     def configText = applicationConfigFile.text
-    if (!(configText =~ /\s*mvcGroups\s*\{/)) {
+    if (!(configText =~ /\s*elements\s*\{/)) {
         configText += """
-mvcGroups {
+elements {
 }
 """
     }
-    applicationConfigFile.withWriter { it.write configText.replaceAll(/\s*mvcGroups\s*\{/, """
-mvcGroups {
+    applicationConfigFile.withWriter { it.write configText.replaceAll(/\s*elements\s*\{/, """
+elements {
     // MVC Group for "$args"
     '$name' {
         model = '${fqn}Model'

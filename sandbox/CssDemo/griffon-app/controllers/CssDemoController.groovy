@@ -5,7 +5,7 @@ class CssDemoController {
     def view
 
     def doNothing = {
-        buildMVCGroup('NothingPanel')
+        buildElement('NothingPanel')
         doOutside {
             nothingMethod()
             println nothingProp

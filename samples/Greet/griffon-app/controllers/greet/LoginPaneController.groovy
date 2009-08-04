@@ -31,12 +31,12 @@ class LoginPaneController {
 
                     twitterService.getReplies()
                     twitterService.getTweets(username)
-                    def userPane = buildMVCGroup('UserPane', "UserPane_$username",
+                    def userPane = buildElement('UserPane', "UserPane_$username",
                         user:twitterService.userCache[username], closable:false);
                     tabbedPane.addTab("@$username", userPane.view.userPane)
 
 
-                    def timelinePane = buildMVCGroup('TimelinePane');
+                    def timelinePane = buildElement('TimelinePane');
                     timelinePane.model.tweetListGenerator = {TwitterService service ->
                         timelinePane.model.tweets
                     }

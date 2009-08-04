@@ -43,7 +43,7 @@ class SwingPadController {
    private static int scriptCounter = 0
    private Set factorySet = new TreeSet()
 
-   void mvcGroupInit( Map args ) {
+   void elementInit( Map args ) {
       groovyClassLoader = new GroovyClassLoader(this.class.classLoader)
       def recentScriptsListSize = prefs.get("recentScripts.list.size","0") as int
       (0..<recentScriptsListSize).each { i ->
@@ -586,7 +586,7 @@ permission from Eitan.
          }
          def binding = new Binding()
          binding.setVariable("controller", this)
-         def script = """def (m, v, c) = controller.createMVCGroup("Script","Script",[:])
+         def script = """def (m, v, c) = controller.createElement("Script","Script",[:])
          return v
          """
          app.builders.Script = new GroovyShell(groovyClassLoader,binding).evaluate(script)

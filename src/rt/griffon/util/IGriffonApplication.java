@@ -48,8 +48,8 @@ public interface IGriffonApplication {
     public Binding getBindings();
     public void setBindings(Binding bindings);
 
-    public Map<String, Map<String, String>> getMvcGroups();
-    public void addMvcGroup(String mvcType, Map<String, String> mvcPortions);
+    public Map<String, Map<String, String>> getElements();
+    public void addElement(String mvcType, Map<String, String> mvcPortions);
 
     public Map<String, ?> getAddons();
     public Map<String, String> getAddonPrefixes();

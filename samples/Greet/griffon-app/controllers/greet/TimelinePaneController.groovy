@@ -15,7 +15,7 @@ class TimelinePaneController {
 
     TwitterService twitterService
 
-    void mvcGroupInit(Map args) {
+    void elementInit(Map args) {
         app.controllers.Greet.timelinePaneControllerQueue.add(this)
     }
 
