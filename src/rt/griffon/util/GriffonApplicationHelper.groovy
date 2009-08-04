@@ -50,7 +50,7 @@ class GriffonApplicationHelper {
 
         AddonHelper.handleAddonsAtStartup(app)
 
-        // copy mvc groups in config to app, casting to strings in a new map
+        // copy element definitions in config to app, casting to strings in a new map
         app.config.elements.each {k, v->
           app.addElement(k, v.inject([:]) {m, e->m[e.key as String] = e.value as String; m})
         }
@@ -123,40 +123,40 @@ class GriffonApplicationHelper {
         return instance
     }
 
-    public static createElement(IGriffonApplication app, String mvcType) {
-        createElement(app, mvcType, mvcType, [:])
+    public static createElement(IGriffonApplication app, String elementType) {
+        createElement(app, elementType, elementType, [:])
     }
 
-    public static createElement(IGriffonApplication app, String mvcType, String mvcName) {
-        createElement(app, mvcType, mvcName, [:])
+    public static createElement(IGriffonApplication app, String elementType, String elementName) {
+        createElement(app, elementType, elementName, [:])
     }
 
-    public static createElement(IGriffonApplication app, String mvcType, Map bindArgs) {
-        createElement(app, mvcType, mvcType, bindArgs)
+    public static createElement(IGriffonApplication app, String elementType, Map bindArgs) {
+        createElement(app, elementType, elementType, bindArgs)
     }
 
-    public static createElement(IGriffonApplication app, String mvcType, String mvcName, Map bindArgs) {
-        Map results = buildElement(app, bindArgs, mvcType, mvcName)
+    public static createElement(IGriffonApplication app, String elementType, String elementName, Map bindArgs) {
+        Map results = buildElement(app, bindArgs, elementType, elementName)
         return [results.model, results.view, results.controller]
     }
 
-    public static Map buildElement(IGriffonApplication app, String mvcType, String mvcName = mvcType) {
-        buildElement(app, [:], mvcType, mvcName)
+    public static Map buildElement(IGriffonApplication app, String elementType, String elementName = elementType) {
+        buildElement(app, [:], elementType, elementName)
     }
 
-    public static Map buildElement(IGriffonApplication app, Map bindArgs, String mvcType, String mvcName = mvcType) {
-        if (!app.elements.containsKey(mvcType)) {
-            throw new RuntimeException("Unknown MVC type \"$mvcType\".  Known types are ${app.elements.keySet()}")
+    public static Map buildElement(IGriffonApplication app, Map bindArgs, String elementType, String elementName = elementType) {
+        if (!app.elements.containsKey(elementType)) {
+            throw new RuntimeException("Unknown element type \"$elementType\".  Known types are ${app.elements.keySet()}")
         }
 
-        def argsCopy = [app:app, mvcType:mvcType, mvcName:mvcName]
+        def argsCopy = [app:app, elementType:elementType, elementName:elementName]
         argsCopy.putAll(bindArgs)
 
 
         // figure out what the classes are and prep the metaclass
         def klassMap = [:]
         ClassLoader classLoader = app.getClass().classLoader
-        app.elements[mvcType].each {k, v ->
+        app.elements[elementType].each {k, v ->
             Class klass = classLoader.loadClass(v);
 
             // inject defaults into emc
@@ -215,11 +215,11 @@ class GriffonApplicationHelper {
         }
 
         // store the refs in the app caches
-        app.models[mvcName] = instanceMap.model
-        app.views[mvcName] = instanceMap.view
-        app.controllers[mvcName] = instanceMap.controller
-        app.builders[mvcName] = instanceMap.builder
-        app.groups[mvcName] = instanceMap
+        app.models[elementName] = instanceMap.model
+        app.views[elementName] = instanceMap.view
+        app.controllers[elementName] = instanceMap.controller
+        app.builders[elementName] = instanceMap.builder
+        app.groups[elementName] = instanceMap
 
         // initialize the classes and call scripts
         instanceMap.each {k, v ->
@@ -245,14 +245,14 @@ class GriffonApplicationHelper {
             }
         }
 
-        app.event("CreateElement",[mvcName, instanceMap.model, instanceMap.view, instanceMap.controller, mvcType, instanceMap])
+        app.event("CreateElement",[elementName, instanceMap.model, instanceMap.view, instanceMap.controller, elementType, instanceMap])
         return instanceMap
     }
 
-    public static destroyElement(IGriffonApplication app, String mvcName) {
-        app.removeApplicationEventListener(app.controllers[mvcName])
+    public static destroyElement(IGriffonApplication app, String elementName) {
+        app.removeApplicationEventListener(app.controllers[elementName])
         [app.models, app.views, app.controllers].each {
-            def part = it.remove(mvcName)
+            def part = it.remove(elementName)
             if ((part != null)  & !(part instanceof Script)) {
                 try {
                     part.elementDestroy()
@@ -265,8 +265,8 @@ class GriffonApplicationHelper {
                 }
             }
         }
-        app.builders.remove(mvcName)?.dispose()
-        app.event("DestroyElement",[mvcName])
+        app.builders.remove(elementName)?.dispose()
+        app.event("DestroyElement",[elementName])
     }
 
     public static def createJFrameApplication(IGriffonApplication app) {

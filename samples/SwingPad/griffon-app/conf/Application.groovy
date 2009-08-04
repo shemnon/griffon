@@ -9,14 +9,14 @@ application {
     //frameClass = 'javax.swing.JFrame'
 }
 elements {
-    // MVC Group for "root"
+    // Element definition for "root"
     root {
         model = 'SwingPadModel'
         view = 'SwingPadView'
         controller = 'SwingPadController'
     }
 
-    // MVC Group for "Script"
+    // Element definition for "Script"
     Script {
         model = 'ScriptModel'
         view = 'ScriptView'

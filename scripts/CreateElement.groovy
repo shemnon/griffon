@@ -63,7 +63,7 @@ elements {
     }
     applicationConfigFile.withWriter { it.write configText.replaceAll(/\s*elements\s*\{/, """
 elements {
-    // MVC Group for "$args"
+    // Element definition for "$args"
     '$name' {
         model = '${fqn}Model'
         view = '${fqn}View'

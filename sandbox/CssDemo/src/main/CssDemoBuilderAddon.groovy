@@ -12,7 +12,7 @@ class CssDemoBuilderAddon {
     ]
 
     def elements = [
-        // MVC Group for "NothingPanel"
+        // Element definition for "NothingPanel"
         NothingPanel: [
             model: 'group.NothingPanelModel',
             view: 'group.NothingPanelView',

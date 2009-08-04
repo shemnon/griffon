@@ -24,7 +24,7 @@
 
 includeTargets << griffonScript("CreateElement")
 
-target (createMVC : "Creates a new MVC Triad") {
+target (createMVC : "Old name of create-element") {
     depends(checkElement)
 }
 

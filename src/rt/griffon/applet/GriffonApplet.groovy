@@ -134,7 +134,7 @@ class GriffonApplet extends JApplet implements IGriffonApplication {
        eventRouter.removeEventListener(eventName,listener)
     }
 
-    public void addElement(String mvcType, Map<String, String> mvcPortions) {
-       elements[mvcType] = mvcPortions
+    public void addElement(String elementType, Map<String, String> elementPortions) {
+       elements[elementType] = elementPortions
     }
 }

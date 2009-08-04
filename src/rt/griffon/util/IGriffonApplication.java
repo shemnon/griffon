@@ -49,7 +49,7 @@ public interface IGriffonApplication {
     public void setBindings(Binding bindings);
 
     public Map<String, Map<String, String>> getElements();
-    public void addElement(String mvcType, Map<String, String> mvcPortions);
+    public void addElement(String elementType, Map<String, String> elementPortions);
 
     public Map<String, ?> getAddons();
     public Map<String, String> getAddonPrefixes();

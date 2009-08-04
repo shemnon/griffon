@@ -9,13 +9,13 @@ application {
     //frameClass = 'javax.swing.JFrame'
 }
 elements {
-    // MVC Group for "FilePanel"
+    // Element definition for "FilePanel"
     FilePanel {
         model = 'FilePanelModel'
         view = 'FilePanelView'
     }
 
-    // MVC Group for "FileViewer"
+    // Element definition for "FileViewer"
     FileViewer {
         model = 'FileViewerModel'
         view = 'FileViewerView'

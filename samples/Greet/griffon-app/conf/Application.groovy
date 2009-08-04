@@ -9,7 +9,7 @@ application {
     //frameClass = 'javax.swing.JFrame'
 }
 elements {
-    // MVC Group for "LoginPane"
+    // Element definition for "LoginPane"
     LoginPane {
         model = 'greet.LoginPaneModel'
         actions = 'greet.LoginPaneActions'
@@ -17,21 +17,21 @@ elements {
         controller = 'greet.LoginPaneController'
     }
 
-    // MVC Group for "UserPane"
+    // Element definition for "UserPane"
     UserPane {
         model = 'greet.UserPaneModel'
         controller = 'greet.UserPaneController'
         view = 'greet.UserPaneView'
     }
 
-    // MVC Group for "TimelinePane"
+    // Element definition for "TimelinePane"
     TimelinePane {
         model = 'greet.TimelinePaneModel'
         view = 'greet.TimelinePaneView'
         controller = 'greet.TimelinePaneController'
     }
 
-    // MVC Group for "Greet"
+    // Element definition for "Greet"
     Greet {
         model = 'greet.GreetModel'
         actions = 'greet.GreetActions'

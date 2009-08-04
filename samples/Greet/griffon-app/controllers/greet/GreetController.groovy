@@ -124,25 +124,25 @@ class GreetController {
 
     def selectUser(String username) {
         doOutside {
-            def mvcName = "UserPane_$username"
-            if (app.views[mvcName]) {
+            def elementName = "UserPane_$username"
+            if (app.views[elementName]) {
                 twitterService.getTweets(username)
                 edt {
-                    app.controllers[mvcName].updateTimeline(null)
-                    view.tweetsTabbedPane.selectedComponent = app.views[mvcName].userPane
+                    app.controllers[elementName].updateTimeline(null)
+                    view.tweetsTabbedPane.selectedComponent = app.views[elementName].userPane
                 }
             } else {
                 twitterService.getUser(username)
                 twitterService.getTweets(username)
                 edt {
-                    def userPane = buildElement('UserPane', mvcName,
+                    def userPane = buildElement('UserPane', elementName,
                         user:twitterService.userCache[username], closable:true);
 
                     view.tweetsTabbedPane.addTab("@$username", userPane.view.userPane)
 
                     userPane.controller.updateTimeline(null)
                     doLater {
-                        view.tweetsTabbedPane.selectedComponent = app.views[mvcName].userPane
+                        view.tweetsTabbedPane.selectedComponent = app.views[elementName].userPane
                     }
                 }
             }

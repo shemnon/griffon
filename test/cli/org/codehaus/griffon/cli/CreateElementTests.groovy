@@ -9,9 +9,9 @@ class CreateElementTests extends AbstractCliTests {
     void testCreateController() {
         appDir = createTestApp()
 
-        tryMvc('Book')
-        tryMvc('org.example.Author')
-        tryMvc('project-item')
+        tryElement('Book')
+        tryElement('org.example.Author')
+        tryElement('project-item')
     }
 
 	void testCreatesDirectories() {
@@ -28,7 +28,7 @@ class CreateElementTests extends AbstractCliTests {
         assertTrue "${bookControllerFile} does not exist", new File(bookControllerFile).exists()
 	}
 
-    void tryMvc(String name) {
+    void tryElement(String name) {
         // Run the create controller script with a single argument.
         System.setProperty("griffon.cli.args", name)
         gantRun("CreateElement")
@@ -64,7 +64,7 @@ class CreateElementTests extends AbstractCliTests {
         assert controllerFile.exists()
         assert controllerFile.text =~ "^${pkg ? 'package ' + pkg : ''}\\s*class ${className}Controller \\{"
 
-        // check that mvc group has been added to Application.groovy
+        // check that element definitions has been added to Application.groovy
         def applicationConf = new File("${appDir}/griffon-app/conf/Application.groovy")
         assert applicationConf.exists()
         assert applicationConf.text =~ "elements\\s*\\{\\s*(//[^\n]*\n\\s*)?'$name'\\s*\\{\\s*model\\s*=\\s*'${fqn}Model'\\s*view\\s*=\\s*'${fqn}View'\\s*controller\\s*=\\s*'${fqn}Controller'\\s*\\}"

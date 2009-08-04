@@ -9,14 +9,14 @@ application {
     //frameClass = 'javax.swing.JFrame'
 }
 elements {
-    // MVC Group for "org.codehaus.griffon.console.TextEditorPreferences"
+    // Element definition for "org.codehaus.griffon.console.TextEditorPreferences"
     TextEditorPreferences {
         model = 'org.codehaus.griffon.console.TextEditorPreferencesModel'
         view = 'org.codehaus.griffon.console.TextEditorPreferencesView'
         controller = 'org.codehaus.griffon.console.TextEditorPreferencesController'
     }
 
-    // MVC Group for "Console"
+    // Element definition for "Console"
     Console {
         model = 'ConsoleModel'
         view = 'ConsoleView'
